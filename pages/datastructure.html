@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据结构 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>数据结构</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是数据结构？</h3>
+                <p>数据结构是计算机中组织、管理和存储数据的方式，它决定了数据的访问和修改效率。选择合适的数据结构是算法优化的关键。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>线性结构</h4>
+                    <p>数组、链表、栈、队列</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>树形结构</h4>
+                    <p>二叉树、B树、红黑树</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>图形结构</h4>
+                    <p>邻接矩阵、邻接表</p>
+                </div>
+            </div>
+
+            <h3>链表 (Linked List)</h3>
+            <div class="algorithm-content">
+                <p>由节点组成的数据结构，每个节点包含数据和指向下一个节点的指针。</p>
+                <div class="code-block">
+                    <pre>
+class ListNode {
+    constructor(val = 0, next = null) {
+        this.val = val;
+        this.next = next;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+        this.size = 0;
+    }
+    
+    // 添加节点
+    append(val) {
+        const node = new ListNode(val);
+        if (!this.head) {
+            this.head = node;
+        } else {
+            let current = this.head;
+            while (current.next) {
+                current = current.next;
+            }
+            current.next = node;
+        }
+        this.size++;
+    }
+    
+    // 删除节点
+    delete(val) {
+        if (!this.head) return;
+        
+        if (this.head.val === val) {
+            this.head = this.head.next;
+            this.size--;
+            return;
+        }
+        
+        let current = this.head;
+        while (current.next) {
+            if (current.next.val === val) {
+                current.next = current.next.next;
+                this.size--;
+                return;
+            }
+            current = current.next;
+        }
+    }
+    
+    // 反转链表
+    reverse() {
+        let prev = null;
+        let current = this.head;
+        
+        while (current) {
+            const next = current.next;
+            current.next = prev;
+            prev = current;
+            current = next;
+        }
+        
+        this.head = prev;
+    }
+    
+    // 打印链表
+    print() {
+        const values = [];
+        let current = this.head;
+        while (current) {
+            values.push(current.val);
+            current = current.next;
+        }
+        console.log(values.join(' -> '));
+    }
+}
+
+// 测试
+const list = new LinkedList();
+list.append(1);
+list.append(2);
+list.append(3);
+list.print(); // 1 -> 2 -> 3
+list.reverse();
+list.print(); // 3 -> 2 -> 1
+                    </pre>
+                </div>
+            </div>
+
+            <h3>栈 (Stack)</h3>
+            <div class="algorithm-content">
+                <p>后进先出(LIFO)的数据结构，只允许在栈顶进行插入和删除操作。</p>
+                <div class="code-block">
+                    <pre>
+class Stack {
+    constructor() {
+        this.items = [];
+    }
+    
+    // 入栈
+    push(element) {
+        this.items.push(element);
+    }
+    
+    // 出栈
+    pop() {
+        if (this.items.length === 0) return null;
+        return this.items.pop();
+    }
+    
+    // 查看栈顶元素
+    peek() {
+        return this.items[this.items.length - 1];
+    }
+    
+    // 判断是否为空
+    isEmpty() {
+        return this.items.length === 0;
+    }
+    
+    // 获取大小
+    size() {
+        return this.items.length;
+    }
+}
+
+// 应用：有效括号
+function isValidParentheses(s) {
+    const stack = new Stack();
+    const map = { ')': '(', '}': '{', ']': '[' };
+    
+    for (const char of s) {
+        if (char in map) {
+            if (stack.pop() !== map[char]) return false;
+        } else {
+            stack.push(char);
+        }
+    }
+    
+    return stack.isEmpty();
+}
+
+// 测试
+console.log(isValidParentheses("()[]{}")); // true
+console.log(isValidParentheses("([)]")); // false
+                    </pre>
+                </div>
+            </div>
+
+            <h3>队列 (Queue)</h3>
+            <div class="algorithm-content">
+                <p>先进先出(FIFO)的数据结构，允许在队尾插入元素，在队头删除元素。</p>
+                <div class="code-block">
+                    <pre>
+class Queue {
+    constructor() {
+        this.items = [];
+    }
+    
+    // 入队
+    enqueue(element) {
+        this.items.push(element);
+    }
+    
+    // 出队
+    dequeue() {
+        if (this.items.length === 0) return null;
+        return this.items.shift();
+    }
+    
+    // 查看队头元素
+    front() {
+        return this.items[0];
+    }
+    
+    // 判断是否为空
+    isEmpty() {
+        return this.items.length === 0;
+    }
+    
+    // 获取大小
+    size() {
+        return this.items.length;
+    }
+}
+
+// 优先队列
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+    
+    enqueue(element, priority) {
+        const item = { element, priority };
+        let added = false;
+        
+        for (let i = 0; i < this.items.length; i++) {
+            if (item.priority < this.items[i].priority) {
+                this.items.splice(i, 0, item);
+                added = true;
+                break;
+            }
+        }
+        
+        if (!added) {
+            this.items.push(item);
+        }
+    }
+    
+    dequeue() {
+        return this.items.shift().element;
+    }
+}
+
+// 测试
+const queue = new Queue();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+console.log(queue.dequeue()); // 1
+                    </pre>
+                </div>
+            </div>
+
+            <h3>二叉搜索树 (BST)</h3>
+            <div class="algorithm-content">
+                <p>每个节点的左子树所有节点值小于该节点，右子树所有节点值大于该节点的二叉树。</p>
+                <div class="code-block">
+                    <pre>
+class TreeNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class BinarySearchTree {
+    constructor() {
+        this.root = null;
+    }
+    
+    // 插入节点
+    insert(val) {
+        const node = new TreeNode(val);
+        if (!this.root) {
+            this.root = node;
+            return;
+        }
+        
+        let current = this.root;
+        while (true) {
+            if (val < current.val) {
+                if (!current.left) {
+                    current.left = node;
+                    return;
+                }
+                current = current.left;
+            } else {
+                if (!current.right) {
+                    current.right = node;
+                    return;
+                }
+                current = current.right;
+            }
+        }
+    }
+    
+    // 查找节点
+    search(val) {
+        let current = this.root;
+        while (current) {
+            if (val === current.val) return true;
+            if (val < current.val) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+        }
+        return false;
+    }
+    
+    // 中序遍历
+    inOrder(node = this.root, result = []) {
+        if (node) {
+            this.inOrder(node.left, result);
+            result.push(node.val);
+            this.inOrder(node.right, result);
+        }
+        return result;
+    }
+}
+
+// 测试
+const bst = new BinarySearchTree();
+[5, 3, 7, 2, 4, 6, 8].forEach(val => bst.insert(val));
+console.log(bst.inOrder()); // [2, 3, 4, 5, 6, 7, 8]
+console.log(bst.search(4)); // true
+                    </pre>
+                </div>
+            </div>
+
+            <h3>堆 (Heap)</h3>
+            <div class="algorithm-content">
+                <p>完全二叉树，常用于实现优先队列。分为最大堆和最小堆。</p>
+                <div class="code-block">
+                    <pre>
+class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+    
+    // 获取父节点索引
+    parent(i) {
+        return Math.floor((i - 1) / 2);
+    }
+    
+    // 获取左子节点索引
+    leftChild(i) {
+        return 2 * i + 1;
+    }
+    
+    // 获取右子节点索引
+    rightChild(i) {
+        return 2 * i + 2;
+    }
+    
+    // 上浮
+    siftUp(i) {
+        while (i > 0) {
+            const p = this.parent(i);
+            if (this.heap[i] < this.heap[p]) {
+                [this.heap[i], this.heap[p]] = [this.heap[p], this.heap[i]];
+                i = p;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    // 下沉
+    siftDown(i) {
+        const n = this.heap.length;
+        while (true) {
+            let smallest = i;
+            const l = this.leftChild(i);
+            const r = this.rightChild(i);
+            
+            if (l < n && this.heap[l] < this.heap[smallest]) {
+                smallest = l;
+            }
+            if (r < n && this.heap[r] < this.heap[smallest]) {
+                smallest = r;
+            }
+            
+            if (smallest !== i) {
+                [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+                i = smallest;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    // 插入
+    insert(val) {
+        this.heap.push(val);
+        this.siftUp(this.heap.length - 1);
+    }
+    
+    // 提取最小值
+    extractMin() {
+        if (this.heap.length === 0) return null;
+        const min = this.heap[0];
+        const last = this.heap.pop();
+        
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            this.siftDown(0);
+        }
+        
+        return min;
+    }
+    
+    // 获取最小值
+    peek() {
+        return this.heap[0];
+    }
+    
+    // 获取大小
+    size() {
+        return this.heap.length;
+    }
+}
+
+// 测试
+const heap = new MinHeap();
+[5, 3, 8, 1, 2, 9].forEach(val => heap.insert(val));
+console.log(heap.extractMin()); // 1
+console.log(heap.peek()); // 2
+                    </pre>
+                </div>
+            </div>
+
+            <h3>哈希表 (Hash Table)</h3>
+            <div class="algorithm-content">
+                <p>通过哈希函数将键映射到值的数据结构，支持平均O(1)时间复杂度的插入、删除和查找。</p>
+                <div class="code-block">
+                    <pre>
+class HashTable {
+    constructor(size = 10) {
+        this.size = size;
+        this.table = new Array(size).fill(null).map(() => []);
+    }
+    
+    // 哈希函数
+    hash(key) {
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+            hash = (hash + key.charCodeAt(i)) % this.size;
+        }
+        return hash;
+    }
+    
+    // 插入
+    set(key, value) {
+        const index = this.hash(key);
+        const bucket = this.table[index];
+        
+        for (let i = 0; i < bucket.length; i++) {
+            if (bucket[i][0] === key) {
+                bucket[i][1] = value;
+                return;
+            }
+        }
+        
+        bucket.push([key, value]);
+    }
+    
+    // 查找
+    get(key) {
+        const index = this.hash(key);
+        const bucket = this.table[index];
+        
+        for (const [k, v] of bucket) {
+            if (k === key) return v;
+        }
+        
+        return undefined;
+    }
+    
+    // 删除
+    delete(key) {
+        const index = this.hash(key);
+        const bucket = this.table[index];
+        
+        for (let i = 0; i < bucket.length; i++) {
+            if (bucket[i][0] === key) {
+                bucket.splice(i, 1);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+
+// 测试
+const hashTable = new HashTable();
+hashTable.set('name', 'Alice');
+hashTable.set('age', 25);
+console.log(hashTable.get('name')); // Alice
+hashTable.delete('age');
+console.log(hashTable.get('age')); // undefined
+                    </pre>
+                </div>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解每种数据结构的特点和适用场景</li>
+                    <li>掌握常见操作的时间和空间复杂度</li>
+                    <li>能根据问题需求选择合适的数据结构</li>
+                    <li>理解底层实现原理，而非只会调用API</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

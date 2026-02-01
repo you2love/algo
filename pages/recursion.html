@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>递归与回溯 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>递归与回溯</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是递归？</h3>
+                <p>递归是一种通过函数自身调用来解决问题的方法。递归算法将问题分解为更小的子问题，直到达到基本情况。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>核心要素</h4>
+                    <p>基本情况 + 递归式</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(n) - 栈空间</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>回溯</h4>
+                    <p>探索+撤销</p>
+                </div>
+            </div>
+
+            <h3>递归三要素</h3>
+            <div class="algorithm-content">
+                <ol>
+                    <li><strong>明确递归函数定义</strong>：清楚函数要做什么</li>
+                    <li><strong>找出递归关系</strong>：问题如何分解为子问题</li>
+                    <li><strong>确定递归终止条件</strong>：何时停止递归</li>
+                </ol>
+            </div>
+
+            <h3>阶乘计算</h3>
+            <div class="algorithm-content">
+                <p>递归的经典例子：n! = n × (n-1)!</p>
+                <div class="code-block">
+                    <pre>
+function factorial(n) {
+    // 基本情况
+    if (n <= 1) return 1;
+    
+    // 递归关系
+    return n * factorial(n - 1);
+}
+
+// 测试
+console.log(factorial(5)); // 120
+console.log(factorial(0)); // 1
+                    </pre>
+                </div>
+            </div>
+
+            <h3>汉诺塔问题</h3>
+            <div class="algorithm-content">
+                <p>经典的递归问题：将n个盘子从A柱移动到C柱，可以借助B柱，每次只能移动一个盘子。</p>
+                <div class="code-block">
+                    <pre>
+function hanoi(n, source, auxiliary, target) {
+    if (n === 1) {
+        console.log(`Move disk 1 from ${source} to ${target}`);
+        return;
+    }
+    
+    // 将n-1个盘子从源柱移到辅助柱
+    hanoi(n - 1, source, target, auxiliary);
+    
+    // 将第n个盘子从源柱移到目标柱
+    console.log(`Move disk ${n} from ${source} to ${target}`);
+    
+    // 将n-1个盘子从辅助柱移到目标柱
+    hanoi(n - 1, auxiliary, source, target);
+}
+
+// 测试
+console.log('3层汉诺塔解法：');
+hanoi(3, 'A', 'B', 'C');
+                    </pre>
+                </div>
+            </div>
+
+            <h3>回溯算法</h3>
+            <div class="algorithm-content">
+                <p>回溯是一种通过试错来解决问题的算法范式。它系统地搜索问题的解空间，当发现当前选择不可行时，就回溯到上一步。</p>
+            </div>
+
+            <h3>N皇后问题</h3>
+            <div class="algorithm-content">
+                <p>在n×n棋盘上放置n个皇后，使得任何两个皇后都不在同一行、同一列或同一对角线上。</p>
+                <div class="code-block">
+                    <pre>
+function solveNQueens(n) {
+    const solutions = [];
+    const board = Array(n).fill(null).map(() => Array(n).fill('.'));
+    
+    function isValid(row, col) {
+        // 检查列
+        for (let i = 0; i < row; i++) {
+            if (board[i][col] === 'Q') return false;
+        }
+        
+        // 检查左上对角线
+        for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] === 'Q') return false;
+        }
+        
+        // 检查右上对角线
+        for (let i = row, j = col; i >= 0 && j < n; i--, j++) {
+            if (board[i][j] === 'Q') return false;
+        }
+        
+        return true;
+    }
+    
+    function backtrack(row) {
+        if (row === n) {
+            solutions.push(board.map(row => row.join('')));
+            return;
+        }
+        
+        for (let col = 0; col < n; col++) {
+            if (isValid(row, col)) {
+                board[row][col] = 'Q';
+                backtrack(row + 1);
+                board[row][col] = '.';
+            }
+        }
+    }
+    
+    backtrack(0);
+    return solutions;
+}
+
+// 测试
+const result = solveNQueens(4);
+console.log(`4皇后有 ${result.length} 种解法`);
+console.log(result[0]);
+                    </pre>
+                </div>
+            </div>
+
+            <h3>全排列</h3>
+            <div class="algorithm-content">
+                <p>生成数组的所有可能排列。</p>
+                <div class="code-block">
+                    <pre>
+function permute(nums) {
+    const result = [];
+    
+    function backtrack(path, used) {
+        if (path.length === nums.length) {
+            result.push([...path]);
+            return;
+        }
+        
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) continue;
+            
+            path.push(nums[i]);
+            used[i] = true;
+            
+            backtrack(path, used);
+            
+            path.pop();
+            used[i] = false;
+        }
+    }
+    
+    backtrack([], Array(nums.length).fill(false));
+    return result;
+}
+
+// 测试
+console.log(permute([1, 2, 3]));
+// [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
+                    </pre>
+                </div>
+            </div>
+
+            <h3>子集生成</h3>
+            <div class="algorithm-content">
+                <p>生成集合的所有子集。</p>
+                <div class="code-block">
+                    <pre>
+function subsets(nums) {
+    const result = [];
+    
+    function backtrack(index, current) {
+        result.push([...current]);
+        
+        for (let i = index; i < nums.length; i++) {
+            current.push(nums[i]);
+            backtrack(i + 1, current);
+            current.pop();
+        }
+    }
+    
+    backtrack(0, []);
+    return result;
+}
+
+// 测试
+console.log(subsets([1, 2, 3]));
+// [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
+                    </pre>
+                </div>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解递归的调用栈机制</li>
+                    <li>掌握回溯的模板：选择 → 递归 → 撤销</li>
+                    <li>学会画递归树理解执行过程</li>
+                    <li>注意递归深度过大可能导致栈溢出</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态规划 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>动态规划 (Dynamic Programming)</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是动态规划？</h3>
+                <p>动态规划是一种通过把原问题分解为相对简单的子问题的方式求解复杂问题的方法。适用于具有最优子结构和重叠子问题性质的问题。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>核心思想</h4>
+                    <p>记忆化搜索</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>适用条件</h4>
+                    <p>最优子结构</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(n) - O(n²)</p>
+                </div>
+            </div>
+
+            <h3>斐波那契数列</h3>
+            <div class="algorithm-content">
+                <p>动态规划最经典的例子。传统递归有大量重复计算，使用DP可以优化到O(n)。</p>
+                <div class="code-block">
+                    <pre>
+// 方法1: 递归（低效）
+function fibRecursive(n) {
+    if (n <= 1) return n;
+    return fibRecursive(n - 1) + fibRecursive(n - 2);
+}
+
+// 方法2: 记忆化递归
+function fibMemo(n, memo = {}) {
+    if (n in memo) return memo[n];
+    if (n <= 1) return n;
+    memo[n] = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
+    return memo[n];
+}
+
+// 方法3: 动态规划（自底向上）
+function fibDP(n) {
+    if (n <= 1) return n;
+    const dp = [0, 1];
+    for (let i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+
+// 方法4: 空间优化
+function fibOptimized(n) {
+    if (n <= 1) return n;
+    let prev2 = 0, prev1 = 1;
+    for (let i = 2; i <= n; i++) {
+        const current = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = current;
+    }
+    return prev1;
+}
+
+// 测试
+console.log(fibDP(10)); // 55
+                    </pre>
+                </div>
+            </div>
+
+            <h3>背包问题 (Knapsack Problem)</h3>
+            <div class="algorithm-content">
+                <p>给定一组物品，每件物品有重量和价值，在限定的重量内选择物品使总价值最大。</p>
+                <div class="code-block">
+                    <pre>
+function knapsack(weights, values, capacity) {
+    const n = weights.length;
+    const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
+    
+    for (let i = 1; i <= n; i++) {
+        for (let w = 1; w <= capacity; w++) {
+            if (weights[i - 1] <= w) {
+                dp[i][w] = Math.max(
+                    values[i - 1] + dp[i - 1][w - weights[i - 1]],
+                    dp[i - 1][w]
+                );
+            } else {
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+    
+    return dp[n][capacity];
+}
+
+// 测试
+const weights = [1, 2, 3, 4, 5];
+const values = [10, 15, 20, 25, 30];
+const capacity = 10;
+console.log(knapsack(weights, values, capacity)); // 60
+                    </pre>
+                </div>
+            </div>
+
+            <h3>最长递增子序列 (LIS)</h3>
+            <div class="algorithm-content">
+                <p>找到一个序列中最长的严格递增子序列的长度。</p>
+                <div class="code-block">
+                    <pre>
+function lengthOfLIS(nums) {
+    if (nums.length === 0) return 0;
+    
+    const dp = Array(nums.length).fill(1);
+    let maxLength = 1;
+    
+    for (let i = 1; i < nums.length; i++) {
+        for (let j = 0; j < i; j++) {
+            if (nums[j] < nums[i]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
+        maxLength = Math.max(maxLength, dp[i]);
+    }
+    
+    return maxLength;
+}
+
+// 测试
+console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
+                    </pre>
+                </div>
+            </div>
+
+            <h3>动态规划解题步骤</h3>
+            <div class="algorithm-content">
+                <ol>
+                    <li><strong>定义状态</strong>：确定dp[i]或dp[i][j]表示什么</li>
+                    <li><strong>状态转移</strong>：找出状态之间的关系</li>
+                    <li><strong>初始化</strong>：确定基础情况的初始值</li>
+                    <li><strong>遍历顺序</strong>：确定状态计算的顺序</li>
+                    <li><strong>返回结果</strong>：确定最终要返回的值</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>先掌握基础DP问题：斐波那契、背包、LIS</li>
+                    <li>学习状态压缩技巧优化空间复杂度</li>
+                    <li>多练习经典题目：编辑距离、子序列问题</li>
+                    <li>理解记忆化搜索和自底向上的区别</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

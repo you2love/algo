@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序算法 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>排序算法</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是排序算法？</h3>
+                <p>排序算法是将一组数据按特定顺序排列的算法。常见的排序算法包括冒泡排序、选择排序、插入排序、快速排序、归并排序等。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(n²) - O(n log n)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(1) - O(n)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>稳定性</h4>
+                    <p>部分稳定</p>
+                </div>
+            </div>
+
+            <h3>冒泡排序 (Bubble Sort)</h3>
+            <div class="algorithm-content">
+                <p>重复遍历数组，比较相邻元素，如果顺序错误就交换。每一轮遍历都会将最大的元素"冒泡"到正确的位置。</p>
+                <div class="code-block">
+                    <pre>
+function bubbleSort(arr) {
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+            }
+        }
+    }
+    return arr;
+}
+
+// 测试
+const arr = [64, 34, 25, 12, 22, 11, 90];
+console.log(bubbleSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
+                    </pre>
+                </div>
+            </div>
+
+            <h3>快速排序 (Quick Sort)</h3>
+            <div class="algorithm-content">
+                <p>选择基准值，将数组分为两部分：小于基准值的元素和大于基准值的元素，然后递归地对这两部分进行排序。</p>
+                <div class="code-block">
+                    <pre>
+function quickSort(arr, left = 0, right = arr.length - 1) {
+    if (left < right) {
+        const pivotIndex = partition(arr, left, right);
+        quickSort(arr, left, pivotIndex - 1);
+        quickSort(arr, pivotIndex + 1, right);
+    }
+    return arr;
+}
+
+function partition(arr, left, right) {
+    const pivot = arr[right];
+    let i = left - 1;
+    
+    for (let j = left; j < right; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+    
+    [arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+    return i + 1;
+}
+
+// 测试
+const arr = [64, 34, 25, 12, 22, 11, 90];
+console.log(quickSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
+                    </pre>
+                </div>
+            </div>
+
+            <h3>归并排序 (Merge Sort)</h3>
+            <div class="algorithm-content">
+                <p>采用分治策略，将数组分成两半，分别排序后合并。是一种稳定的排序算法，时间复杂度为O(n log n)。</p>
+                <div class="code-block">
+                    <pre>
+function mergeSort(arr) {
+    if (arr.length <= 1) return arr;
+    
+    const mid = Math.floor(arr.length / 2);
+    const left = mergeSort(arr.slice(0, mid));
+    const right = mergeSort(arr.slice(mid));
+    
+    return merge(left, right);
+}
+
+function merge(left, right) {
+    const result = [];
+    let i = 0, j = 0;
+    
+    while (i < left.length && j < right.length) {
+        if (left[i] <= right[j]) {
+            result.push(left[i++]);
+        } else {
+            result.push(right[j++]);
+        }
+    }
+    
+    return result.concat(left.slice(i)).concat(right.slice(j));
+}
+
+// 测试
+const arr = [64, 34, 25, 12, 22, 11, 90];
+console.log(mergeSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
+                    </pre>
+                </div>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解每种排序算法的核心思想</li>
+                    <li>分析时间复杂度和空间复杂度</li>
+                    <li>理解稳定性概念</li>
+                    <li>在LeetCode上练习相关题目</li>
+                    <li>尝试自己实现算法</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

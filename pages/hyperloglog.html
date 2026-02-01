@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperLogLog - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .math-formula {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+        }
+        
+        .step-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f4f8;
+            border-radius: 10px;
+        }
+        
+        .step-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .step-box h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .arrow {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+        
+        .register-visual {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 5px;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 0.85em;
+            transition: transform 0.3s ease;
+        }
+        
+        .register:hover {
+            transform: scale(1.1);
+        }
+        
+        .register.highlight {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .principle-box {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .principle-box h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .hash-demo {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            margin: 15px 0;
+        }
+        
+        .highlight-text {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>HyperLogLog - 概率基数估计</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是HyperLogLog？</h3>
+                <p>
+                    <strong>HyperLogLog (HLL)</strong> 是一种概率性数据结构，用于高效地估计集合中不同元素的数量（基数）。
+                    由 Philippe Flajolet 等人在 2007 年提出，是著名的 <strong>LogLog</strong> 算法的改进版本。
+                </p>
+                <p>
+                    HyperLogLog 的神奇之处在于：<span class="highlight-text">仅用 12KB 的内存</span>，就可以估计最多 <span class="highlight-text">2^64 个不同元素</span>，
+                    误差率仅为 <span class="highlight-text">0.81%</span>。
+                </p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(1) - 固定约12KB</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(1) - 每元素操作</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>标准误差</h4>
+                    <p>≈ 0.81%</p>
+                </div>
+            </div>
+
+            <h2>核心原理：概率估计</h2>
+            
+            <div class="principle-box">
+                <h4>🎲 抛硬币的启示</h4>
+                <p>
+                    HyperLogLog 的核心思想可以用一个简单的概率游戏来解释：
+                </p>
+                <div class="math-formula">
+                    <p><strong>问题：</strong>连续抛硬币多少次才能第一次看到连续 k 个正面？</p>
+                    <p><strong>答案：</strong>平均需要 2^k 次抛掷</p>
+                </div>
+                <p>
+                    例如：看到 3 个连续正面的平均次数是 2³ = 8 次
+                </p>
+                <p>
+                    <strong>逆向思考：</strong>如果我们看到 k 个连续正面，可以推断大约抛了 2^k 次
+                </p>
+            </div>
+
+            <h3>应用到基数估计</h3>
+            <div class="algorithm-content">
+                <p>
+                    将这个思想应用到基数估计：我们将每个元素的哈希值视为一串随机比特，然后观察这些比特串中：
+                </p>
+                <ul>
+                    <li><strong>前导零的数量</strong> = 连续0的数量</li>
+                    <li><strong>桶编号</strong> = 哈希值的前几位比特</li>
+                    <li><strong>寄存器</strong> = 记录每个桶中观察到的最大前导零数</li>
+                </ul>
+            </div>
+
+            <div class="step-diagram">
+                <div class="step-box">
+                    <h4>1. 哈希</h4>
+                    <p>元素 → 哈希值</p>
+                    <div class="hash-demo">
+元素: "apple"
+哈希: 10110010...
+                    </div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="step-box">
+                    <h4>2. 分桶</h4>
+                    <p>前 p 位 → 桶编号</p>
+                    <div class="hash-demo">
+10110010...
+^^^ (p=3位)
+桶号: 5 (101)
+                    </div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="step-box">
+                    <h4>3. 计数</h4>
+                    <p>剩余位 → 前导零</p>
+                    <div class="hash-demo">
+10010...
+^^^
+前导零: 2个
+                    </div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="step-box">
+                    <h4>4. 更新</h4>
+                    <p>寄存器[桶号] = max(当前值, 前导零)</p>
+                </div>
+            </div>
+
+            <h2>数学原理详解</h2>
+
+            <h3>1. 哈希函数的作用</h3>
+            <div class="algorithm-content">
+                <p>
+                    哈希函数将任意输入均匀映射到 [0, 2^64-1] 区间，这保证了：
+                </p>
+                <ul>
+                    <li>每个元素的哈希值是独立的</li>
+                    <li>每个比特位是随机的（0或1的概率各50%）</li>
+                    <li>不同元素的哈希值冲突概率极低</li>
+                </ul>
+            </div>
+
+            <h3>2. 桶的数量与精度</h3>
+            <div class="algorithm-content">
+                <p>
+                    如果使用 m = 2^p 个桶，则估计的标准误差约为：
+                </p>
+                <div class="math-formula">
+                    <p>Standard Error (SE) ≈ 1.04 / √m</p>
+                    <p>或者用桶数表示：SE ≈ 1.04 / 2^(p/2)</p>
+                </div>
+                <p>
+                    <strong>常见配置：</strong>
+                </p>
+                <table class="comparison-table">
+                    <tr>
+                        <th>桶数 (m)</th>
+                        <th>精度参数 (p)</th>
+                        <th>标准误差</th>
+                        <th>内存占用</th>
+                    </tr>
+                    <tr>
+                        <td>2^10 = 1024</td>
+                        <td>10</td>
+                        <td>≈ 3.25%</td>
+                        <td>~8 KB</td>
+                    </tr>
+                    <tr>
+                        <td>2^12 = 4096</td>
+                        <td>12</td>
+                        <td>≈ 1.63%</td>
+                        <td>~32 KB</td>
+                    </tr>
+                    <tr>
+                        <td>2^14 = 16384</td>
+                        <td>14</td>
+                        <td>≈ 0.81%</td>
+                        <td>~128 KB</td>
+                    </tr>
+                    <tr>
+                        <td>2^16 = 65536</td>
+                        <td>16</td>
+                        <td>≈ 0.41%</td>
+                        <td>~512 KB</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>3. 调和平均数：核心创新</h3>
+            <div class="principle-box">
+                <h4>为什么不用算术平均？</h4>
+                <p>
+                    如果我们直接对每个桶的最大前导零取平均，会受到异常值的严重影响。
+                    HyperLogLog 的创新在于使用<strong>调和平均数</strong>：
+                </p>
+                <div class="math-formula">
+                    <p>Harmonic Mean = m / Σ(1/xᵢ)</p>
+                    <p>其中 xᵢ 是第 i 个桶的 2^Rᵢ</p>
+                </div>
+                <p>
+                    调和平均数对小值更敏感，能更好地处理稀疏桶的情况。
+                </p>
+            </div>
+
+            <h3>4. 完整的估计公式</h3>
+            <div class="algorithm-content">
+                <p>HyperLogLog 的基数估计公式：</p>
+                <div class="math-formula">
+                    <p>Estimate = αₘ × m² × (Σ 2^(-Rᵢ))⁻¹</p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• αₘ 是偏差校正系数</p>
+                    <p>• m 是桶的数量</p>
+                    <p>• Rᵢ 是第 i 个桶中记录的最大前导零数</p>
+                </div>
+                <p>
+                    <strong>偏差校正系数 αₘ：</strong>
+                </p>
+                <div class="math-formula">
+                    <p>αₘ = (0.7213 / (1 + 1.079/m))  对于 m ≥ 128</p>
+                </div>
+            </div>
+
+            <h2>寄存器可视化</h2>
+            <div class="algorithm-content">
+                <p>
+                    假设有 16 个桶 (m=16, p=4)，下面是可能的寄存器状态：
+                </p>
+                <div class="register-visual">
+                    <div class="register highlight">R₀: 3</div>
+                    <div class="register">R₁: 5</div>
+                    <div class="register">R₂: 2</div>
+                    <div class="register">R₃: 4</div>
+                    <div class="register">R₄: 1</div>
+                    <div class="register highlight">R₅: 6</div>
+                    <div class="register">R₆: 3</div>
+                    <div class="register">R₇: 4</div>
+                    <div class="register">R₈: 2</div>
+                    <div class="register">R₉: 3</div>
+                    <div class="register">R₁₀: 5</div>
+                    <div class="register">R₁₁: 1</div>
+                    <div class="register">R₁₂: 4</div>
+                    <div class="register highlight">R₁₃: 7</div>
+                    <div class="register">R₁₄: 2</div>
+                    <div class="register">R₁₅: 3</div>
+                </div>
+                <p>
+                    <span class="highlight-text">高亮</span>的寄存器表示观察到了较大的前导零数量，意味着可能有更多不同的元素。
+                </p>
+            </div>
+
+            <h2>完整的 HyperLogLog 实现</h2>
+            <div class="algorithm-content">
+                <div class="code-block">
+                    <pre>
+class HyperLogLog {
+    constructor(p = 14) {
+        this.p = p;                    // 精度参数
+        this.m = 1 << p;               // 桶的数量 = 2^p
+        this.registers = new Array(this.m).fill(0);
+        this.alpha = this._getAlpha();
+        this.count = 0;                // 实际插入的元素数（用于小基数校正）
+    }
+    
+    _getAlpha() {
+        if (this.m >= 128) {
+            return 0.7213 / (1 + 1.079 / this.m);
+        }
+        return 1.0; // 小规模时的近似值
+    }
+    
+    // MurmurHash3 的简化版本
+    _hash(value) {
+        let h = 0x811c9dc5;
+        const str = String(value);
+        for (let i = 0; i < str.length; i++) {
+            h ^= str.charCodeAt(i);
+            h = Math.imul(h, 0x01000193);
+        }
+        return h >>> 0; // 转为无符号整数
+    }
+    
+    // 添加一个元素
+    add(value) {
+        this.count++;
+        
+        const hash = this._hash(value);
+        
+        // 提取前 p 位作为桶编号
+        const bucket = hash & (this.m - 1);
+        
+        // 计算剩余比特中前导零的数量
+        // 跳过前 p 位，从第 p 位开始
+        const shifted = hash >>> this.p;
+        const zeros = this._countLeadingZeros(shifted);
+        
+        // 更新寄存器的最大值
+        this.registers[bucket] = Math.max(this.registers[bucket], zeros);
+    }
+    
+    // 计算前导零的数量
+    _countLeadingZeros(value) {
+        if (value === 0) return 32; // 假设32位整数
+        let count = 0;
+        while ((value & (1 << 31)) === 0 && count < 32) {
+            count++;
+            value <<= 1;
+        }
+        return count;
+    }
+    
+    // 估计不同元素的数量
+    countDistinct() {
+        // 小基数校正：当实际元素数很小时，使用精确计数
+        if (this.count < this.m * 2.5) {
+            return new Set(this.registers.filter(r => r > 0)).size;
+        }
+        
+        // HyperLogLog 估计公式
+        let sum = 0;
+        for (let i = 0; i < this.m; i++) {
+            sum += 1 / (1 << this.registers[i]);
+        }
+        
+        const estimate = this.alpha * this.m * this.m / sum;
+        
+        // 修正小估计值
+        return Math.floor(estimate);
+    }
+    
+    // 合并两个 HyperLogLog
+    merge(other) {
+        if (this.m !== other.m) {
+            throw new Error('Cannot merge HLL with different precision');
+        }
+        for (let i = 0; i < this.m; i++) {
+            this.registers[i] = Math.max(this.registers[i], other.registers[i]);
+        }
+    }
+}
+
+// 测试
+const hll = new HyperLogLog(12); // 4096 个桶
+
+// 模拟插入 100000 个不同的元素
+for (let i = 0; i < 100000; i++) {
+    hll.add(`element_${i}_${Math.random()}`);
+}
+
+console.log(`实际不同元素数: 100000`);
+console.log(`HLL 估计值: ${hll.countDistinct()}`);
+console.log(`误差率: ${Math.abs(hll.countDistinct() - 100000) / 100000 * 100}%`);
+                    </pre>
+                </div>
+            </div>
+
+            <h2>与其他方案的对比</h2>
+            <table class="comparison-table">
+                <tr>
+                    <th>方案</th>
+                    <th>空间复杂度</th>
+                    <th>精度</th>
+                    <th>优点</th>
+                    <th>缺点</th>
+                </tr>
+                <tr>
+                    <td>精确计数 (Set)</td>
+                    <td>O(n)</td>
+                    <td>100%</td>
+                    <td>精确</td>
+                    <td>内存随 n 增长</td>
+                </tr>
+                <tr>
+                    <td>LogLog</td>
+                    <td>O(1)</td>
+                    <td>≈ 1.3 / √m</td>
+                    <td>空间小</td>
+                    <td>精度略低</td>
+                </tr>
+                <tr>
+                    <td><strong>HyperLogLog</strong></td>
+                    <td>O(1)</td>
+                    <td>≈ 1.04 / √m</td>
+                    <td>精度高、空间小</td>
+                    <td>概率性、有小偏差</td>
+                </tr>
+                <tr>
+                    <td>Count-Min Sketch</td>
+                    <td>O(1)</td>
+                    <td>可配置</td>
+                    <td>支持删除</td>
+                    <td>需要更多空间</td>
+                </tr>
+            </table>
+
+            <h2>实际应用场景</h2>
+            <div class="algorithm-content">
+                <h3>1. 数据库去重计数</h3>
+                <p>
+                    Redis 的 <code>PFCOUNT</code> 命令底层就是 HyperLogLog，用于快速计算 UV（独立访客数）。
+                </p>
+                
+                <h3>2. 实时数据分析</h3>
+                <p>
+                    在流处理系统中，需要实时估计不同用户数、页面访问量等，HLL 是理想选择。
+                </p>
+                
+                <h3>3. 网络安全</h3>
+                <p>
+                    检测网络攻击时，估计不同 IP 地址的数量，HLL 可以在有限内存下处理海量数据。
+                </p>
+                
+                <h3>4. 推荐系统</h3>
+                <p>
+                    估计不同用户对某个内容的交互数量，用于计算热度、相关性等指标。
+                </p>
+            </div>
+
+            <h2>HyperLogLog 的变体</h2>
+            <div class="algorithm-content">
+                <h3>1. HyperLogLog++</h3>
+                <p>
+                    Google 在 2013 年提出的改进版，主要优化了：
+                </p>
+                <ul>
+                    <li>小基数时的精度（使用稀疏存储）</li>
+                    <li>更好的偏差校正</li>
+                    <li>被 Redis 6.0+ 采用</li>
+                </ul>
+                
+                <h3>2. Linear Counting</h3>
+                <p>
+                    当基数较小时（小于 m × 10），使用线性计数代替 HLL 估计，可提高小基数时的精度。
+                </p>
+                
+                <h3>3. Redis 实现</h3>
+                <div class="code-block">
+                    <pre>
+// Redis 命令示例
+PFADD mykey "user1" "user2" "user3"  // 添加元素
+PFCOUNT mykey                           // 估计基数
+PFMERGE mergedkey key1 key2             // 合并两个 HLL
+                    </pre>
+                </div>
+            </div>
+
+            <h2>总结：为什么 HyperLogLog 有效？</h2>
+            <div class="principle-box">
+                <h4>核心洞察</h4>
+                <ol>
+                    <li><strong>概率论基础</strong>：观察到 k 个前导零的概率是 2^(-k)，这提供了基数的对数估计</li>
+                    <li><strong>多桶平均</strong>：使用多个独立估计（桶），然后取调和平均，大大降低了方差</li>
+                    <li><strong>偏差校正</strong>：通过理论和实验确定的系数 αₘ 修正系统性偏差</li>
+                    <li><strong>固定空间</strong>：桶的数量固定，内存使用与基数大小无关</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>先理解概率论中的伯努利试验和几何分布</li>
+                    <li>理解为什么调和平均数比算术平均数更适合</li>
+                    <li>手动实现简化版的 HyperLogLog 来加深理解</li>
+                    <li>研究 Redis 或其他系统的实际实现</li>
+                    <li>了解 HyperLogLog++ 和其他改进版本</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PageRank - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .math-formula {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .graph-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .node {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .node:hover {
+            transform: scale(1.1);
+        }
+        
+        .node .rank {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7em;
+            color: #333;
+            background: #fff;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .edge {
+            position: relative;
+        }
+        
+        .edge::before {
+            content: '→';
+            position: absolute;
+            font-size: 24px;
+            color: white;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .principle-box {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .principle-box h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .iteration-steps {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .iteration-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .matrix-visual {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .matrix {
+            display: inline-block;
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .matrix-cell {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .highlight-text {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .problem-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .problem-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .solution-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .solution-box h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>PageRank - 网页排名算法</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是PageRank？</h3>
+                <p>
+                    <strong>PageRank</strong> 是由 Larry Page 和 Sergey Brin 在 1998 年提出的链接分析算法，
+                    用于衡量网页的重要性。它是 Google 搜索引擎的核心算法之一，也是现代链接分析的基石。
+                </p>
+                <p>
+                    PageRank 的核心思想：<span class="highlight-text">一个网页的重要性取决于指向它的其他网页的数量和质量</span>。
+                    被重要网页链接的网页也会变得重要。
+                </p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(n) - 存储所有网页的排名</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(k × m) - k次迭代，边数m</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>阻尼因子</h4>
+                    <p>通常 d = 0.85</p>
+                </div>
+            </div>
+
+            <h2>核心原理：直观理解</h2>
+            
+            <div class="principle-box">
+                <h4>🎲 随机冲浪者模型</h4>
+                <p>
+                    想象一个随机上网的用户：
+                </p>
+                <ol>
+                    <li>用户随机访问一个网页</li>
+                    <li>以概率 <strong>d</strong> 点击当前网页上的某个链接</li>
+                    <li>以概率 <strong>1-d</strong> 随机跳转到任意网页</li>
+                    <li>重复上述过程直到收敛</li>
+                </ol>
+                <p>
+                    PageRank 就是这个用户在稳定状态下访问各个网页的概率分布。
+                </p>
+            </div>
+
+            <div class="graph-visual">
+                <div class="node">
+                    A
+                    <span class="rank">PR: 0.30</span>
+                </div>
+                <div class="edge" style="width: 60px;"></div>
+                <div class="node">
+                    B
+                    <span class="rank">PR: 0.20</span>
+                </div>
+                <div class="edge" style="width: 60px;"></div>
+                <div class="node">
+                    C
+                    <span class="rank">PR: 0.25</span>
+                </div>
+                <div class="edge" style="width: 60px;"></div>
+                <div class="node">
+                    D
+                    <span class="rank">PR: 0.25</span>
+                </div>
+            </div>
+            <p style="text-align: center; color: #7f8c8d; margin-top: 10px;">
+                示例：4个网页的PageRank分布
+            </p>
+
+            <h2>数学原理详解</h2>
+
+            <h3>1. 基本公式</h3>
+            <div class="algorithm-content">
+                <p>PageRank 的核心递归公式：</p>
+                <div class="math-formula">
+                    <p>PR(A) = (1 - d) / N + d × Σ (PR(B) / L(B))</p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>PR(A)</strong> = 网页A的PageRank值</p>
+                    <p>• <strong>d</strong> = 阻尼因子 (通常 0.85)</p>
+                    <p>• <strong>N</strong> = 网页总数</p>
+                    <p>• <strong>PR(B)</strong> = 指向A的网页B的PageRank值</p>
+                    <p>• <strong>L(B)</strong> = 网页B的出链数量</p>
+                </div>
+            </div>
+
+            <h3>2. 公式解读</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>(1-d)/N</strong>：随机跳转的概率贡献，保证每个网页都有基础排名</li>
+                    <li><strong>d × PR(B)/L(B)</strong>：通过链接传递的排名，PR(B)按出链数均分</li>
+                    <li><strong>递归性</strong>：A的排名依赖于指向A的网页的排名，形成递归定义</li>
+                </ul>
+            </div>
+
+            <h3>3. 矩阵形式</h3>
+            <div class="algorithm-content">
+                <p>将所有网页的PageRank表示为向量形式：</p>
+                <div class="math-formula">
+                    <p><strong>R</strong> = d × <strong>M</strong> × <strong>R</strong> + (1-d)/N × <strong>1</strong></p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>R</strong> = PageRank向量 [PR(1), PR(2), ..., PR(n)]ᵀ</p>
+                    <p>• <strong>M</strong> = 转移矩阵，M[i][j]表示从j到i的概率</p>
+                    <p>• <strong>1</strong> = 全1向量</p>
+                </div>
+                <p>这等价于求解特征值问题：</p>
+                <div class="math-formula">
+                    <p><strong>R</strong> = <strong>M</strong>ᵀ × <strong>R</strong> (当 d=1)</p>
+                    <p>PageRank是转移矩阵主特征值1对应的特征向量</p>
+                </div>
+            </div>
+
+            <h3>4. 转移矩阵的构建</h3>
+            <div class="algorithm-content">
+                <p>对于网页链接图，转移矩阵 M 的定义：</p>
+                <div class="math-formula">
+                    <p>M[i][j] = 1/L(j) 如果网页j有链接指向i</p>
+                    <p>M[i][j] = 0 如果网页j没有链接指向i</p>
+                </div>
+                <p>示例：</p>
+                <div class="matrix-visual">
+                    <div class="matrix">
+                        <div class="matrix-row">
+                            <span class="matrix-cell">A</span>
+                            <span class="matrix-cell">B</span>
+                            <span class="matrix-cell">C</span>
+                            <span class="matrix-cell">D</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">0</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">1</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                            <span class="matrix-cell">0.5</span>
+                            <span class="matrix-cell">0</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center;">A→B, B→A/C, C→B/D, D→A/C 的转移矩阵</p>
+            </div>
+
+            <h2>迭代计算过程</h2>
+            
+            <div class="iteration-steps">
+                <h3>计算示例</h3>
+                <p>假设有4个网页：A→B→A, B→C, C→B/D, D→A/C</p>
+                
+                <div class="iteration-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>初始化</strong>：所有网页的PageRank初始值为 1/N = 0.25<br>
+                        <code>PR(A) = PR(B) = PR(C) = PR(D) = 0.25</code>
+                    </div>
+                </div>
+                
+                <div class="iteration-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>第1次迭代</strong> (d=0.85)：<br>
+                        <code>PR(A) = 0.15/4 + 0.85 × (PR(B)/2 + PR(D)/2) = 0.0375 + 0.85 × (0.125 + 0.125) = 0.2375</code><br>
+                        <code>PR(B) = 0.15/4 + 0.85 × (PR(A)/1 + PR(C)/2) = 0.0375 + 0.85 × (0.25 + 0.125) = 0.35625</code><br>
+                        <code>PR(C) = 0.15/4 + 0.85 × (PR(B)/1 + PR(D)/2) = 0.0375 + 0.85 × (0.25 + 0.125) = 0.35625</code><br>
+                        <code>PR(D) = 0.15/4 + 0.85 × (PR(C)/1) = 0.0375 + 0.85 × 0.25 = 0.25</code>
+                    </div>
+                </div>
+                
+                <div class="iteration-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>第2次迭代</strong>：使用上一步的结果继续计算<br>
+                        <code>PR(A) = 0.2375, PR(B) = 0.35625, PR(C) = 0.35625, PR(D) = 0.25</code><br>
+                        计算新值...
+                    </div>
+                </div>
+                
+                <div class="iteration-step">
+                    <div class="step-number">n</div>
+                    <div>
+                        <strong>继续迭代</strong>：直到PageRank值变化小于阈值（通常 0.0001）<br>
+                        通常 <strong>10-20次迭代</strong> 即可收敛
+                    </div>
+                </div>
+            </div>
+
+            <h2>完整实现</h2>
+            <div class="algorithm-content">
+                <div class="code-block">
+                    <pre>
+class PageRank {
+    constructor(dampingFactor = 0.85, maxIterations = 100, minDelta = 0.0001) {
+        this.d = dampingFactor;
+        this.maxIterations = maxIterations;
+        this.minDelta = minDelta;
+    }
+    
+    calculate(graph) {
+        const nodes = Object.keys(graph);
+        const n = nodes.length;
+        
+        // 初始化PageRank为1/N
+        const ranks = {};
+        nodes.forEach(node => {
+            ranks[node] = 1.0 / n;
+        });
+        
+        // 构建转移矩阵的稀疏表示
+        const outgoingLinks = {};
+        nodes.forEach(node => {
+            outgoingLinks[node] = graph[node] || [];
+        });
+        
+        // 迭代计算
+        for (let iter = 0; iter < this.maxIterations; iter++) {
+            const newRanks = {};
+            let maxChange = 0;
+            
+            nodes.forEach(node => {
+                let rankSum = 0;
+                
+                // 收集所有指向当前节点的网页的贡献
+                nodes.forEach(source => {
+                    const links = outgoingLinks[source];
+                    if (links.includes(node) && links.length > 0) {
+                        rankSum += ranks[source] / links.length;
+                    }
+                });
+                
+                // PageRank公式
+                newRanks[node] = (1 - this.d) / n + this.d * rankSum;
+                maxChange = Math.max(maxChange, Math.abs(newRanks[node] - ranks[node]));
+            });
+            
+            // 更新排名
+            nodes.forEach(node => {
+                ranks[node] = newRanks[node];
+            });
+            
+            // 检查收敛
+            if (maxChange < this.minDelta) {
+                console.log(`在第 ${iter + 1} 次迭代后收敛`);
+                break;
+            }
+        }
+        
+        return ranks;
+    }
+    
+    // 使用矩阵幂迭代法（更高效）
+    calculateWithMatrix(graph) {
+        const nodes = Object.keys(graph);
+        const n = nodes.length;
+        const nodeIndex = {};
+        
+        nodes.forEach((node, i) => {
+            nodeIndex[node] = i;
+        });
+        
+        // 构建转移矩阵
+        const M = Array(n).fill(null).map(() => Array(n).fill(0));
+        
+        nodes.forEach(source => {
+            const links = graph[source];
+            const i = nodeIndex[source];
+            
+            if (links && links.length > 0) {
+                links.forEach(target => {
+                    const j = nodeIndex[target];
+                    M[j][i] = 1.0 / links.length;
+                });
+            } else {
+                // 悬空节点：均匀分布到所有节点
+                for (let j = 0; j < n; j++) {
+                    M[j][i] = 1.0 / n;
+                }
+            }
+        });
+        
+        // 初始化向量
+        let r = Array(n).fill(1.0 / n);
+        const oneMinusD = (1 - this.d) / n;
+        
+        // 迭代计算
+        for (let iter = 0; iter < this.maxIterations; iter++) {
+            const newR = Array(n).fill(oneMinusD);
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    newR[i] += this.d * M[i][j] * r[j];
+                }
+            }
+            
+            // 检查收敛
+            let maxChange = 0;
+            for (let i = 0; i < n; i++) {
+                maxChange = Math.max(maxChange, Math.abs(newR[i] - r[i]));
+            }
+            
+            r = newR;
+            
+            if (maxChange < this.minDelta) {
+                break;
+            }
+        }
+        
+        // 返回节点-排名映射
+        const result = {};
+        nodes.forEach((node, i) => {
+            result[node] = r[i];
+        });
+        
+        return result;
+    }
+}
+
+// 测试
+const graph = {
+    'A': ['B', 'C'],  // A链接到B和C
+    'B': ['A', 'C'],  // B链接到A和C
+    'C': ['A', 'B', 'D'],  // C链接到A、B、D
+    'D': ['C']  // D链接到C
+};
+
+const pagerank = new PageRank(0.85, 100, 0.0001);
+const ranks = pagerank.calculate(graph);
+
+console.log('PageRank计算结果：');
+Object.entries(ranks)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([node, rank]) => {
+        console.log(`${node}: ${rank.toFixed(4)}`);
+    });
+                    </pre>
+                </div>
+            </div>
+
+            <h2>问题与解决方案</h2>
+            
+            <div class="problem-box">
+                <h4>🚨 问题1：排名泄漏 (Rank Leak)</h4>
+                <p>
+                    当一个网页只有出链没有入链时，它的PageRank会逐渐流向这些页面，
+                    导致其他页面的排名下降。
+                </p>
+            </div>
+            <div class="solution-box">
+                <h4>✅ 解决方案：阻尼因子</h4>
+                <p>
+                    引入随机跳转机制 (1-d)/N，确保排名不会完全泄漏。
+                    即使所有出链都指向悬挂节点，用户也可能随机跳转到其他页面。
+                </p>
+            </div>
+            
+            <div class="problem-box">
+                <h4>🚨 问题2：排名陷阱 (Rank Sink)</h4>
+                <p>
+                    一组网页只有相互之间的链接，形成一个"陷阱"，
+                    使得外部链接无法传入，内部排名不断累积。
+                </p>
+            </div>
+            <div class="solution-box">
+                <h4>✅ 解决方案：阻尼因子 + 悬挂节点处理</h4>
+                <p>
+                    阻尼因子允许用户"跳出"陷阱。
+                    对于悬挂节点（无出链），将其权重均匀分布到所有节点。
+                </p>
+            </div>
+            
+            <div class="problem-box">
+                <h4>🚨 问题3：收敛速度慢</h4>
+                <p>
+                    大规模图中，需要很多次迭代才能收敛。
+                </p>
+            </div>
+            <div class="solution-box">
+                <h4>✅ 解决方案：矩阵优化 + 分布式计算</h4>
+                <p>
+                    使用稀疏矩阵存储、利用幂迭代法的性质、
+                    或采用MapReduce等分布式框架并行计算。
+                </p>
+            </div>
+
+            <h2>与其他算法的对比</h2>
+            <table class="comparison-table">
+                <tr>
+                    <th>特性</th>
+                    <th>PageRank</th>
+                    <th>HITS</th>
+                    <th>SALSA</th>
+                </tr>
+                <tr>
+                    <td>提出者</td>
+                    <td>Page & Brin</td>
+                    <td>Kleinberg</td>
+                    <td>Lempel & Moran</td>
+                </tr>
+                <tr>
+                    <td>迭代方式</td>
+                    <td>全局迭代</td>
+                    <td>Authority/Hub交替</td>
+                    <td>双向随机游走</td>
+                </tr>
+                <tr>
+                    <td>时间复杂度</td>
+                    <td>O(m × k)</td>
+                    <td>O(m × k)</td>
+                    <td>O(m × k)</td>
+                </tr>
+                <tr>
+                    <td>主题敏感</td>
+                    <td>否</td>
+                    <td>是</td>
+                    <td>部分</td>
+                </tr>
+                <tr>
+                    <td>应用场景</td>
+                    <td>网页排名</td>
+                    <td>权威页面挖掘</td>
+                    <td>社区发现</td>
+                </tr>
+            </table>
+
+            <h2>实际应用场景</h2>
+            <div class="algorithm-content">
+                <h3>1. 搜索引擎排名</h3>
+                <p>
+                    Google早期使用PageRank作为核心排序因素，结合内容相关性计算最终排名。
+                </p>
+                
+                <h3>2. 社交网络分析</h3>
+                <p>
+                    在Twitter、微博等平台识别重要用户/账号，基于粉丝的"质量"评估影响力。
+                </p>
+                
+                <h3>3. 论文影响力评估</h3>
+                <p>
+                    评估学术论文的重要性，考虑引用该论文的其他论文的影响力。
+                </p>
+                
+                <h3>4. 推荐系统</h3>
+                <p>
+                    基于"用户-物品"二部图，利用PageRank思想发现相似用户或推荐物品。
+                </p>
+                
+                <h3>5. 网络安全</h3>
+                <p>
+                    检测网络中的重要节点（如关键服务器、恶意网站）。
+                </p>
+            </div>
+
+            <h2>算法变体</h2>
+            <div class="algorithm-content">
+                <h3>1. 主题敏感PageRank (Topic-Sensitive PageRank)</h3>
+                <p>
+                    预先定义16个主题类别，针对每个主题计算PageRank，
+                    查询时根据用户兴趣选择对应主题的排名。
+                </p>
+                
+                <h3>2. 个性化PageRank</h3>
+                <p>
+                    在阻尼因子中引入个性化偏好，更注重用户关注的网页。
+                </p>
+                
+                <h3>3. Weighted PageRank</h3>
+                <p>
+                    考虑链接的重要性差异，不仅按数量均分，而是根据上下文加权。
+                </p>
+                
+                <h3>4. TrustRank</h3>
+                <p>
+                    反 spam 算法，通过可信种子页面评估其他页面的可信度。
+                </p>
+                
+                <h3>5. HiveCuts</h3>
+                <p>
+                    结合PageRank和社区结构，用于大规模网络分析。
+                </p>
+            </div>
+
+            <h2>总结：PageRank的核心洞察</h2>
+            <div class="principle-box">
+                <h4>关键创新</h4>
+                <ol>
+                    <li><strong>链接分析</strong>：利用网页间的链接关系而非内容</li>
+                    <li><strong>递归定义</strong>：网页重要性由指向它的网页决定</li>
+                    <li><strong>概率解释</strong>：稳定状态下的访问概率</li>
+                    <li><strong>阻尼因子</strong>：解决排名陷阱和泄漏问题</li>
+                    <li><strong>特征向量</strong>：数学上的优雅解法</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解随机冲浪者模型的直观含义</li>
+                    <li>掌握PageRank公式的推导和物理意义</li>
+                    <li>理解阻尼因子的作用和取值</li>
+                    <li>了解排名陷阱和泄漏问题的成因</li>
+                    <li>学习实际系统中的优化和改进</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

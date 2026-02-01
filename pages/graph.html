@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图算法 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>图算法</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是图算法？</h3>
+                <p>图算法用于处理图结构数据，解决最短路径、最小生成树、拓扑排序等经典问题。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>Dijkstra</h4>
+                    <p>O((V+E)logV)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>Floyd-Warshall</h4>
+                    <p>O(V³)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>Kruskal/Prim</h4>
+                    <p>O(ElogV)</p>
+                </div>
+            </div>
+
+            <h3>Dijkstra 最短路径算法</h3>
+            <div class="algorithm-content">
+                <p>在带权图中找到从起点到所有其他节点的最短路径，适用于权值为非负数的情况。</p>
+                <div class="code-block">
+                    <pre>
+function dijkstra(graph, start) {
+    const distances = {};
+    const visited = new Set();
+    const pq = new PriorityQueue();
+    
+    // 初始化
+    for (const node in graph) {
+        distances[node] = Infinity;
+    }
+    distances[start] = 0;
+    pq.enqueue(start, 0);
+    
+    while (!pq.isEmpty()) {
+        const { element: current } = pq.dequeue();
+        
+        if (visited.has(current)) continue;
+        visited.add(current);
+        
+        for (const neighbor in graph[current]) {
+            const distance = distances[current] + graph[current][neighbor];
+            
+            if (distance < distances[neighbor]) {
+                distances[neighbor] = distance;
+                pq.enqueue(neighbor, distance);
+            }
+        }
+    }
+    
+    return distances;
+}
+
+// 简单优先队列实现
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+    
+    enqueue(element, priority) {
+        this.items.push({ element, priority });
+        this.items.sort((a, b) => a.priority - b.priority);
+    }
+    
+    dequeue() {
+        return this.items.shift();
+    }
+    
+    isEmpty() {
+        return this.items.length === 0;
+    }
+}
+
+// 测试
+const graph = {
+    A: { B: 4, C: 2 },
+    B: { A: 4, C: 5, D: 10 },
+    C: { A: 2, B: 5, D: 3 },
+    D: { B: 10, C: 3 }
+};
+console.log(dijkstra(graph, 'A'));
+// { A: 0, B: 4, C: 2, D: 5 }
+                    </pre>
+                </div>
+            </div>
+
+            <h3>Floyd-Warshall 算法</h3>
+            <div class="algorithm-content">
+                <p>计算图中所有节点对之间的最短路径，适合解决多源最短路径问题。</p>
+                <div class="code-block">
+                    <pre>
+function floydWarshall(graph) {
+    const n = graph.length;
+    const dist = Array(n).fill(null).map(() => Array(n).fill(Infinity));
+    
+    // 初始化
+    for (let i = 0; i < n; i++) {
+        dist[i][i] = 0;
+    }
+    
+    // 填充直接边权重
+    for (const [u, v, w] of graph) {
+        dist[u][v] = w;
+    }
+    
+    // Floyd-Warshall核心
+    for (let k = 0; k < n; k++) {
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+    
+    return dist;
+}
+
+// 测试 (节点0,1,2,3)
+const graph = [
+    [0, 3, Infinity, 7],
+    [8, 0, 2, Infinity],
+    [5, Infinity, 0, 1],
+    [2, Infinity, Infinity, 0]
+];
+console.log(floydWarshall(graph));
+                    </pre>
+                </div>
+            </div>
+
+            <h3>最小生成树 (Prim算法)</h3>
+            <div class="algorithm-content">
+                <p>在一个带权连通图中找到一棵包含所有顶点的树，且树中所有边的权重之和最小。</p>
+                <div class="code-block">
+                    <pre>
+function prim(graph) {
+    const n = graph.length;
+    const key = Array(n).fill(Infinity);
+    const parent = Array(n).fill(-1);
+    const mst = new Set();
+    
+    key[0] = 0;
+    
+    for (let i = 0; i < n - 1; i++) {
+        // 找到key值最小的顶点
+        let u = -1;
+        for (let v = 0; v < n; v++) {
+            if (!mst.has(v) && (u === -1 || key[v] < key[u])) {
+                u = v;
+            }
+        }
+        
+        mst.add(u);
+        
+        // 更新相邻顶点的key值
+        for (let v = 0; v < n; v++) {
+            if (graph[u][v] && !mst.has(v) && graph[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+    
+    return parent;
+}
+
+// 测试
+const graph = [
+    [0, 2, 0, 6, 0],
+    [2, 0, 3, 8, 5],
+    [0, 3, 0, 0, 7],
+    [6, 8, 0, 0, 9],
+    [0, 5, 7, 9, 0]
+];
+const mst = prim(graph);
+console.log("最小生成树的边：");
+for (let i = 1; i < mst.length; i++) {
+    console.log(`${mst[i]} - ${i}`);
+}
+                    </pre>
+                </div>
+            </div>
+
+            <h3>拓扑排序</h3>
+            <div class="algorithm-content">
+                <p>对有向无环图(DAG)的顶点进行排序，使得对于每一条有向边(u, v)，u都在v之前。</p>
+                <div class="code-block">
+                    <pre>
+function topologicalSort(graph) {
+    const inDegree = {};
+    const queue = [];
+    const result = [];
+    
+    // 初始化入度
+    for (const node in graph) {
+        inDegree[node] = 0;
+    }
+    for (const node in graph) {
+        for (const neighbor of graph[node]) {
+            inDegree[neighbor]++;
+        }
+    }
+    
+    // 将入度为0的节点加入队列
+    for (const node in inDegree) {
+        if (inDegree[node] === 0) {
+            queue.push(node);
+        }
+    }
+    
+    // BFS处理
+    while (queue.length > 0) {
+        const node = queue.shift();
+        result.push(node);
+        
+        for (const neighbor of graph[node]) {
+            inDegree[neighbor]--;
+            if (inDegree[neighbor] === 0) {
+                queue.push(neighbor);
+            }
+        }
+    }
+    
+    return result.length === Object.keys(graph).length ? result : [];
+}
+
+// 测试
+const courseGraph = {
+    'A': ['C'],
+    'B': ['C', 'D'],
+    'C': ['E'],
+    'D': ['F'],
+    'E': ['F'],
+    'F': []
+};
+console.log(topologicalSort(courseGraph)); // ['B', 'A', 'D', 'C', 'E', 'F']
+                    </pre>
+                </div>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>掌握图的基本表示方法：邻接矩阵和邻接表</li>
+                    <li>理解不同算法的适用场景</li>
+                    <li>多练习经典问题：最短路径、最小生成树</li>
+                    <li>学习BFS和DFS在图中的应用</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
