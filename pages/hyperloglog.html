@@ -359,8 +359,15 @@
 
             <h2>完整的 HyperLogLog 实现</h2>
             <div class="algorithm-content">
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="hll-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="hll-python">Python</button>
+                        <button class="code-tab-btn" data-tab="hll-go">Go</button>
+                    </div>
+                    <div id="hll-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class HyperLogLog {
     constructor(p = 14) {
         this.p = p;                    // 精度参数
@@ -458,7 +465,233 @@ for (let i = 0; i < 100000; i++) {
 console.log(`实际不同元素数: 100000`);
 console.log(`HLL 估计值: ${hll.countDistinct()}`);
 console.log(`误差率: ${Math.abs(hll.countDistinct() - 100000) / 100000 * 100}%`);
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="hll-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+import math
+import random
+
+class HyperLogLog:
+    def __init__(self, p=14):
+        self.p = p                    # 精度参数
+        self.m = 1 << p               # 桶的数量 = 2^p
+        self.registers = [0] * self.m
+        self.alpha = self._get_alpha()
+        self.count = 0                # 实际插入的元素数（用于小基数校正）
+    
+    def _get_alpha(self):
+        if self.m >= 128:
+            return 0.7213 / (1 + 1.079 / self.m)
+        return 1.0  # 小规模时的近似值
+    
+    # MurmurHash3 的简化版本
+    def _hash(self, value):
+        h = 0x811c9dc5
+        string = str(value)
+        for char in string:
+            h ^= ord(char)
+            h = (h * 0x01000193) & 0xFFFFFFFF
+        return h
+    
+    # 添加一个元素
+    def add(self, value):
+        self.count += 1
+        
+        hash_val = self._hash(value)
+        
+        # 提取前 p 位作为桶编号
+        bucket = hash_val & (self.m - 1)
+        
+        # 计算剩余比特中前导零的数量
+        shifted = hash_val >> self.p
+        zeros = self._count_leading_zeros(shifted)
+        
+        # 更新寄存器的最大值
+        self.registers[bucket] = max(self.registers[bucket], zeros)
+    
+    # 计算前导零的数量
+    def _count_leading_zeros(self, value):
+        if value == 0:
+            return 32  # 假设32位整数
+        count = 0
+        while (value & 0x80000000) == 0 and count < 32:
+            count += 1
+            value <<= 1
+        return count
+    
+    # 估计不同元素的数量
+    def count_distinct(self):
+        # 小基数校正：当实际元素数很小时，使用精确计数
+        if self.count < self.m * 2.5:
+            return len(set(self.registers))
+        
+        # HyperLogLog 估计公式
+        sum_val = 0
+        for reg in self.registers:
+            sum_val += 1 / (1 << reg)
+        
+        estimate = self.alpha * self.m * self.m / sum_val
+        
+        # 修正小估计值
+        return int(estimate)
+    
+    # 合并两个 HyperLogLog
+    def merge(self, other):
+        if self.m != other.m:
+            raise ValueError('Cannot merge HLL with different precision')
+        for i in range(self.m):
+            self.registers[i] = max(self.registers[i], other.registers[i])
+
+# 测试
+if __name__ == "__main__":
+    hll = HyperLogLog(p=12)  # 4096 个桶
+    
+    # 模拟插入 100000 个不同的元素
+    for i in range(100000):
+        hll.add(f"element_{i}_{random.random()}")
+    
+    print(f"实际不同元素数: 100000")
+    print(f"HLL 估计值: {hll.count_distinct()}")
+    print(f"误差率: {abs(hll.count_distinct() - 100000) / 100000 * 100}%")
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="hll-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+)
+
+type HyperLogLog struct {
+    p         int
+    m         int
+    registers []int
+    alpha     float64
+    count     int
+}
+
+func NewHyperLogLog(p int) *HyperLogLog {
+    m := 1 << p
+    hll := &HyperLogLog{
+        p:         p,
+        m:         m,
+        registers: make([]int, m),
+        count:     0,
+    }
+    hll.alpha = hll.getAlpha()
+    return hll
+}
+
+func (h *HyperLogLog) getAlpha() float64 {
+    if h.m >= 128 {
+        return 0.7213 / (1 + 1.079/float64(h.m))
+    }
+    return 1.0
+}
+
+// MurmurHash3 的简化版本
+func (h *HyperLogLog) hash(value string) uint32 {
+    var hVal uint32 = 0x811c9dc5
+    for i := 0; i < len(value); i++ {
+        hVal ^= uint32(value[i])
+        hVal = (hVal * 0x01000193) & 0xFFFFFFFF
+    }
+    return hVal
+}
+
+// 添加一个元素
+func (h *HyperLogLog) Add(value string) {
+    h.count++
+
+    hashVal := h.hash(value)
+
+    // 提取前 p 位作为桶编号
+    bucket := int(hashVal & uint32(h.m-1))
+
+    // 计算剩余比特中前导零的数量
+    shifted := hashVal >> uint(h.p)
+    zeros := h.countLeadingZeros(shifted)
+
+    // 更新寄存器的最大值
+    if zeros > h.registers[bucket] {
+        h.registers[bucket] = zeros
+    }
+}
+
+// 计算前导零的数量
+func (h *HyperLogLog) countLeadingZeros(value uint32) int {
+    if value == 0 {
+        return 32
+    }
+    count := 0
+    for (value&0x80000000) == 0 && count < 32 {
+        count++
+        value <<= 1
+    }
+    return count
+}
+
+// 估计不同元素的数量
+func (h *HyperLogLog) CountDistinct() int {
+    // 小基数校正：当实际元素数很小时，使用精确计数
+    if h.count < h.m*5/2 {
+        unique := make(map[int]bool)
+        for _, r := range h.registers {
+            if r > 0 {
+                unique[r] = true
+            }
+        }
+        return len(unique)
+    }
+
+    // HyperLogLog 估计公式
+    var sum float64
+    for _, reg := range h.registers {
+        sum += 1 / math.Pow(2, float64(reg))
+    }
+
+    estimate := h.alpha * float64(h.m) * float64(h.m) / sum
+
+    // 修正小估计值
+    return int(estimate)
+}
+
+// 合并两个 HyperLogLog
+func (h *HyperLogLog) Merge(other *HyperLogLog) {
+    if h.m != other.m {
+        panic("Cannot merge HLL with different precision")
+    }
+    for i := 0; i < h.m; i++ {
+        if other.registers[i] > h.registers[i] {
+            h.registers[i] = other.registers[i]
+        }
+    }
+}
+
+func main() {
+    hll := NewHyperLogLog(12) // 4096 个桶
+
+    // 模拟插入 100000 个不同的元素
+    for i := 0; i < 100000; i++ {
+        hll.Add(fmt.Sprintf("element_%d_%f", i, rand.Float64()))
+    }
+
+    fmt.Printf("实际不同元素数: 100000\n")
+    fmt.Printf("HLL 估计值: %d\n", hll.CountDistinct())
+    diff := float64(hll.CountDistinct() - 100000)
+    fmt.Printf("误差率: %.2f%%\n", math.Abs(diff)/100000*100)
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 

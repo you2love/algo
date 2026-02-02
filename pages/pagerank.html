@@ -416,8 +416,15 @@
 
             <h2>完整实现</h2>
             <div class="algorithm-content">
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="pagerank-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="pagerank-python">Python</button>
+                        <button class="code-tab-btn" data-tab="pagerank-go">Go</button>
+                    </div>
+                    <div id="pagerank-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class PageRank {
     constructor(dampingFactor = 0.85, maxIterations = 100, minDelta = 0.0001) {
         this.d = dampingFactor;
@@ -561,7 +568,305 @@ Object.entries(ranks)
     .forEach(([node, rank]) => {
         console.log(`${node}: ${rank.toFixed(4)}`);
     });
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="pagerank-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+class PageRank:
+    def __init__(self, damping_factor=0.85, max_iterations=100, min_delta=0.0001):
+        self.d = damping_factor
+        self.max_iterations = max_iterations
+        self.min_delta = min_delta
+    
+    def calculate(self, graph):
+        nodes = list(graph.keys())
+        n = len(nodes)
+        
+        # 初始化PageRank为1/N
+        ranks = {node: 1.0 / n for node in nodes}
+        
+        # 迭代计算
+        for _ in range(self.max_iterations):
+            new_ranks = {}
+            max_change = 0
+            
+            for node in nodes:
+                rank_sum = 0
+                
+                # 收集所有指向当前节点的网页的贡献
+                for source in nodes:
+                    links = graph.get(source, [])
+                    if node in links and len(links) > 0:
+                        rank_sum += ranks[source] / len(links)
+                
+                # PageRank公式
+                new_ranks[node] = (1 - self.d) / n + self.d * rank_sum
+                max_change = max(max_change, abs(new_ranks[node] - ranks[node]))
+            
+            # 更新排名
+            ranks = new_ranks
+            
+            # 检查收敛
+            if max_change < self.min_delta:
+                break
+        
+        return ranks
+    
+    # 使用矩阵幂迭代法（更高效）
+    def calculate_with_matrix(self, graph):
+        nodes = list(graph.keys())
+        n = len(nodes)
+        node_index = {node: i for i, node in enumerate(nodes)}
+        
+        # 构建转移矩阵
+        M = [[0.0] * n for _ in range(n)]
+        
+        for source in nodes:
+            links = graph.get(source, [])
+            i = node_index[source]
+            
+            if links:
+                for target in links:
+                    j = node_index[target]
+                    M[j][i] = 1.0 / len(links)
+            else:
+                # 悬空节点：均匀分布到所有节点
+                for j in range(n):
+                    M[j][i] = 1.0 / n
+        
+        # 初始化向量
+        r = [1.0 / n] * n
+        one_minus_d = (1 - self.d) / n
+        
+        # 迭代计算
+        for _ in range(self.max_iterations):
+            new_r = [one_minus_d] * n
+            
+            for i in range(n):
+                for j in range(n):
+                    new_r[i] += self.d * M[i][j] * r[j]
+            
+            # 检查收敛
+            max_change = max(abs(new_r[i] - r[i]) for i in range(n))
+            r = new_r
+            
+            if max_change < self.min_delta:
+                break
+        
+        # 返回节点-排名映射
+        return {node: r[i] for node, i in node_index.items()}
+
+# 测试
+if __name__ == "__main__":
+    graph = {
+        'A': ['B', 'C'],  # A链接到B和C
+        'B': ['A', 'C'],  # B链接到A和C
+        'C': ['A', 'B', 'D'],  # C链接到A、B、D
+        'D': ['C']  # D链接到C
+    }
+    
+    pagerank = PageRank(0.85, 100, 0.0001)
+    ranks = pagerank.calculate(graph)
+    
+    print('PageRank计算结果：')
+    for node, rank in sorted(ranks.items(), key=lambda x: x[1], reverse=True):
+        print(f'{node}: {rank:.4f}')
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="pagerank-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import (
+    "fmt"
+    "math"
+)
+
+type PageRank struct {
+    d             float64
+    maxIterations int
+    minDelta      float64
+}
+
+func NewPageRank(dampingFactor float64, maxIterations int, minDelta float64) *PageRank {
+    return &PageRank{
+        d:             dampingFactor,
+        maxIterations: maxIterations,
+        minDelta:      minDelta,
+    }
+}
+
+func (pr *PageRank) Calculate(graph map[string][]string) map[string]float64 {
+    nodes := make([]string, 0, len(graph))
+    for node := range graph {
+        nodes = append(nodes, node)
+    }
+    n := float64(len(nodes))
+
+    // 初始化PageRank为1/N
+    ranks := make(map[string]float64)
+    for _, node := range nodes {
+        ranks[node] = 1.0 / n
+    }
+
+    // 迭代计算
+    for _ := range pr.maxIterations {
+        newRanks := make(map[string]float64)
+        maxChange := 0.0
+
+        for _, node := range nodes {
+            var rankSum float64
+
+            // 收集所有指向当前节点的网页的贡献
+            for _, source := range nodes {
+                links := graph[source]
+                for _, link := range links {
+                    if link == node && len(links) > 0 {
+                        rankSum += ranks[source] / float64(len(links))
+                        break
+                    }
+                }
+            }
+
+            // PageRank公式
+            newRanks[node] = (1-pr.d)/n + pr.d*rankSum
+            change := math.Abs(newRanks[node] - ranks[node])
+            if change > maxChange {
+                maxChange = change
+            }
+        }
+
+        // 更新排名
+        for node := range ranks {
+            ranks[node] = newRanks[node]
+        }
+
+        // 检查收敛
+        if maxChange < pr.minDelta {
+            break
+        }
+    }
+
+    return ranks
+}
+
+// 使用矩阵幂迭代法（更高效）
+func (pr *PageRank) CalculateWithMatrix(graph map[string][]string) map[string]float64 {
+    nodes := make([]string, 0, len(graph))
+    nodeIndex := make(map[string]int)
+    for i, node := range graph {
+        nodes = append(nodes, node)
+        nodeIndex[node] = i
+    }
+    n := len(nodes)
+
+    // 构建转移矩阵
+    M := make([][]float64, n)
+    for i := range M {
+        M[i] = make([]float64, n)
+    }
+
+    for source, links := range graph {
+        i := nodeIndex[source]
+
+        if len(links) > 0 {
+            for _, target := range links {
+                j := nodeIndex[target]
+                M[j][i] = 1.0 / float64(len(links))
+            }
+        } else {
+            // 悬空节点：均匀分布到所有节点
+            for j := 0; j < n; j++ {
+                M[j][i] = 1.0 / float64(n)
+            }
+        }
+    }
+
+    // 初始化向量
+    r := make([]float64, n)
+    for i := range r {
+        r[i] = 1.0 / float64(n)
+    }
+    oneMinusD := (1 - pr.d) / float64(n)
+
+    // 迭代计算
+    for range pr.maxIterations {
+        newR := make([]float64, n)
+        for i := range newR {
+            newR[i] = oneMinusD
+        }
+
+        for i := 0; i < n; i++ {
+            for j := 0; j < n; j++ {
+                newR[i] += pr.d * M[i][j] * r[j]
+            }
+        }
+
+        // 检查收敛
+        maxChange := 0.0
+        for i := 0; i < n; i++ {
+            change := math.Abs(newR[i] - r[i])
+            if change > maxChange {
+                maxChange = change
+            }
+        }
+
+        r = newR
+
+        if maxChange < pr.minDelta {
+            break
+        }
+    }
+
+    // 返回节点-排名映射
+    result := make(map[string]float64)
+    for node, i := range nodeIndex {
+        result[node] = r[i]
+    }
+
+    return result
+}
+
+func main() {
+    graph := map[string][]string{
+        "A": {"B", "C"},   // A链接到B和C
+        "B": {"A", "C"},   // B链接到A和C
+        "C": {"A", "B", "D"}, // C链接到A、B、D
+        "D": {"C"},        // D链接到C
+    }
+
+    pagerank := NewPageRank(0.85, 100, 0.0001)
+    ranks := pagerank.Calculate(graph)
+
+    fmt.Println("PageRank计算结果：")
+    // 排序并打印
+    type nodeRank struct {
+        node string
+        rank float64
+    }
+    var results []nodeRank
+    for node, rank := range ranks {
+        results = append(results, nodeRank{node, rank})
+    }
+    // 简单排序
+    for i := 0; i < len(results)-1; i++ {
+        for j := i + 1; j < len(results); j++ {
+            if results[j].rank > results[i].rank {
+                results[i], results[j] = results[j], results[i]
+            }
+        }
+    }
+    for _, nr := range results {
+        fmt.Printf("%s: %.4f\n", nr.node, nr.rank)
+    }
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 

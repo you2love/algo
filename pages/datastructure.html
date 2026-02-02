@@ -46,8 +46,15 @@
             <h3>链表 (Linked List)</h3>
             <div class="algorithm-content">
                 <p>由节点组成的数据结构，每个节点包含数据和指向下一个节点的指针。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="list-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="list-python">Python</button>
+                        <button class="code-tab-btn" data-tab="list-go">Go</button>
+                    </div>
+                    <div id="list-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class ListNode {
     constructor(val = 0, next = null) {
         this.val = val;
@@ -132,15 +139,198 @@ list.append(3);
 list.print(); // 1 -> 2 -> 3
 list.reverse();
 list.print(); // 3 -> 2 -> 1
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="list-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.size = 0
+    
+    # 添加节点
+    def append(self, val):
+        node = ListNode(val)
+        if not self.head:
+            self.head = node
+        else:
+            current = self.head
+            while current.next:
+                current = current.next
+            current.next = node
+        self.size += 1
+    
+    # 删除节点
+    def delete(self, val):
+        if not self.head:
+            return
+        
+        if self.head.val == val:
+            self.head = self.head.next
+            self.size -= 1
+            return
+        
+        current = self.head
+        while current.next:
+            if current.next.val == val:
+                current.next = current.next.next
+                self.size -= 1
+                return
+            current = current.next
+    
+    # 反转链表
+    def reverse(self):
+        prev = None
+        current = self.head
+        
+        while current:
+            nxt = current.next
+            current.next = prev
+            prev = current
+            current = nxt
+        
+        self.head = prev
+    
+    # 打印链表
+    def print(self):
+        values = []
+        current = self.head
+        while current:
+            values.append(str(current.val))
+            current = current.next
+        print(' -> '.join(values))
+
+# 测试
+if __name__ == "__main__":
+    lst = LinkedList()
+    lst.append(1)
+    lst.append(2)
+    lst.append(3)
+    lst.print()  # 1 -> 2 -> 3
+    lst.reverse()
+    lst.print()  # 3 -> 2 -> 1
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="list-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+type ListNode struct {
+    val  int
+    next *ListNode
+}
+
+type LinkedList struct {
+    head *ListNode
+    size int
+}
+
+func NewLinkedList() *LinkedList {
+    return &LinkedList{}
+}
+
+// 添加节点
+func (l *LinkedList) Append(val int) {
+    node := &ListNode{val: val}
+    if l.head == nil {
+        l.head = node
+    } else {
+        current := l.head
+        for current.next != nil {
+            current = current.next
+        }
+        current.next = node
+    }
+    l.size++
+}
+
+// 删除节点
+func (l *LinkedList) Delete(val int) {
+    if l.head == nil {
+        return
+    }
+
+    if l.head.val == val {
+        l.head = l.head.next
+        l.size--
+        return
+    }
+
+    current := l.head
+    for current.next != nil {
+        if current.next.val == val {
+            current.next = current.next.next
+            l.size--
+            return
+        }
+        current = current.next
+    }
+}
+
+// 反转链表
+func (l *LinkedList) Reverse() {
+    var prev *ListNode
+    current := l.head
+
+    for current != nil {
+        next := current.next
+        current.next = prev
+        prev = current
+        current = next
+    }
+
+    l.head = prev
+}
+
+// 打印链表
+func (l *LinkedList) Print() {
+    values := []string{}
+    current := l.head
+    for current != nil {
+        values = append(values, fmt.Sprintf("%d", current.val))
+        current = current.next
+    }
+    fmt.Println(strings.Join(values, " -> "))
+}
+
+func main() {
+    list := NewLinkedList()
+    list.Append(1)
+    list.Append(2)
+    list.Append(3)
+    list.Print() // 1 -> 2 -> 3
+    list.Reverse()
+    list.Print() // 3 -> 2 -> 1
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>栈 (Stack)</h3>
             <div class="algorithm-content">
                 <p>后进先出(LIFO)的数据结构，只允许在栈顶进行插入和删除操作。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="stack-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="stack-python">Python</button>
+                        <button class="code-tab-btn" data-tab="stack-go">Go</button>
+                    </div>
+                    <div id="stack-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class Stack {
     constructor() {
         this.items = [];
@@ -192,15 +382,146 @@ function isValidParentheses(s) {
 // 测试
 console.log(isValidParentheses("()[]{}")); // true
 console.log(isValidParentheses("([)]")); // false
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="stack-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+class Stack:
+    def __init__(self):
+        self.items = []
+    
+    # 入栈
+    def push(self, element):
+        self.items.append(element)
+    
+    # 出栈
+    def pop(self):
+        if len(self.items) == 0:
+            return None
+        return self.items.pop()
+    
+    # 查看栈顶元素
+    def peek(self):
+        if len(self.items) == 0:
+            return None
+        return self.items[-1]
+    
+    # 判断是否为空
+    def is_empty(self):
+        return len(self.items) == 0
+    
+    # 获取大小
+    def size(self):
+        return len(self.items)
+
+# 应用：有效括号
+def is_valid_parentheses(s):
+    stack = Stack()
+    mapping = {')': '(', '}': '{', ']': '['}
+    
+    for char in s:
+        if char in mapping:
+            if stack.pop() != mapping[char]:
+                return False
+        else:
+            stack.push(char)
+    
+    return stack.is_empty()
+
+# 测试
+print(is_valid_parentheses("()[]{}"))  # True
+print(is_valid_parentheses("([)]"))    # False
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="stack-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+type Stack struct {
+    items []interface{}
+}
+
+func NewStack() *Stack {
+    return &Stack{items: []interface{}{}}
+}
+
+// 入栈
+func (s *Stack) Push(element interface{}) {
+    s.items = append(s.items, element)
+}
+
+// 出栈
+func (s *Stack) Pop() interface{} {
+    if len(s.items) == 0 {
+        return nil
+    }
+    top := s.items[len(s.items)-1]
+    s.items = s.items[:len(s.items)-1]
+    return top
+}
+
+// 查看栈顶元素
+func (s *Stack) Peek() interface{} {
+    if len(s.items) == 0 {
+        return nil
+    }
+    return s.items[len(s.items)-1]
+}
+
+// 判断是否为空
+func (s *Stack) IsEmpty() bool {
+    return len(s.items) == 0
+}
+
+// 获取大小
+func (s *Stack) Size() int {
+    return len(s.items)
+}
+
+// 应用：有效括号
+func isValidParentheses(s string) bool {
+    stack := NewStack()
+    mapping := map[rune]rune{')': '(', '}': '{', ']': '['}
+    
+    for _, char := range s {
+        if match, ok := mapping[char]; ok {
+            if stack.Pop() != match {
+                return false
+            }
+        } else {
+            stack.Push(char)
+        }
+    }
+    
+    return stack.IsEmpty()
+}
+
+func main() {
+    println(isValidParentheses("()[]{}")) // true
+    println(isValidParentheses("([)]"))   // false
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>队列 (Queue)</h3>
             <div class="algorithm-content">
                 <p>先进先出(FIFO)的数据结构，允许在队尾插入元素，在队头删除元素。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="queue-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="queue-python">Python</button>
+                        <button class="code-tab-btn" data-tab="queue-go">Go</button>
+                    </div>
+                    <div id="queue-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class Queue {
     constructor() {
         this.items = [];
@@ -267,15 +588,185 @@ queue.enqueue(1);
 queue.enqueue(2);
 queue.enqueue(3);
 console.log(queue.dequeue()); // 1
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="queue-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+class Queue:
+    def __init__(self):
+        self.items = []
+    
+    # 入队
+    def enqueue(self, element):
+        self.items.append(element)
+    
+    # 出队
+    def dequeue(self):
+        if len(self.items) == 0:
+            return None
+        return self.items.pop(0)
+    
+    # 查看队头元素
+    def front(self):
+        if len(self.items) == 0:
+            return None
+        return self.items[0]
+    
+    # 判断是否为空
+    def is_empty(self):
+        return len(self.items) == 0
+    
+    # 获取大小
+    def size(self):
+        return len(self.items)
+
+# 优先队列
+class PriorityQueue:
+    def __init__(self):
+        self.items = []
+    
+    def enqueue(self, element, priority):
+        item = {'element': element, 'priority': priority}
+        added = False
+        
+        for i in range(len(self.items)):
+            if item['priority'] < self.items[i]['priority']:
+                self.items.insert(i, item)
+                added = True
+                break
+        
+        if not added:
+            self.items.append(item)
+    
+    def dequeue(self):
+        if len(self.items) == 0:
+            return None
+        return self.items.pop(0)['element']
+
+# 测试
+if __name__ == "__main__":
+    queue = Queue()
+    queue.enqueue(1)
+    queue.enqueue(2)
+    queue.enqueue(3)
+    print(queue.dequeue())  # 1
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="queue-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+type Queue struct {
+    items []interface{}
+}
+
+func NewQueue() *Queue {
+    return &Queue{items: []interface{}{}}
+}
+
+// 入队
+func (q *Queue) Enqueue(element interface{}) {
+    q.items = append(q.items, element)
+}
+
+// 出队
+func (q *Queue) Dequeue() interface{} {
+    if len(q.items) == 0 {
+        return nil
+    }
+    front := q.items[0]
+    q.items = q.items[1:]
+    return front
+}
+
+// 查看队头元素
+func (q *Queue) Front() interface{} {
+    if len(q.items) == 0 {
+        return nil
+    }
+    return q.items[0]
+}
+
+// 判断是否为空
+func (q *Queue) IsEmpty() bool {
+    return len(q.items) == 0
+}
+
+// 获取大小
+func (q *Queue) Size() int {
+    return len(q.items)
+}
+
+// 优先队列
+type PriorityItem struct {
+    element  interface{}
+    priority int
+}
+
+type PriorityQueue struct {
+    items []PriorityItem
+}
+
+func NewPriorityQueue() *PriorityQueue {
+    return &PriorityQueue{items: []PriorityItem{}}
+}
+
+func (pq *PriorityQueue) Enqueue(element interface{}, priority int) {
+    item := PriorityItem{element: element, priority: priority}
+    added := false
+    
+    for i := range pq.items {
+        if item.priority < pq.items[i].priority {
+            // 在位置i插入
+            pq.items = append(pq.items[:i], append([]PriorityItem{item}, pq.items[i:]...)...)
+            added = true
+            break
+        }
+    }
+    
+    if !added {
+        pq.items = append(pq.items, item)
+    }
+}
+
+func (pq *PriorityQueue) Dequeue() interface{} {
+    if len(pq.items) == 0 {
+        return nil
+    }
+    front := pq.items[0]
+    pq.items = pq.items[1:]
+    return front.element
+}
+
+func main() {
+    queue := NewQueue()
+    queue.Enqueue(1)
+    queue.Enqueue(2)
+    queue.Enqueue(3)
+    println(queue.Dequeue()) // 1
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>二叉搜索树 (BST)</h3>
             <div class="algorithm-content">
                 <p>每个节点的左子树所有节点值小于该节点，右子树所有节点值大于该节点的二叉树。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bst-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bst-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bst-go">Go</button>
+                    </div>
+                    <div id="bst-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 class TreeNode {
     constructor(val) {
         this.val = val;
@@ -345,7 +836,166 @@ const bst = new BinarySearchTree();
 [5, 3, 7, 2, 4, 6, 8].forEach(val => bst.insert(val));
 console.log(bst.inOrder()); // [2, 3, 4, 5, 6, 7, 8]
 console.log(bst.search(4)); // true
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="bst-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+class BinarySearchTree:
+    def __init__(self):
+        self.root = None
+    
+    # 插入节点
+    def insert(self, val):
+        node = TreeNode(val)
+        if not self.root:
+            self.root = node
+            return
+        
+        current = self.root
+        while True:
+            if val < current.val:
+                if not current.left:
+                    current.left = node
+                    return
+                current = current.left
+            else:
+                if not current.right:
+                    current.right = node
+                    return
+                current = current.right
+    
+    # 查找节点
+    def search(self, val):
+        current = self.root
+        while current:
+            if val == current.val:
+                return True
+            if val < current.val:
+                current = current.left
+            else:
+                current = current.right
+        return False
+    
+    # 中序遍历
+    def in_order(self, node=None, result=None):
+        if result is None:
+            result = []
+        if node is None:
+            node = self.root
+        if node:
+            self.in_order(node.left, result)
+            result.append(node.val)
+            self.in_order(node.right, result)
+        return result
+
+# 测试
+if __name__ == "__main__":
+    bst = BinarySearchTree()
+    for val in [5, 3, 7, 2, 4, 6, 8]:
+        bst.insert(val)
+    print(bst.in_order())  # [2, 3, 4, 5, 6, 7, 8]
+    print(bst.search(4))   # True
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="bst-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+type TreeNode struct {
+    val   int
+    left  *TreeNode
+    right *TreeNode
+}
+
+type BinarySearchTree struct {
+    root *TreeNode
+}
+
+func NewBinarySearchTree() *BinarySearchTree {
+    return &BinarySearchTree{}
+}
+
+// 插入节点
+func (bst *BinarySearchTree) Insert(val int) {
+    node := &TreeNode{val: val}
+    if bst.root == nil {
+        bst.root = node
+        return
+    }
+
+    current := bst.root
+    for {
+        if val < current.val {
+            if current.left == nil {
+                current.left = node
+                return
+            }
+            current = current.left
+        } else {
+            if current.right == nil {
+                current.right = node
+                return
+            }
+            current = current.right
+        }
+    }
+}
+
+// 查找节点
+func (bst *BinarySearchTree) Search(val int) bool {
+    current := bst.root
+    for current != nil {
+        if val == current.val {
+            return true
+        }
+        if val < current.val {
+            current = current.left
+        } else {
+            current = current.right
+        }
+    }
+    return false
+}
+
+// 中序遍历
+func (bst *BinarySearchTree) InOrder() []int {
+    result := []int{}
+    var inOrder func(node *TreeNode)
+    inOrder = func(node *TreeNode) {
+        if node != nil {
+            inOrder(node.left)
+            result = append(result, node.val)
+            inOrder(node.right)
+        }
+    }
+    inOrder(bst.root)
+    return result
+}
+
+func main() {
+    bst := NewBinarySearchTree()
+    values := []int{5, 3, 7, 2, 4, 6, 8}
+    for _, val := range values {
+        bst.Insert(val)
+    }
+    fmt.Println(bst.InOrder()) // [2 3 4 5 6 7 8]
+    fmt.Println(bst.Search(4)) // true
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 

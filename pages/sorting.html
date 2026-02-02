@@ -46,8 +46,15 @@
             <h3>冒泡排序 (Bubble Sort)</h3>
             <div class="algorithm-content">
                 <p>重复遍历数组，比较相邻元素，如果顺序错误就交换。每一轮遍历都会将最大的元素"冒泡"到正确的位置。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bubble-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bubble-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bubble-go">Go</button>
+                    </div>
+                    <div id="bubble-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function bubbleSort(arr) {
     const n = arr.length;
     for (let i = 0; i < n - 1; i++) {
@@ -63,15 +70,68 @@ function bubbleSort(arr) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(bubbleSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="bubble-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
+
+# 测试
+arr = [64, 34, 25, 12, 22, 11, 90]
+print(bubble_sort(arr.copy()))  # [11, 12, 22, 25, 34, 64, 90]
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="bubble-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func bubbleSort(arr []int) []int {
+    n := len(arr)
+    for i := 0; i < n-1; i++ {
+        for j := 0; j < n-i-1; j++ {
+            if arr[j] > arr[j+1] {
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+            }
+        }
+    }
+    return arr
+}
+
+func main() {
+    arr := []int{64, 34, 25, 12, 22, 11, 90}
+    sorted := bubbleSort(arr)
+    fmt.Println(sorted) // [11 12 22 25 34 64 90]
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>快速排序 (Quick Sort)</h3>
             <div class="algorithm-content">
                 <p>选择基准值，将数组分为两部分：小于基准值的元素和大于基准值的元素，然后递归地对这两部分进行排序。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="quick-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="quick-python">Python</button>
+                        <button class="code-tab-btn" data-tab="quick-go">Go</button>
+                    </div>
+                    <div id="quick-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function quickSort(arr, left = 0, right = arr.length - 1) {
     if (left < right) {
         const pivotIndex = partition(arr, left, right);
@@ -99,15 +159,93 @@ function partition(arr, left, right) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(quickSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="quick-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def quick_sort(arr, left=0, right=None):
+    if right is None:
+        right = len(arr) - 1
+    
+    if left < right:
+        pivot_index = partition(arr, left, right)
+        quick_sort(arr, left, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, right)
+    return arr
+
+def partition(arr, left, right):
+    pivot = arr[right]
+    i = left - 1
+    
+    for j in range(left, right):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    arr[i + 1], arr[right] = arr[right], arr[i + 1]
+    return i + 1
+
+# 测试
+arr = [64, 34, 25, 12, 22, 11, 90]
+print(quick_sort(arr.copy()))  # [11, 12, 22, 25, 34, 64, 90]
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="quick-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func quickSort(arr []int, left, right int) {
+    if left < right {
+        pivotIndex := partition(arr, left, right)
+        quickSort(arr, left, pivotIndex-1)
+        quickSort(arr, pivotIndex+1, right)
+    }
+}
+
+func partition(arr []int, left, right int) int {
+    pivot := arr[right]
+    i := left - 1
+
+    for j := left; j < right; j++ {
+        if arr[j] <= pivot {
+            i++
+            arr[i], arr[j] = arr[j], arr[i]
+        }
+    }
+
+    arr[i+1], arr[right] = arr[right], arr[i+1]
+    return i + 1
+}
+
+func main() {
+    arr := []int{64, 34, 25, 12, 22, 11, 90}
+    quickSort(arr, 0, len(arr)-1)
+    fmt.Println(arr) // [11 12 22 25 34 64 90]
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>归并排序 (Merge Sort)</h3>
             <div class="algorithm-content">
                 <p>采用分治策略，将数组分成两半，分别排序后合并。是一种稳定的排序算法，时间复杂度为O(n log n)。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="merge-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="merge-python">Python</button>
+                        <button class="code-tab-btn" data-tab="merge-go">Go</button>
+                    </div>
+                    <div id="merge-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function mergeSort(arr) {
     if (arr.length <= 1) return arr;
     
@@ -136,7 +274,90 @@ function merge(left, right) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(mergeSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="merge-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+# 测试
+arr = [64, 34, 25, 12, 22, 11, 90]
+print(merge_sort(arr))  # [11, 12, 22, 25, 34, 64, 90]
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="merge-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func mergeSort(arr []int) []int {
+    if len(arr) <= 1 {
+        return arr
+    }
+
+    mid := len(arr) / 2
+    left := mergeSort(arr[:mid])
+    right := mergeSort(arr[mid:])
+
+    return merge(left, right)
+}
+
+func merge(left, right []int) []int {
+    result := make([]int, 0, len(left)+len(right))
+    i, j := 0, 0
+
+    for i < len(left) && j < len(right) {
+        if left[i] <= right[j] {
+            result = append(result, left[i])
+            i++
+        } else {
+            result = append(result, right[j])
+            j++
+        }
+    }
+
+    result = append(result, left[i:]...)
+    result = append(result, right[j:]...)
+    return result
+}
+
+func main() {
+    arr := []int{64, 34, 25, 12, 22, 11, 90}
+    sorted := mergeSort(arr)
+    fmt.Println(sorted) // [11 12 22 25 34 64 90]
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 

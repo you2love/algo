@@ -329,6 +329,57 @@ body {
     margin: 0;
 }
 
+/* 多语言代码标签页样式 */
+.code-tabs {
+    margin: 20px 0;
+}
+
+.code-tab-header {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.code-tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #e0e0e0;
+    color: #666;
+    cursor: pointer;
+    border-radius: 5px 5px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.code-tab-btn:hover {
+    background: #d0d0d0;
+}
+
+.code-tab-btn.active {
+    background: #282c34;
+    color: #fff;
+}
+
+.code-tab-content {
+    display: none;
+    background: #282c34;
+    border-radius: 0 5px 5px 5px;
+    padding: 20px;
+}
+
+.code-tab-content.active {
+    display: block;
+}
+
+.code-tab-content .code-block {
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+}
+
 .complexity {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

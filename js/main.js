@@ -42,6 +42,44 @@ window.addEventListener('load', function() {
     }, 100);
 });
 
+// 代码标签页切换功能
+function initCodeTabs() {
+    document.querySelectorAll('.code-tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            const tabContainer = this.closest('.code-tabs');
+            
+            if (!tabContainer) return;
+            
+            // 移除所有按钮的active状态
+            tabContainer.querySelectorAll('.code-tab-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            
+            // 添加当前按钮的active状态
+            this.classList.add('active');
+            
+            // 隐藏所有内容
+            tabContainer.querySelectorAll('.code-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 显示对应的内容
+            const targetContent = tabContainer.querySelector(`#${tabId}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeTabs);
+} else {
+    initCodeTabs();
+}
+
 // 搜索功能（如果需要）
 function searchAlgorithms(query) {
     const cards = document.querySelectorAll('.algorithm-card');
@@ -60,11 +98,11 @@ function searchAlgorithms(query) {
 // 算法复杂度计算器
 function calculateTimeComplexity(n, operations) {
     return {
-        O(1): `常量时间，${n}个元素执行${operations}次操作`,
-        O(log n): `对数时间，${n}个元素执行约${Math.ceil(Math.log2(n))}次操作`,
-        O(n): `线性时间，${n}个元素执行${n * operations}次操作`,
-        O(n log n): `线性对数时间，${n}个元素执行约${Math.ceil(n * Math.log2(n))}次操作`,
-        O(n²): `平方时间，${n}个元素执行${n * n * operations}次操作`
+        'O(1)': `常量时间，${n}个元素执行${operations}次操作`,
+        'O(log n)': `对数时间，${n}个元素执行约${Math.ceil(Math.log2(n))}次操作`,
+        'O(n)': `线性时间，${n}个元素执行${n * operations}次操作`,
+        'O(n log n)': `线性对数时间，${n}个元素执行约${Math.ceil(n * Math.log2(n))}次操作`,
+        'O(n²)': `平方时间，${n}个元素执行${n * n * operations}次操作`
     };
 }
 

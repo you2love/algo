@@ -55,8 +55,15 @@
             <h3>阶乘计算</h3>
             <div class="algorithm-content">
                 <p>递归的经典例子：n! = n × (n-1)!</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="factorial-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="factorial-python">Python</button>
+                        <button class="code-tab-btn" data-tab="factorial-go">Go</button>
+                    </div>
+                    <div id="factorial-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function factorial(n) {
     // 基本情况
     if (n <= 1) return 1;
@@ -68,15 +75,59 @@ function factorial(n) {
 // 测试
 console.log(factorial(5)); // 120
 console.log(factorial(0)); // 1
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="factorial-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+# 测试
+print(factorial(5))  # 120
+print(factorial(0))  # 1
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="factorial-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func factorial(n int) int {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n-1)
+}
+
+func main() {
+    fmt.Println(factorial(5)) // 120
+    fmt.Println(factorial(0)) // 1
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>汉诺塔问题</h3>
             <div class="algorithm-content">
                 <p>经典的递归问题：将n个盘子从A柱移动到C柱，可以借助B柱，每次只能移动一个盘子。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="hanoi-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="hanoi-python">Python</button>
+                        <button class="code-tab-btn" data-tab="hanoi-go">Go</button>
+                    </div>
+                    <div id="hanoi-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function hanoi(n, source, auxiliary, target) {
     if (n === 1) {
         console.log(`Move disk 1 from ${source} to ${target}`);
@@ -96,7 +147,52 @@ function hanoi(n, source, auxiliary, target) {
 // 测试
 console.log('3层汉诺塔解法：');
 hanoi(3, 'A', 'B', 'C');
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="hanoi-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def hanoi(n, source, auxiliary, target):
+    if n == 1:
+        print(f"Move disk 1 from {source} to {target}")
+        return
+    
+    hanoi(n - 1, source, target, auxiliary)
+    print(f"Move disk {n} from {source} to {target}")
+    hanoi(n - 1, auxiliary, source, target)
+
+# 测试
+print('3层汉诺塔解法：')
+hanoi(3, 'A', 'B', 'C')
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="hanoi-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func hanoi(n int, source, auxiliary, target string) {
+    if n == 1 {
+        fmt.Printf("Move disk 1 from %s to %s\n", source, target)
+        return
+    }
+    
+    hanoi(n-1, source, target, auxiliary)
+    fmt.Printf("Move disk %d from %s to %s\n", n, source, target)
+    hanoi(n-1, auxiliary, source, target)
+}
+
+func main() {
+    fmt.Println("3层汉诺塔解法：")
+    hanoi(3, "A", "B", "C")
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -108,8 +204,15 @@ hanoi(3, 'A', 'B', 'C');
             <h3>N皇后问题</h3>
             <div class="algorithm-content">
                 <p>在n×n棋盘上放置n个皇后，使得任何两个皇后都不在同一行、同一列或同一对角线上。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="nqueen-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="nqueen-python">Python</button>
+                        <button class="code-tab-btn" data-tab="nqueen-go">Go</button>
+                    </div>
+                    <div id="nqueen-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function solveNQueens(n) {
     const solutions = [];
     const board = Array(n).fill(null).map(() => Array(n).fill('.'));
@@ -156,15 +259,141 @@ function solveNQueens(n) {
 const result = solveNQueens(4);
 console.log(`4皇后有 ${result.length} 种解法`);
 console.log(result[0]);
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="nqueen-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def solve_n_queens(n):
+    solutions = []
+    board = [['.' for _ in range(n)] for _ in range(n)]
+    
+    def is_valid(row, col):
+        for i in range(row):
+            if board[i][col] == 'Q':
+                return False
+        
+        for i, j in zip(range(row-1, -1, -1), range(col-1, -1, -1)):
+            if board[i][j] == 'Q':
+                return False
+        
+        for i, j in zip(range(row-1, -1, -1), range(col+1, n)):
+            if board[i][j] == 'Q':
+                return False
+        
+        return True
+    
+    def backtrack(row):
+        if row == n:
+            solutions.append([''.join(row) for row in board])
+            return
+        
+        for col in range(n):
+            if is_valid(row, col):
+                board[row][col] = 'Q'
+                backtrack(row + 1)
+                board[row][col] = '.'
+    
+    backtrack(0)
+    return solutions
+
+# 测试
+result = solve_n_queens(4)
+print(f"4皇后有 {len(result)} 种解法")
+print(result[0])
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="nqueen-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func solveNQueens(n int) [][]string {
+    var solutions [][]string
+    board := make([][]string, n)
+    for i := 0; i < n; i++ {
+        board[i] = make([]string, n)
+        for j := 0; j < n; j++ {
+            board[i][j] = "."
+        }
+    }
+    
+    isValid := func(row, col int) bool {
+        for i := 0; i < row; i++ {
+            if board[i][col] == "Q" {
+                return false
+            }
+        }
+        
+        for i, j := row-1, col-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
+            if board[i][j] == "Q" {
+                return false
+            }
+        }
+        
+        for i, j := row-1, col+1; i >= 0 && j < n; i, j = i-1, j+1 {
+            if board[i][j] == "Q" {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    var backtrack func(row int)
+    backtrack = func(row int) {
+        if row == n {
+            solution := make([]string, n)
+            for i := 0; i < n; i++ {
+                solution[i] = strings.Join(board[i], "")
+            }
+            solutions = append(solutions, solution)
+            return
+        }
+        
+        for col := 0; col < n; col++ {
+            if isValid(row, col) {
+                board[row][col] = "Q"
+                backtrack(row + 1)
+                board[row][col] = "."
+            }
+        }
+    }
+    
+    backtrack(0)
+    return solutions
+}
+
+func main() {
+    result := solveNQueens(4)
+    fmt.Printf("4皇后有 %d 种解法\n", len(result))
+    fmt.Println(result[0])
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>全排列</h3>
             <div class="algorithm-content">
                 <p>生成数组的所有可能排列。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="permute-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="permute-python">Python</button>
+                        <button class="code-tab-btn" data-tab="permute-go">Go</button>
+                    </div>
+                    <div id="permute-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function permute(nums) {
     const result = [];
     
@@ -194,15 +423,104 @@ function permute(nums) {
 // 测试
 console.log(permute([1, 2, 3]));
 // [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="permute-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def permute(nums):
+    result = []
+    
+    def backtrack(path, used):
+        if len(path) == len(nums):
+            result.append(path[:])
+            return
+        
+        for i in range(len(nums)):
+            if used[i]:
+                continue
+            
+            path.append(nums[i])
+            used[i] = True
+            
+            backtrack(path, used)
+            
+            path.pop()
+            used[i] = False
+    
+    backtrack([], [False] * len(nums))
+    return result
+
+# 测试
+print(permute([1, 2, 3]))
+# [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="permute-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func permute(nums []int) [][]int {
+    var result [][]int
+    n := len(nums)
+    used := make([]bool, n)
+    
+    var backtrack func(path []int)
+    backtrack = func(path []int) {
+        if len(path) == n {
+            temp := make([]int, len(path))
+            copy(temp, path)
+            result = append(result, temp)
+            return
+        }
+        
+        for i := 0; i < n; i++ {
+            if used[i] {
+                continue
+            }
+            
+            path = append(path, nums[i])
+            used[i] = true
+            
+            backtrack(path)
+            
+            path = path[:len(path)-1]
+            used[i] = false
+        }
+    }
+    
+    backtrack([]int{})
+    return result
+}
+
+func main() {
+    result := permute([]int{1, 2, 3})
+    fmt.Println(result)
+    // [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>子集生成</h3>
             <div class="algorithm-content">
                 <p>生成集合的所有子集。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="subsets-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="subsets-python">Python</button>
+                        <button class="code-tab-btn" data-tab="subsets-go">Go</button>
+                    </div>
+                    <div id="subsets-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function subsets(nums) {
     const result = [];
     
@@ -223,7 +541,67 @@ function subsets(nums) {
 // 测试
 console.log(subsets([1, 2, 3]));
 // [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="subsets-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def subsets(nums):
+    result = []
+    
+    def backtrack(index, current):
+        result.append(current[:])
+        
+        for i in range(index, len(nums)):
+            current.append(nums[i])
+            backtrack(i + 1, current)
+            current.pop()
+    
+    backtrack(0, [])
+    return result
+
+# 测试
+print(subsets([1, 2, 3]))
+# [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="subsets-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func subsets(nums []int) [][]int {
+    var result [][]int
+    
+    var backtrack func(index int, current []int)
+    backtrack = func(index int, current []int) {
+        temp := make([]int, len(current))
+        copy(temp, current)
+        result = append(result, temp)
+        
+        for i := index; i < len(nums); i++ {
+            current = append(current, nums[i])
+            backtrack(i+1, current)
+            current = current[:len(current)-1]
+        }
+    }
+    
+    backtrack(0, []int{})
+    return result
+}
+
+func main() {
+    result := subsets([]int{1, 2, 3})
+    fmt.Println(result)
+    // [[] [1] [1 2] [1 2 3] [1 3] [2] [2 3] [3]]
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 

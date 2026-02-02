@@ -46,8 +46,15 @@
             <h3>斐波那契数列</h3>
             <div class="algorithm-content">
                 <p>动态规划最经典的例子。传统递归有大量重复计算，使用DP可以优化到O(n)。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="fib-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="fib-python">Python</button>
+                        <button class="code-tab-btn" data-tab="fib-go">Go</button>
+                    </div>
+                    <div id="fib-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 // 方法1: 递归（低效）
 function fibRecursive(n) {
     if (n <= 1) return n;
@@ -86,15 +93,127 @@ function fibOptimized(n) {
 
 // 测试
 console.log(fibDP(10)); // 55
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="fib-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+# 方法1: 递归（低效）
+def fib_recursive(n):
+    if n <= 1:
+        return n
+    return fib_recursive(n - 1) + fib_recursive(n - 2)
+
+# 方法2: 记忆化递归
+def fib_memo(n, memo=None):
+    if memo is None:
+        memo = {}
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
+    return memo[n]
+
+# 方法3: 动态规划（自底向上）
+def fib_dp(n):
+    if n <= 1:
+        return n
+    dp = [0, 1]
+    for i in range(2, n + 1):
+        dp.append(dp[i - 1] + dp[i - 2])
+    return dp[n]
+
+# 方法4: 空间优化
+def fib_optimized(n):
+    if n <= 1:
+        return n
+    prev2, prev1 = 0, 1
+    for i in range(2, n + 1):
+        current = prev1 + prev2
+        prev2, prev1 = prev1, current
+    return prev1
+
+# 测试
+print(fib_dp(10))  # 55
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="fib-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+// 方法1: 递归（低效）
+func fibRecursive(n int) int {
+    if n <= 1 {
+        return n
+    }
+    return fibRecursive(n-1) + fibRecursive(n-2)
+}
+
+// 方法2: 记忆化递归
+func fibMemo(n int, memo map[int]int) int {
+    if val, ok := memo[n]; ok {
+        return val
+    }
+    if n <= 1 {
+        return n
+    }
+    memo[n] = fibMemo(n-1, memo) + fibMemo(n-2, memo)
+    return memo[n]
+}
+
+// 方法3: 动态规划（自底向上）
+func fibDP(n int) int {
+    if n <= 1 {
+        return n
+    }
+    dp := make([]int, n+1)
+    dp[0], dp[1] = 0, 1
+    for i := 2; i <= n; i++ {
+        dp[i] = dp[i-1] + dp[i-2]
+    }
+    return dp[n]
+}
+
+// 方法4: 空间优化
+func fibOptimized(n int) int {
+    if n <= 1 {
+        return n
+    }
+    prev2, prev1 := 0, 1
+    for i := 2; i <= n; i++ {
+        current := prev1 + prev2
+        prev2, prev1 = prev1, current
+    }
+    return prev1
+}
+
+func main() {
+    fmt.Println(fibDP(10)) // 55
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>背包问题 (Knapsack Problem)</h3>
             <div class="algorithm-content">
                 <p>给定一组物品，每件物品有重量和价值，在限定的重量内选择物品使总价值最大。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="knapsack-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="knapsack-python">Python</button>
+                        <button class="code-tab-btn" data-tab="knapsack-go">Go</button>
+                    </div>
+                    <div id="knapsack-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function knapsack(weights, values, capacity) {
     const n = weights.length;
     const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
@@ -120,15 +239,94 @@ const weights = [1, 2, 3, 4, 5];
 const values = [10, 15, 20, 25, 30];
 const capacity = 10;
 console.log(knapsack(weights, values, capacity)); // 60
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="knapsack-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def knapsack(weights, values, capacity):
+    n = len(weights)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+    
+    for i in range(1, n + 1):
+        for w in range(1, capacity + 1):
+            if weights[i - 1] <= w:
+                dp[i][w] = max(
+                    values[i - 1] + dp[i - 1][w - weights[i - 1]],
+                    dp[i - 1][w]
+                )
+            else:
+                dp[i][w] = dp[i - 1][w]
+    
+    return dp[n][capacity]
+
+# 测试
+weights = [1, 2, 3, 4, 5]
+values = [10, 15, 20, 25, 30]
+capacity = 10
+print(knapsack(weights, values, capacity))  # 60
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="knapsack-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func knapsack(weights, values []int, capacity int) int {
+    n := len(weights)
+    dp := make([][]int, n+1)
+    for i := range dp {
+        dp[i] = make([]int, capacity+1)
+    }
+
+    for i := 1; i <= n; i++ {
+        for w := 1; w <= capacity; w++ {
+            if weights[i-1] <= w {
+                dp[i][w] = max(values[i-1]+dp[i-1][w-weights[i-1]], dp[i-1][w])
+            } else {
+                dp[i][w] = dp[i-1][w]
+            }
+        }
+    }
+
+    return dp[n][capacity]
+}
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    weights := []int{1, 2, 3, 4, 5}
+    values := []int{10, 15, 20, 25, 30}
+    capacity := 10
+    fmt.Println(knapsack(weights, values, capacity)) // 60
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <h3>最长递增子序列 (LIS)</h3>
             <div class="algorithm-content">
                 <p>找到一个序列中最长的严格递增子序列的长度。</p>
-                <div class="code-block">
-                    <pre>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="lis-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="lis-python">Python</button>
+                        <button class="code-tab-btn" data-tab="lis-go">Go</button>
+                    </div>
+                    <div id="lis-js" class="code-tab-content active">
+                        <div class="code-block">
+                            <pre>
 function lengthOfLIS(nums) {
     if (nums.length === 0) return 0;
     
@@ -149,7 +347,72 @@ function lengthOfLIS(nums) {
 
 // 测试
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
-                    </pre>
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="lis-python" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+def length_of_lis(nums):
+    if not nums:
+        return 0
+    
+    dp = [1] * len(nums)
+    max_length = 1
+    
+    for i in range(1, len(nums)):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                dp[i] = max(dp[i], dp[j] + 1)
+        max_length = max(max_length, dp[i])
+    
+    return max_length
+
+# 测试
+print(length_of_lis([10, 9, 2, 5, 3, 7, 101, 18]))  # 4
+                            </pre>
+                        </div>
+                    </div>
+                    <div id="lis-go" class="code-tab-content">
+                        <div class="code-block">
+                            <pre>
+package main
+
+import "fmt"
+
+func lengthOfLIS(nums []int) int {
+    if len(nums) == 0 {
+        return 0
+    }
+
+    dp := make([]int, len(nums))
+    for i := range dp {
+        dp[i] = 1
+    }
+    maxLength := 1
+
+    for i := 1; i < len(nums); i++ {
+        for j := 0; j < i; j++ {
+            if nums[j] < nums[i] {
+                if dp[j]+1 > dp[i] {
+                    dp[i] = dp[j] + 1
+                }
+            }
+        }
+        if dp[i] > maxLength {
+            maxLength = dp[i]
+        }
+    }
+
+    return maxLength
+}
+
+func main() {
+    fmt.Println(lengthOfLIS([]int{10, 9, 2, 5, 3, 7, 101, 18})) // 4
+}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
