@@ -1209,180 +1209,1111 @@ print("全局最小割:", sw.min_cut())
             <h3>二分图最大匹配 (Hopcroft-Karp)</h3>
             <div class="algorithm-content">
                 <p>在二分图中找到最大数量的匹配边，使得没有两条边共享同一个顶点。Hopcroft-Karp算法时间复杂度为O(E√V)。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="hopcroft-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="hopcroft-python">Python</button>
-                    </div>
-                    <div id="hopcroft-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class HopcroftKarp {
-    constructor(nLeft, nRight) {
-        this.nLeft = nLeft;
-        this.nRight = nRight;
-        this.adj = Array(nLeft).fill(null).map(() => []);
-        this.pairU = new Array(nLeft).fill(-1);
-        this.pairV = new Array(nRight).fill(-1);
-        this.dist = new Array(nLeft);
+            </div>
+
+            <h3>最小生成树 (MST)</h3>
+            <div class="algorithm-content">
+                <h3>什么是最小生成树？</h3>
+                <p>最小生成树（Minimum Spanning Tree）是在一个连通加权无向图中找到一个包含所有顶点的树，且树中所有边的权重之和最小。</p>
+                
+                <p style="margin-top: 15px;"><strong>基本性质：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>切割性质：</strong>横跨任何切割的边中，权重最小的边一定属于某个MST</li>
+                    <li><strong>回路性质：</strong>在回路中，权重最大的边一定不属于任何MST</li>
+                </ul>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>Kruskal</h4>
+                    <p>O(E log E)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>Prim</h4>
+                    <p>O(E log V)</p>
+                </div>
+            </div>
+
+            <h3>Kruskal算法</h3>
+            <div class="algorithm-content">
+                <p><strong>算法思想：</strong>按照边权重从小到大排序，依次添加边，如果添加的边不形成回路，则将其加入生成树。</p>
+                
+                <p style="margin-top: 15px;"><strong>使用并查集(Union-Find)检测回路：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Find：</strong>查找元素所属的集合（根节点）</li>
+                    <li><strong>Union：</strong>合并两个集合</li>
+                    <li><strong>路径压缩：</strong>加速Find操作</li>
+                </ul>
+            </div>
+
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="kruskal-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="kruskal-python">Python</button>
+                </div>
+                <div id="kruskal-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class UnionFind {
+    constructor(n) {
+        this.parent = Array(n).fill(0).map((_, i) => i);
+        this.rank = Array(n).fill(0);
     }
 
-    addEdge(u, v) {
-        this.adj[u].push(v);
+    find(x) {
+        if (this.parent[x] !== x) {
+            this.parent[x] = this.find(this.parent[x]); // 路径压缩
+        }
+        return this.parent[x];
     }
 
-    bfs() {
-        const queue = [];
-        for (let u = 0; u < this.nLeft; u++) {
-            if (this.pairU[u] === -1) {
-                this.dist[u] = 0;
-                queue.push(u);
-            } else {
-                this.dist[u] = Infinity;
-            }
+    union(x, y) {
+        const rootX = this.find(x);
+        const rootY = this.find(y);
+        
+        if (rootX === rootY) return false;
+        
+        // 按秩合并
+        if (this.rank[rootX] < this.rank[rootY]) {
+            this.parent[rootX] = rootY;
+        } else if (this.rank[rootX] > this.rank[rootY]) {
+            this.parent[rootY] = rootX;
+        } else {
+            this.parent[rootY] = rootX;
+            this.rank[rootX]++;
         }
-
-        let found = false;
-        while (queue.length > 0) {
-            const u = queue.shift();
-            for (const v of this.adj[u]) {
-                if (this.pairV[v] !== -1 && this.dist[this.pairV[v]] === Infinity) {
-                    this.dist[this.pairV[v]] = this.dist[u] + 1;
-                    queue.push(this.pairV[v]);
-                }
-                if (this.pairV[v] === -1) {
-                    found = true;
-                }
-            }
-        }
-        return found;
-    }
-
-    dfs(u) {
-        for (const v of this.adj[u]) {
-            if (this.pairV[v] === -1 || 
-                (this.dist[this.pairV[v]] === this.dist[u] + 1 && 
-                 this.dfs(this.pairV[v]))) {
-                this.pairU[u] = v;
-                this.pairV[v] = u;
-                return true;
-            }
-        }
-        this.dist[u] = Infinity;
-        return false;
-    }
-
-    maxMatching() {
-        let matching = 0;
-        while (this.bfs()) {
-            for (let u = 0; u < this.nLeft; u++) {
-                if (this.pairU[u] === -1 && this.dfs(u)) {
-                    matching++;
-                }
-            }
-        }
-        return matching;
+        return true;
     }
 }
 
-// 测试：学生-课程匹配问题
-const hk = new HopcroftKarp(4, 4);
-hk.addEdge(0, 0); // 学生0可选课程0
-hk.addEdge(0, 1); // 学生0可选课程1
-hk.addEdge(1, 1); // 学生1可选课程1
-hk.addEdge(1, 2); // 学生1可选课程2
-hk.addEdge(2, 2); // 学生2可选课程2
-hk.addEdge(3, 3); // 学生3可选课程3
+class Kruskal {
+    constructor(n) {
+        this.n = n;
+        this.edges = [];
+    }
 
-console.log("最大匹配数:", hk.maxMatching());
+    addEdge(u, v, w) {
+        this.edges.push({ u, v, w });
+    }
+
+    mst() {
+        // 按权重排序
+        this.edges.sort((a, b) => a.w - b.w);
+        
+        const uf = new UnionFind(this.n);
+        const mst = [];
+        let totalWeight = 0;
+        
+        for (const edge of this.edges) {
+            if (uf.union(edge.u, edge.v)) {
+                mst.push(edge);
+                totalWeight += edge.w;
+            }
+        }
+        
+        return { edges: mst, totalWeight };
+    }
+}
+
+// 测试
+const kruskal = new Kruskal(5);
+kruskal.addEdge(0, 1, 2);
+kruskal.addEdge(0, 3, 6);
+kruskal.addEdge(1, 2, 3);
+kruskal.addEdge(1, 3, 8);
+kruskal.addEdge(1, 4, 5);
+kruskal.addEdge(2, 4, 7);
+kruskal.addEdge(3, 4, 9);
+
+const result = kruskal.mst();
+console.log("MST总权重:", result.totalWeight);
+console.log("MST边:", result.edges);
                     </code></pre></div>
-                    <div id="hopcroft-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import deque
+                </div>
+                <div id="kruskal-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if root_x == root_y:
+            return False
+        
+        if self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        else:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += 1
+        return True
 
-class HopcroftKarp:
-    def __init__(self, n_left, n_right):
-        self.n_left = n_left
-        self.n_right = n_right
-        self.adj = [[] for _ in range(n_left)]
-        self.pair_u = [-1] * n_left
-        self.pair_v = [-1] * n_right
-        self.dist = [0] * n_left
-
-    def add_edge(self, u, v):
-        self.adj[u].append(v)
-
-    def bfs(self):
-        queue = deque()
-        for u in range(self.n_left):
-            if self.pair_u[u] == -1:
-                self.dist[u] = 0
-                queue.append(u)
-            else:
-                self.dist[u] = float('inf')
-
-        found = False
-        while queue:
-            u = queue.popleft()
-            for v in self.adj[u]:
-                if self.pair_v[v] != -1 and self.dist[self.pair_v[v]] == float('inf'):
-                    self.dist[self.pair_v[v]] = self.dist[u] + 1
-                    queue.append(self.pair_v[v])
-                if self.pair_v[v] == -1:
-                    found = True
-        return found
-
-    def dfs(self, u):
-        for v in self.adj[u]:
-            if self.pair_v[v] == -1 or \
-               (self.dist[self.pair_v[v]] == self.dist[u] + 1 and 
-                self.dfs(self.pair_v[v])):
-                self.pair_u[u] = v
-                self.pair_v[v] = u
-                return True
-        self.dist[u] = float('inf')
-        return False
-
-    def max_matching(self):
-        matching = 0
-        while self.bfs():
-            for u in range(self.n_left):
-                if self.pair_u[u] == -1 and self.dfs(u):
-                    matching += 1
-        return matching
+class Kruskal:
+    def __init__(self, n):
+        self.n = n
+        self.edges = []
+    
+    def add_edge(self, u, v, w):
+        self.edges.append((u, v, w))
+    
+    def mst(self):
+        self.edges.sort(key=lambda x: x[2])
+        
+        uf = UnionFind(self.n)
+        mst = []
+        total_weight = 0
+        
+        for u, v, w in self.edges:
+            if uf.union(u, v):
+                mst.append((u, v, w))
+                total_weight += w
+        
+        return mst, total_weight
 
 # 测试
-hk = HopcroftKarp(4, 4)
-hk.add_edge(0, 0)
-hk.add_edge(0, 1)
-hk.add_edge(1, 1)
-hk.add_edge(1, 2)
-hk.add_edge(2, 2)
-hk.add_edge(3, 3)
+kruskal = Kruskal(5)
+kruskal.add_edge(0, 1, 2)
+kruskal.add_edge(0, 3, 6)
+kruskal.add_edge(1, 2, 3)
+kruskal.add_edge(1, 3, 8)
+kruskal.add_edge(1, 4, 5)
+kruskal.add_edge(2, 4, 7)
+kruskal.add_edge(3, 4, 9)
 
-print("最大匹配数:", hk.max_matching())
+mst, weight = kruskal.mst()
+print("MST总权重:", weight)
+print("MST边:", mst)
                     </code></pre></div>
                 </div>
             </div>
 
-            <h3>应用场景</h3>
+            <h3>Prim算法</h3>
             <div class="algorithm-content">
-                <h4>最大流应用：</h4>
-                <ul>
-                    <li><strong>网络流量优化：</strong>数据网络中的最大数据传输</li>
-                    <li><strong>任务分配：</strong>将任务分配给工人，最大化完成数量</li>
-                    <li><strong>交通流量：</strong>城市道路网络的最大通行能力</li>
+                <p><strong>算法思想：</strong>从任意一个顶点开始，逐步扩展生成树。每次选择一条连接已选顶点集合和未选顶点集合的最小权重边。</p>
+                
+                <p style="margin-top: 15px;"><strong>实现方式：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>朴素版：</strong>O(V²)，适合稠密图</li>
+                    <li><strong>优先队列版：</strong>O(E log V)，适合稀疏图</li>
                 </ul>
-                <h4 style="margin-top: 15px;">最小割应用：</h4>
+            </div>
+
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="prim-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="prim-python">Python</button>
+                </div>
+                <div id="prim-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class Prim {
+    constructor(n) {
+        this.n = n;
+        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
+    }
+
+    addEdge(u, v, w) {
+        this.graph[u][v] = w;
+        this.graph[v][u] = w;
+    }
+
+    mst(start = 0) {
+        const key = Array(this.n).fill(Infinity);
+        const parent = Array(this.n).fill(-1);
+        const inMST = Array(this.n).fill(false);
+        const pq = new PriorityQueue();
+
+        key[start] = 0;
+        pq.enqueue(start, 0);
+
+        while (!pq.isEmpty()) {
+            const { element: u } = pq.dequeue();
+            inMST[u] = true;
+
+            for (let v = 0; v < this.n; v++) {
+                if (this.graph[u][v] > 0 && !inMST[v] && this.graph[u][v] < key[v]) {
+                    key[v] = this.graph[u][v];
+                    parent[v] = u;
+                    pq.enqueue(v, key[v]);
+                }
+            }
+        }
+
+        const mst = [];
+        let totalWeight = 0;
+        for (let i = 1; i < this.n; i++) {
+            if (parent[i] !== -1) {
+                mst.push({ u: parent[i], v: i, w: this.graph[parent[i]][i] });
+                totalWeight += this.graph[parent[i]][i];
+            }
+        }
+
+        return { edges: mst, totalWeight };
+    }
+}
+
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+
+    enqueue(element, priority) {
+        this.items.push({ element, priority });
+        this.items.sort((a, b) => a.priority - b.priority);
+    }
+
+    dequeue() {
+        return this.items.shift();
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
+}
+
+// 测试
+const prim = new Prim(5);
+prim.addEdge(0, 1, 2);
+prim.addEdge(0, 3, 6);
+prim.addEdge(1, 2, 3);
+prim.addEdge(1, 3, 8);
+prim.addEdge(1, 4, 5);
+prim.addEdge(2, 4, 7);
+prim.addEdge(3, 4, 9);
+
+const result2 = prim.mst(0);
+console.log("MST总权重:", result2.totalWeight);
+console.log("MST边:", result2.edges);
+                    </code></pre></div>
+                </div>
+                <div id="prim-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+import heapq
+
+class Prim:
+    def __init__(self, n):
+        self.n = n
+        self.graph = [[0] * n for _ in range(n)]
+    
+    def add_edge(self, u, v, w):
+        self.graph[u][v] = w
+        self.graph[v][u] = w
+    
+    def mst(self, start=0):
+        key = [float('inf')] * self.n
+        parent = [-1] * self.n
+        in_mst = [False] * self.n
+        
+        key[start] = 0
+        pq = [(0, start)]  # (weight, vertex)
+        
+        while pq:
+            weight, u = heapq.heappop(pq)
+            if in_mst[u]:
+                continue
+            in_mst[u] = True
+            
+            for v in range(self.n):
+                if self.graph[u][v] > 0 and not in_mst[v]:
+                    if self.graph[u][v] < key[v]:
+                        key[v] = self.graph[u][v]
+                        parent[v] = u
+                        heapq.heappush(pq, (key[v], v))
+        
+        mst = []
+        total_weight = 0
+        for i in range(1, self.n):
+            if parent[i] != -1:
+                mst.append((parent[i], i, self.graph[parent[i]][i]))
+                total_weight += self.graph[parent[i]][i]
+        
+        return mst, total_weight
+
+# 测试
+prim = Prim(5)
+prim.add_edge(0, 1, 2)
+prim.add_edge(0, 3, 6)
+prim.add_edge(1, 2, 3)
+prim.add_edge(1, 3, 8)
+prim.add_edge(1, 4, 5)
+prim.add_edge(2, 4, 7)
+prim.add_edge(3, 4, 9)
+
+mst, weight = prim.mst(0)
+print("MST总权重:", weight)
+print("MST边:", mst)
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>Kruskal vs Prim</h3>
+            <div class="algorithm-content">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #3498db; color: white;">
+                        <th style="padding: 12px;">特性</th>
+                        <th style="padding: 12px;">Kruskal</th>
+                        <th style="padding: 12px;">Prim</th>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">时间复杂度</td>
+                        <td style="padding: 12px;">O(E log E)</td>
+                        <td style="padding: 12px;">O(E log V)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">适用图类型</td>
+                        <td style="padding: 12px;">稀疏图</td>
+                        <td style="padding: 12px;">稠密图</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">实现复杂度</td>
+                        <td style="padding: 12px;">简单</td>
+                        <td style="padding: 12px;">中等</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">数据结构</td>
+                        <td style="padding: 12px;">并查集</td>
+                        <td style="padding: 12px;">优先队列</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>最小生成树应用场景</h3>
+            <div class="algorithm-content">
                 <ul>
-                    <li><strong>网络可靠性：</strong>找出最脆弱的连接</li>
-                    <li><strong>图像分割：</strong>计算机视觉中的前景背景分离</li>
-                    <li><strong>聚类分析：</strong>将相似节点分到同一组</li>
+                    <li><strong>网络设计：</strong>通信网络、电网的最小成本建设</li>
+                    <li><strong>聚类分析：</strong>基于MST的层次聚类</li>
+                    <li><strong>图像处理：</strong>最小生成树用于图像分割</li>
+                    <li><strong>近似算法：</strong>旅行商问题的近似解</li>
                 </ul>
-                <h4 style="margin-top: 15px;">二分图匹配应用：</h4>
+            </div>
+
+            <h3>社区发现算法 (Community Detection)</h3>
+            <div class="algorithm-content">
+                <h3>什么是社区发现？</h3>
+                <p>社区发现旨在将复杂网络中的节点分组，使得同一社区内的节点连接紧密，不同社区间的节点连接稀疏。这对于分析社交网络、生物网络等非常重要。</p>
+                
+                <p style="margin-top: 15px;"><strong>核心概念：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>社区(Community)：</strong>内部连接紧密的节点集合</li>
+                    <li><strong>模块度(Modularity)：</strong>衡量社区划分质量的指标</li>
+                    <li><strong>Q值：</strong>模块度的取值范围通常为[-0.5, 1]</li>
+                </ul>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>Louvain</h4>
+                    <p>O(n log n)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>Girvan-Newman</h4>
+                    <p>O(VE²)</p>
+                </div>
+            </div>
+
+            <h3>Louvain算法</h3>
+            <div class="algorithm-content">
+                <p>Louvain算法是一种基于模块度优化的社区发现算法，时间复杂度接近线性，适合大规模网络。</p>
+                
+                <p style="margin-top: 15px;"><strong>算法步骤：</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>初始阶段：</strong>每个节点作为一个独立的社区</li>
+                    <li><strong>局部优化：</strong>将节点移动到能最大增加模块度的邻居社区</li>
+                    <li><strong>凝聚阶段：</strong>将同一社区的节点合并为一个超节点</li>
+                    <li><strong>迭代：</strong>重复步骤2-3直到模块度不再增加</li>
+                </ol>
+
+                <p style="margin-top: 15px;"><strong>模块度计算公式：</strong></p>
+                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2;">
+                    <p>Q = (1/2m) × Σᵢⱼ [Aᵢⱼ - kᵢkⱼ/(2m)] × δ(cᵢ, cⱼ)</p>
+                    <p>其中：</p>
+                    <p>m = 边的总数</p>
+                    <p>Aᵢⱼ = 邻接矩阵（1表示有边）</p>
+                    <p>kᵢ = 节点i的度</p>
+                    <p>cᵢ = 节点i所属社区</p>
+                    <p>δ(cᵢ, cⱼ) = 1如果cᵢ = cⱼ，否则为0</p>
+                </div>
+            </div>
+
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="louvain-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="louvain-python">Python</button>
+                </div>
+                <div id="louvain-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class Louvain {
+    constructor() {
+        this.graph = new Map();
+        this.communities = new Map();
+        this.weights = new Map();
+    }
+
+    addEdge(u, v, weight = 1) {
+        if (!this.graph.has(u)) {
+            this.graph.set(u, new Map());
+            this.communities.set(u, u);
+        }
+        if (!this.graph.has(v)) {
+            this.graph.set(v, new Map());
+            this.communities.set(v, v);
+        }
+
+        const key = u < v ? `${u}-${v}` : `${v}-${u}`;
+        const existing = this.graph.get(u).get(v) || 0;
+        this.graph.get(u).set(v, existing + weight);
+        this.graph.get(v).set(u, existing + weight);
+    }
+
+    _getNeighbors(node) {
+        return this.graph.get(node) || new Map();
+    }
+
+    _getWeight(u, v) {
+        return this._getNeighbors(u).get(v) || 0;
+    }
+
+    _getDegree(node) {
+        return Array.from(this._getNeighbors(node).values()).reduce((a, b) => a + b, 0);
+    }
+
+    _calculateModularity() {
+        let Q = 0;
+        const m = this._getTotalWeight();
+        
+        for (const [u, neighbors] of this.graph) {
+            for, w] of (const [v neighbors) {
+                if (u < v) {
+                    const cu = this.communities.get(u);
+                    const cv = this.communities.get(v);
+                    if (cu === cv) {
+                        const ki = this._getDegree(u);
+                        const kj = this._getDegree(v);
+                        Q += (w - (ki * kj) / (2 * m));
+                    }
+                }
+            }
+        }
+        
+        return Q / m;
+    }
+
+    _getTotalWeight() {
+        let total = 0;
+        for (const [u, neighbors] of this.graph) {
+            for (const [v, w] of neighbors) {
+                if (u < v) total += w;
+            }
+        }
+        return total;
+    }
+
+    _calculateDeltaQ(node, newCommunity, oldCommunity) {
+        const m = this._getTotalWeight();
+        const k = this._getDegree(node);
+        
+        let sumIn = 0;  // 新社区内部边的权重和
+        let sumTot = 0; // 新社区所有边的权重和
+        
+        for (const [neighbor, w] of this._getNeighbors(node)) {
+            if (this.communities.get(neighbor) === newCommunity) {
+                sumIn += w;
+                sumTot += w;
+            } else if (this.communities.get(neighbor) === oldCommunity) {
+                sumTot += w;
+            }
+        }
+        
+        const sigmaTot = sumTot;
+        const kiIn = sumIn;
+        
+        return (sigmaTot + k) / m - Math.pow(kiIn + k, 2) / (m * m) 
+             - (sigmaTot - k) / m - Math.pow(kiIn, 2) / (m * m);
+    }
+
+    fit(maxIterations = 100) {
+        let iteration = 0;
+        let modularity = this._calculateModularity();
+        
+        while (iteration < maxIterations) {
+            let changed = false;
+            
+            for (const node of this.graph.keys()) {
+                const currentCommunity = this.communities.get(node);
+                const neighbors = this._getNeighbors(node);
+                
+                let bestCommunity = currentCommunity;
+                let bestDeltaQ = 0;
+                
+                for (const [neighbor] of neighbors) {
+                    const neighborCommunity = this.communities.get(neighbor);
+                    if (neighborCommunity !== currentCommunity) {
+                        const deltaQ = this._calculateDeltaQ(node, neighborCommunity, currentCommunity);
+                        if (deltaQ > bestDeltaQ) {
+                            bestDeltaQ = deltaQ;
+                            bestCommunity = neighborCommunity;
+                        }
+                    }
+                }
+                
+                if (bestCommunity !== currentCommunity && bestDeltaQ > 0) {
+                    this.communities.set(node, bestCommunity);
+                    changed = true;
+                }
+            }
+            
+            const newModularity = this._calculateModularity();
+            if (!changed || Math.abs(newModularity - modularity) < 1e-6) {
+                break;
+            }
+            modularity = newModularity;
+            iteration++;
+        }
+        
+        return {
+            communities: this.communities,
+            modularity: this._calculateModularity()
+        };
+    }
+
+    getCommunityLabels() {
+        const labels = {};
+        for (const [node, community] of this.communities) {
+            labels[node] = community;
+        }
+        return labels;
+    }
+}
+
+// 测试：Karate Club网络
+const louvain = new Louvain();
+// 构建一个示例网络
+louvain.addEdge(0, 1, 4);
+louvain.addEdge(0, 2, 3);
+louvain.addEdge(0, 3, 3);
+louvain.addEdge(1, 2, 2);
+louvain.addEdge(1, 3, 3);
+louvain.addEdge(2, 3, 2);
+louvain.addEdge(2, 4, 1);
+louvain.addEdge(3, 4, 1);
+louvain.addEdge(4, 5, 2);
+louvain.addEdge(4, 6, 1);
+louvain.addEdge(5, 6, 3);
+
+const result = louvain.fit();
+console.log("社区划分:", result.communities);
+console.log("模块度:", result.modularity);
+console.log("标签:", louvain.getCommunityLabels());
+                    </code></pre></div>
+                </div>
+                <div id="louvain-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+
+class Louvain:
+    def __init__(self):
+        self.graph = {}
+        self.communities = {}
+        self.weights = {}
+    
+    def add_edge(self, u, v, weight=1):
+        if u not in self.graph:
+            self.graph[u] = {}
+            self.communities[u] = u
+        if v not in self.graph:
+            self.graph[v] = {}
+            self.communities[v] = v
+        
+        self.graph[u][v] = self.graph[u].get(v, 0) + weight
+        self.graph[v][u] = self.graph[v].get(u, 0) + weight
+    
+    def _get_neighbors(self, node):
+        return self.graph.get(node, {})
+    
+    def _get_weight(self, u, v):
+        return self._get_neighbors(u).get(v, 0)
+    
+    def _get_degree(self, node):
+        return sum(self._get_neighbors(node).values())
+    
+    def _get_total_weight(self):
+        total = 0
+        for u in self.graph:
+            for v in self.graph[u]:
+                if u < v:
+                    total += self.graph[u][v]
+        return total
+    
+    def _calculate_modularity(self):
+        m = self._get_total_weight()
+        Q = 0
+        
+        for u in self.graph:
+            for v in self.graph[u]:
+                if u < v:
+                    cu = self.communities[u]
+                    cv = self.communities[v]
+                    if cu == cv:
+                        w = self.graph[u][v]
+                        ki = self._get_degree(u)
+                        kj = self._get_degree(v)
+                        Q += w - (ki * kj) / (2 * m)
+        
+        return Q / m
+    
+    def _calculate_delta_q(self, node, new_community, old_community):
+        m = self._get_total_weight()
+        k = self._get_degree(node)
+        
+        sum_in = 0
+        sum_tot = 0
+        
+        for neighbor, w in self._get_neighbors(node).items():
+            comm = self.communities[neighbor]
+            if comm == new_community:
+                sum_in += w
+                sum_tot += w
+            elif comm == old_community:
+                sum_tot += w
+        
+        sigma_tot = sum_tot
+        ki_in = sum_in
+        
+        return ((sigma_tot + k) / m - (ki_in + k) ** 2 / (m * m)
+                - (sigma_tot - k) / m - ki_in ** 2 / (m * m))
+    
+    def fit(self, max_iterations=100):
+        modularity = self._calculate_modularity()
+        
+        for _ in range(max_iterations):
+            changed = False
+            
+            for node in self.graph:
+                current_comm = self.communities[node]
+                neighbors = self._get_neighbors(node)
+                
+                best_comm = current_comm
+                best_delta = 0
+                
+                for neighbor in neighbors:
+                    neighbor_comm = self.communities[neighbor]
+                    if neighbor_comm != current_comm:
+                        delta = self._calculate_delta_q(node, neighbor_comm, current_comm)
+                        if delta > best_delta:
+                            best_delta = delta
+                            best_comm = neighbor_comm
+                
+                if best_comm != current_comm and best_delta > 0:
+                    self.communities[node] = best_comm
+                    changed = True
+            
+            new_modularity = self._calculate_modularity()
+            if not changed or abs(new_modularity - modularity) < 1e-6:
+                break
+            modularity = new_modularity
+        
+        return {
+            'communities': self.communities,
+            'modularity': self._calculate_modularity()
+        }
+
+# 测试
+louvain = Louvain()
+louvain.add_edge(0, 1, 4)
+louvain.add_edge(0, 2, 3)
+louvain.add_edge(0, 3, 3)
+louvain.add_edge(1, 2, 2)
+louvain.add_edge(1, 3, 3)
+louvain.add_edge(2, 3, 2)
+louvain.add_edge(2, 4, 1)
+louvain.add_edge(3, 4, 1)
+louvain.add_edge(4, 5, 2)
+louvain.add_edge(4, 6, 1)
+louvain.add_edge(5, 6, 3)
+
+result = louvain.fit()
+print("社区划分:", result['communities'])
+print("模块度:", result['modularity'])
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>Girvan-Newman算法</h3>
+            <div class="algorithm-content">
+                <p>Girvan-Newman是一种基于边介数的社区发现算法，通过逐步移除介数最大的边来分割网络。</p>
+                
+                <p style="margin-top: 15px;"><strong>核心概念：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>边介数(Betweenness)：</strong>经过一条边的最短路径数量</li>
+                    <li>介数高的边通常是连接不同社区的"桥梁"</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>算法步骤：</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li>计算所有边的介数</li>
+                    <li>移除介数最高的边</li>
+                    <li>重新计算剩余边的介数</li>
+                    <li>重复直到达到期望的社区数量</li>
+                </ol>
+            </div>
+
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="gn-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="gn-python">Python</button>
+                </div>
+                <div id="gn-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class GirvanNewman {
+    constructor() {
+        this.graph = new Map();
+    }
+
+    addEdge(u, v) {
+        if (!this.graph.has(u)) this.graph.set(u, new Set());
+        if (!this.graph.has(v)) this.graph.set(v, new Set());
+        this.graph.get(u).add(v);
+        this.graph.get(v).add(u);
+    }
+
+    _bfs(source) {
+        const distances = new Map();
+        const parents = new Map();
+        const edgeCount = new Map();
+        const queue = [source];
+        
+        distances.set(source, 0);
+        for (const node of this.graph.keys()) {
+            if (node !== source) distances.set(node, -1);
+            parents.set(node, []);
+            edgeCount.set(node, 1);
+        }
+        
+        const visited = new Set([source]);
+        
+        while (queue.length > 0) {
+            const u = queue.shift();
+            for (const v of this.graph.get(u)) {
+                if (!visited.has(v)) {
+                    visited.add(v);
+                    distances.set(v, distances.get(u) + 1);
+                    queue.push(v);
+                    parents.get(v).push(u);
+                } else if (distances.get(v) === distances.get(u) + 1) {
+                    parents.get(v).push(u);
+                }
+            }
+        }
+        
+        const betweenness = new Map();
+        for (const node of this.graph.keys()) {
+            betweenness.set(node, 0);
+        }
+        
+        const reversed = [...this.graph.keys()].reverse();
+        for (const u of reversed) {
+            for (const v of parents.get(u)) {
+                const contribution = edgeCount.get(u) * (1 + betweenness.get(u)) / edgeCount.get(v);
+                betweenness.set(v, betweenness.get(v) + contribution);
+            }
+        }
+        
+        const edgeBetweenness = new Map();
+        for (const u of this.graph.keys()) {
+            for (const v of this.graph.get(u)) {
+                if (u < v) {
+                    const key = `${u}-${v}`;
+                    edgeBetweenness.set(key, (betweenness.get(u) + betweenness.get(v)) / 2);
+                }
+            }
+        }
+        
+        return edgeBetweenness;
+    }
+
+    calculateAllBetweenness() {
+        const totalBetweenness = new Map();
+        
+        for (const node of this.graph.keys()) {
+            const eb = this._bfs(node);
+            for (const [edge, value] of eb) {
+                totalBetweenness.set(edge, (totalBetweenness.get(edge) || 0) + value);
+            }
+        }
+        
+        return totalBetweenness;
+    }
+
+    getCommunities(nCommunities) {
+        const originalGraph = new Map();
+        for (const [node, neighbors] of this.graph) {
+            originalGraph.set(node, new Set(neighbors));
+        }
+        
+        const communities = [];
+        for (const node of originalGraph.keys()) {
+            communities.push([node]);
+        }
+        
+        while (communities.length > nCommunities) {
+            const betweenness = this.calculateAllBetweenness();
+            
+            // 找到介数最高的边
+            let maxEdge = null;
+            let maxValue = -1;
+            for (const [edge, value] of betweenness) {
+                if (value > maxValue) {
+                    maxValue = value;
+                    maxEdge = edge;
+                }
+            }
+            
+            if (!maxEdge) break;
+            
+            // 移除该边
+            const [u, v] = maxEdge.split('-');
+            this.graph.get(u).delete(v);
+            this.graph.get(v).delete(u);
+            
+            // 如果图不连通，分裂社区
+            if (!this._isConnected()) {
+                const components = this._getComponents();
+                // 更新communities数组
+                const newCommunities = [];
+                const nodeToNewComm = new Map();
+                
+                for (let i = 0; i < communities.length; i++) {
+                    const compNodes = new Set(components.map(c => c.has(i) ? i : null).filter(x => x !== null));
+                }
+            }
+        }
+        
+        return communities;
+    }
+
+    _isConnected() {
+        if (this.graph.size === 0) return true;
+        
+        const visited = new Set();
+        const queue = [this.graph.keys().next().value];
+        
+        while (queue.length > 0) {
+            const node = queue.shift();
+            visited.add(node);
+            
+            for (const neighbor of this.graph.get(node)) {
+                if (!visited.has(neighbor)) {
+                    visited.add(neighbor);
+                    queue.push(neighbor);
+                }
+            }
+        }
+        
+        return visited.size === this.graph.size;
+    }
+
+    _getComponents() {
+        const visited = new Set();
+        const components = [];
+        
+        for (const node of this.graph.keys()) {
+            if (!visited.has(node)) {
+                const component = new Set();
+                const queue = [node];
+                
+                while (queue.length > 0) {
+                    const u = queue.shift();
+                    if (visited.has(u)) continue;
+                    visited.add(u);
+                    component.add(u);
+                    
+                    for (const v of this.graph.get(u)) {
+                        if (!visited.has(v)) {
+                            queue.push(v);
+                        }
+                    }
+                }
+                
+                components.push(component);
+            }
+        }
+        
+        return components;
+    }
+}
+                    </code></pre></div>
+                </div>
+                <div id="gn-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import deque
+
+class GirvanNewman:
+    def __init__(self):
+        self.graph = {}
+    
+    def add_edge(self, u, v):
+        if u not in self.graph:
+            self.graph[u] = set()
+        if v not in self.graph:
+            self.graph[v] = set()
+        self.graph[u].add(v)
+        self.graph[v].add(u)
+    
+    def _bfs(self, source):
+        distances = {source: 0}
+        parents = {node: [] for node in self.graph}
+        edge_count = {node: 1 for node in self.graph}
+        queue = deque([source])
+        visited = {source}
+        
+        while queue:
+            u = queue.popleft()
+            for v in self.graph[u]:
+                if v not in visited:
+                    visited.add(v)
+                    distances[v] = distances[u] + 1
+                    queue.append(v)
+                    parents[v].append(u)
+                elif distances[v] == distances[u] + 1:
+                    parents[v].append(u)
+        
+        betweenness = {node: 0 for node in self.graph}
+        
+        for node in reversed(list(self.graph.keys())):
+            for v in parents[node]:
+                contribution = edge_count[node] * (1 + betweenness[node]) / edge_count[v]
+                betweenness[v] += contribution
+        
+        edge_betweenness = {}
+        for u in self.graph:
+            for v in self.graph[u]:
+                if u < v:
+                    edge_betweenness[(u, v)] = (betweenness[u] + betweenness[v]) / 2
+        
+        return edge_betweenness
+    
+    def calculate_all_betweenness(self):
+        total_betweenness = {}
+        for node in self.graph:
+            eb = self._bfs(node)
+            for edge, value in eb.items():
+                total_betweenness[edge] = total_betweenness.get(edge, 0) + value
+        return total_betweenness
+    
+    def get_communities(self, n_communities):
+        communities = [[node] for node in self.graph.keys()]
+        
+        while len(communities) > n_communities:
+            betweenness = self.calculate_all_betweenness()
+            
+            if not betweenness:
+                break
+            
+            max_edge = max(betweenness.items(), key=lambda x: x[1])[0]
+            u, v = max_edge
+            
+            # 移除边
+            self.graph[u].remove(v)
+            self.graph[v].remove(u)
+            
+            # 检查是否形成新社区
+            components = self._get_components()
+            if len(components) > len(communities):
+                # 合并到新社区
+                communities = [list(c) for c in components]
+        
+        return communities
+    
+    def _get_components(self):
+        visited = set()
+        components = []
+        
+        for node in self.graph:
+            if node not in visited:
+                component = set()
+                queue = [node]
+                
+                while queue:
+                    u = queue.pop()
+                    if u in visited:
+                        continue
+                    visited.add(u)
+                    component.add(u)
+                    
+                    for v in self.graph[u]:
+                        if v not in visited:
+                            queue.append(v)
+                
+                components.append(component)
+        
+        return components
+
+# 测试
+gn = GirvanNewman()
+gn.add_edge(0, 1)
+gn.add_edge(0, 2)
+gn.add_edge(0, 3)
+gn.add_edge(1, 2)
+gn.add_edge(1, 3)
+gn.add_edge(2, 3)
+gn.add_edge(3, 4)
+gn.add_edge(4, 5)
+gn.add_edge(4, 6)
+gn.add_edge(5, 6)
+
+communities = gn.get_communities(2)
+print("社区划分:", communities)
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>Louvain vs Girvan-Newman</h3>
+            <div class="algorithm-content">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #3498db; color: white;">
+                        <th style="padding: 12px;">特性</th>
+                        <th style="padding: 12px;">Louvain</th>
+                        <th style="padding: 12px;">Girvan-Newman</th>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">时间复杂度</td>
+                        <td style="padding: 12px;">O(n log n)</td>
+                        <td style="padding: 12px;">O(VE²)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">策略</td>
+                        <td style="padding: 12px;">凝聚式</td>
+                        <td style="padding: 12px;">分裂式</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">大规模网络</td>
+                        <td style="padding: 12px;">适合</td>
+                        <td style="padding: 12px;">不适合</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">层次结构</td>
+                        <td style="padding: 12px;">自然产生</td>
+                        <td style="padding: 12px;">需额外处理</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>社区发现应用场景</h3>
+            <div class="algorithm-content">
                 <ul>
-                    <li><strong>工作分配：</strong>将工作分配给合适的工人</li>
-                    <li><strong>学校录取：</strong>学生-学校匹配</li>
-                    <li><strong>在线约会：</strong>用户匹配推荐</li>
+                    <li><strong>社交网络分析：</strong>发现用户群体、好友圈</li>
+                    <li><strong>生物信息学：</strong>蛋白质相互作用网络、功能模块识别</li>
+                    <li><strong>推荐系统：</strong>基于社区的协同过滤</li>
+                    <li><strong>网络安全：</strong>检测异常社区、僵尸网络</li>
+                    <li><strong>市场营销：</strong>细分客户群体</li>
                 </ul>
             </div>
 
@@ -1396,6 +2327,8 @@ print("最大匹配数:", hk.max_matching())
                     <li>深入理解最大流最小割定理</li>
                     <li>对比Ford-Fulkerson和Dinic算法的效率差异</li>
                     <li>理解残量网络和增广路径的概念</li>
+                    <li>理解模块度(Q值)在社区发现中的意义</li>
+                    <li>掌握Kruskal的并查集优化和Prim的优先队列优化</li>
                 </ul>
             </div>
         </div>
