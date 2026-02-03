@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑距离 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>编辑距离 (Levenshtein Distance)</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是编辑距离？</h3>
+                <p>编辑距离（又称Levenshtein距离）表示将一个字符串转换为另一个字符串所需的最少编辑操作次数。允许的编辑操作包括：插入一个字符、删除一个字符、替换一个字符。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(m×n)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(min(m,n))</p>
+                </div>
+            </div>
+
+            <h3>编辑操作定义</h3>
+            <div class="algorithm-content">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #3498db; color: white;">
+                        <th style="padding: 12px; text-align: left;">操作</th>
+                        <th style="padding: 12px; text-align: left;">说明</th>
+                        <th style="padding: 12px; text-align: left;">示例</th>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">插入</td>
+                        <td style="padding: 12px;">在任意位置插入一个字符</td>
+                        <td style="padding: 12px;">kitten → kitt<strong>e</strong>n</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">删除</td>
+                        <td style="padding: 12px;">删除任意位置的字符</td>
+                        <td style="padding: 12px;">kitten → kitt<strong></strong>n</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">替换</td>
+                        <td style="padding: 12px;">将一个字符替换为另一个</td>
+                        <td style="padding: 12px;">kitten → sitt<strong>s</strong>en</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>动态规划原理</h3>
+            <div class="algorithm-content">
+                <p><strong>状态定义：</strong></p>
+                <p style="font-family: 'Consolas', monospace; background: #2d2d2d; padding: 10px; border-radius: 8px; margin: 10px 0;">dp[i][j] = word1[0...i-1] 转换为 word2[0...j-1] 的最少操作次数</p>
+                
+                <p style="margin-top: 15px;"><strong>递推公式：</strong></p>
+                <div style="font-family: 'Consolas', monospace; background: #2d2d2d; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                    <p>if word1[i-1] == word2[j-1]:</p>
+                    <p style="padding-left: 20px;">dp[i][j] = dp[i-1][j-1]</p>
+                    <p>else:</p>
+                    <p style="padding-left: 20px;">dp[i][j] = min(dp[i-1][j],    # 删除</p>
+                    <p style="padding-left: 40px;">dp[i][j-1],    # 插入</p>
+                    <p style="padding-left: 40px;">dp[i-1][j-1])   # 替换</p>
+                </div>
+                
+                <p style="margin-top: 15px;"><strong>边界条件：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>dp[0][j] = j：空字符串转换为长度为j的字符串需要j次插入</li>
+                    <li>dp[i][0] = i：长度为i的字符串转换为空需要i次删除</li>
+                </ul>
+            </div>
+
+            <h3>手动计算示例</h3>
+            <div class="algorithm-content">
+                <p>计算 "kitten" → "sitting" 的编辑距离：</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px;">
+                    <tr style="background: #3498db; color: white;">
+                        <th style="padding: 8px;"></th>
+                        <th style="padding: 8px;"></th>
+                        <th style="padding: 8px;">""</th>
+                        <th style="padding: 8px;">s</th>
+                        <th style="padding: 8px;">i</th>
+                        <th style="padding: 8px;">t</th>
+                        <th style="padding: 8px;">t</th>
+                        <th style="padding: 8px;">i</th>
+                        <th style="padding: 8px;">n</th>
+                        <th style="padding: 8px;">g</th>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 8px; background: #3498db; color: white;">""</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">0</td>
+                        <td style="padding: 8px; text-align: center;">1</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">6</td>
+                        <td style="padding: 8px; text-align: center;">7</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; background: #3498db; color: white;">k</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">1</td>
+                        <td style="padding: 8px; text-align: center; background: #e8f5e9;">1</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">6</td>
+                        <td style="padding: 8px; text-align: center;">7</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 8px; background: #3498db; color: white;">i</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center; background: #e8f5e9;">1</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">6</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; background: #3498db; color: white;">t</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center; background: #e8f5e9;">1</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 8px; background: #3498db; color: white;">t</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center; background: #e8f5e9;">1</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; background: #3498db; color: white;">e</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 8px; background: #3498db; color: white;">n</td>
+                        <td style="padding: 8px;"></td>
+                        <td style="padding: 8px; text-align: center;">6</td>
+                        <td style="padding: 8px; text-align: center;">6</td>
+                        <td style="padding: 8px; text-align: center;">5</td>
+                        <td style="padding: 8px; text-align: center;">4</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                        <td style="padding: 8px; text-align: center; background: #e8f5e9;">2</td>
+                        <td style="padding: 8px; text-align: center;">3</td>
+                    </tr>
+                </table>
+                <p style="margin-top: 15px;"><strong>结果：</strong>kitten → sitting 的编辑距离为 3</p>
+                <p>转换步骤：kitten → <strong>s</strong>itten (替换) → sitt<strong>e</strong>n (替换) → sittin<strong>g</strong> (插入)</p>
+            </div>
+
+            <h3>算法实现</h3>
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="edit-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="edit-python">Python</button>
+                </div>
+                <div id="edit-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+function minDistance(word1, word2) {
+    const m = word1.length;
+    const n = word2.length;
+    
+    // 空间优化：使用一维数组
+    const dp = new Array(n + 1);
+    
+    // 初始化
+    for (let j = 0; j <= n; j++) {
+        dp[j] = j;
+    }
+    
+    for (let i = 1; i <= m; i++) {
+        const prev = dp[0]; // 保存 dp[i-1][j-1]
+        dp[0] = i;
+        
+        for (let j = 1; j <= n; j++) {
+            const temp = dp[j]; // 保存当前 dp[i-1][j]
+            
+            if (word1[i-1] === word2[j-1]) {
+                dp[j] = prev;
+            } else {
+                dp[j] = Math.min(
+                    dp[j],     // 删除 word1[i-1]
+                    dp[j-1],   // 插入 word2[j-1]
+                    prev       // 替换
+                ) + 1;
+            }
+            
+            prev = temp;
+        }
+    }
+    
+    return dp[n];
+}
+
+// 测试
+console.log(minDistance("kitten", "sitting")); // 3
+console.log(minDistance("horse", "ros"));      // 3
+console.log(minDistance("", ""));              // 0
+                    </code></pre></div>
+                </div>
+                <div id="edit-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+def min_distance(word1, word2):
+    m, n = len(word1), len(word2)
+    
+    # 空间优化：使用一维数组
+    dp = list(range(n + 1))
+    
+    for i in range(1, m + 1):
+        prev = dp[0]  # 保存 dp[i-1][j-1]
+        dp[0] = i
+        
+        for j in range(1, n + 1):
+            temp = dp[j]  # 保存当前 dp[i-1][j]
+            
+            if word1[i-1] == word2[j-1]:
+                dp[j] = prev
+            else:
+                dp[j] = min(
+                    dp[j],      # 删除 word1[i-1]
+                    dp[j-1],    # 插入 word2[j-1]
+                    prev        # 替换
+                ) + 1
+            
+            prev = temp
+    
+    return dp[n]
+
+# 测试
+print(min_distance("kitten", "sitting"))  # 3
+print(min_distance("horse", "ros"))       # 3
+print(min_distance("", ""))               # 0
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>编辑距离的变体</h3>
+            <div class="algorithm-content">
+                <p><strong>1. 只允许插入和删除（不允许替换）</strong></p>
+                <p>等价于计算两个字符串长度的差值加上公共部分的不同字符数。</p>
+                <p style="margin-top: 15px;"><strong>2. 只允许交换相邻字符（Damerau-Levenshtein距离）</strong></p>
+                <p>增加一个操作：交换相邻字符。</p>
+                <p style="margin-top: 15px;"><strong>3. 加权编辑距离</strong></p>
+                <p>不同的编辑操作有不同的代价，如替换代价为2，插入删除代价为1。</p>
+            </div>
+
+            <h3>应用场景</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>拼写检查：</strong>找到最相似的正确单词</li>
+                    <li><strong>DNA序列比对：</strong>生物信息学中的序列相似度计算</li>
+                    <li><strong>模糊搜索：</strong>支持近似匹配的搜索系统</li>
+                    <li><strong> plagiarism检测：</strong>文本相似度检测</li>
+                    <li><strong>机器翻译：</strong>评估翻译质量</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

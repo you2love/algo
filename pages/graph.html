@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo">AlgoLearn</h1>
+            <h1 class="logo"></h1>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
@@ -712,6 +712,680 @@ func main() {
                 </div>
             </div>
 
+            <h3>最大流算法 (Max Flow)</h3>
+            <div class="algorithm-content">
+                <h3>什么是最大流问题？</h3>
+                <p>最大流问题旨在找出从源点(source)到汇点(sink)的最大流量，使得每条边的流量不超过其容量，且满足流量守恒定律。</p>
+                
+                <p style="margin-top: 15px;"><strong>基本概念：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>容量(Capacity)：</strong>边的最大允许流量</li>
+                    <li><strong>流量(Flow)：</strong>实际通过边的流量</li>
+                    <li><strong>残量网络(Residual Network)：</strong>表示剩余可用容量的网络</li>
+                    <li><strong>增广路径(Augmenting Path)：</strong>残量网络中从源点到汇点的路径</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Ford-Fulkerson方法：</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li>初始化流为0</li>
+                    <li>在残量网络中寻找增广路径</li>
+                    <li>沿增广路径增加流量</li>
+                    <li>重复直到没有增广路径</li>
+                </ol>
+            </div>
+
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="ford-fulkerson-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="ford-fulkerson-python">Python</button>
+                </div>
+                <div id="ford-fulkerson-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class MaxFlow {
+    constructor(n) {
+        this.n = n;
+        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
+    }
+
+    addEdge(u, v, capacity) {
+        this.graph[u][v] = capacity;
+    }
+
+    bfs(s, t, parent) {
+        const visited = new Array(this.n).fill(false);
+        const queue = [s];
+        visited[s] = true;
+        parent[s] = -1;
+
+        while (queue.length > 0) {
+            const u = queue.shift();
+
+            for (let v = 0; v < this.n; v++) {
+                if (!visited[v] && this.graph[u][v] > 0) {
+                    visited[v] = true;
+                    parent[v] = u;
+                    queue.push(v);
+                    if (v === t) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    fordFulkerson(s, t) {
+        const parent = new Array(this.n).fill(-1);
+        let maxFlow = 0;
+
+        while (this.bfs(s, t, parent)) {
+            let pathFlow = Infinity;
+            for (let v = t; v !== s; v = parent[v]) {
+                const u = parent[v];
+                pathFlow = Math.min(pathFlow, this.graph[u][v]);
+            }
+
+            for (let v = t; v !== s; v = parent[v]) {
+                const u = parent[v];
+                this.graph[u][v] -= pathFlow;
+                this.graph[v][u] += pathFlow;
+            }
+
+            maxFlow += pathFlow;
+        }
+        return maxFlow;
+    }
+}
+
+// 测试：经典的"最大流最小割"示例
+const maxFlow = new MaxFlow(6);
+maxFlow.addEdge(0, 1, 16);
+maxFlow.addEdge(0, 2, 13);
+maxFlow.addEdge(1, 2, 10);
+maxFlow.addEdge(1, 3, 12);
+maxFlow.addEdge(2, 1, 4);
+maxFlow.addEdge(2, 4, 14);
+maxFlow.addEdge(3, 2, 9);
+maxFlow.addEdge(3, 5, 20);
+maxFlow.addEdge(4, 3, 7);
+maxFlow.addEdge(4, 5, 4);
+
+console.log("最大流量:", maxFlow.fordFulkerson(0, 5)); // 23
+                    </code></pre></div>
+                </div>
+                <div id="ford-fulkerson-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+class MaxFlow:
+    def __init__(self, n):
+        self.n = n
+        self.graph = [[0] * n for _ in range(n)]
+
+    def add_edge(self, u, v, capacity):
+        self.graph[u][v] = capacity
+
+    def bfs(self, s, t, parent):
+        visited = [False] * self.n
+        queue = [s]
+        visited[s] = True
+        parent[s] = -1
+
+        while queue:
+            u = queue.pop(0)
+            for v in range(self.n):
+                if not visited[v] and self.graph[u][v] > 0:
+                    visited[v] = True
+                    parent[v] = u
+                    queue.append(v)
+                    if v == t:
+                        return True
+        return False
+
+    def ford_fulkerson(self, s, t):
+        parent = [-1] * self.n
+        max_flow = 0
+
+        while self.bfs(s, t, parent):
+            path_flow = float('inf')
+            v = t
+            while v != s:
+                u = parent[v]
+                path_flow = min(path_flow, self.graph[u][v])
+                v = u
+
+            v = t
+            while v != s:
+                u = parent[v]
+                self.graph[u][v] -= path_flow
+                self.graph[v][u] += path_flow
+                v = u
+
+            max_flow += path_flow
+
+        return max_flow
+
+# 测试
+max_flow = MaxFlow(6)
+max_flow.add_edge(0, 1, 16)
+max_flow.add_edge(0, 2, 13)
+max_flow.add_edge(1, 2, 10)
+max_flow.add_edge(1, 3, 12)
+max_flow.add_edge(2, 1, 4)
+max_flow.add_edge(2, 4, 14)
+max_flow.add_edge(3, 2, 9)
+max_flow.add_edge(3, 5, 20)
+max_flow.add_edge(4, 3, 7)
+max_flow.add_edge(4, 5, 4)
+
+print("最大流量:", max_flow.ford_fulkerson(0, 5))  # 23
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>Dinic算法（更高效的最大流）</h3>
+            <div class="algorithm-content">
+                <p>Dinic算法通过构建分层图和使用DFS寻找阻塞流，在稀疏图上时间复杂度为O(V²E)。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="dinic-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="dinic-python">Python</button>
+                    </div>
+                    <div id="dinic-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class Dinic {
+    constructor(n) {
+        this.n = n;
+        this.adj = Array(n).fill(null).map(() => []);
+    }
+
+    addEdge(u, v, capacity) {
+        this.adj[u].push({ to: v, cap: capacity, rev: this.adj[v].length });
+        this.adj[v].push({ to: u, cap: 0, rev: this.adj[u].length - 1 });
+    }
+
+    bfs(s, t, level) {
+        level.fill(-1);
+        level[s] = 0;
+        const queue = [s];
+
+        while (queue.length > 0) {
+            const u = queue.shift();
+            for (const edge of this.adj[u]) {
+                if (edge.cap > 0 && level[edge.to] < 0) {
+                    level[edge.to] = level[u] + 1;
+                    queue.push(edge.to);
+                }
+            }
+        }
+        return level[t] >= 0;
+    }
+
+    dfs(u, t, f, level, it) {
+        if (u === t) return f;
+
+        for (let i = it[u]; i < this.adj[u].length; i++) {
+            const edge = this.adj[u][i];
+            if (edge.cap > 0 && level[u] + 1 === level[edge.to]) {
+                const ret = this.dfs(edge.to, t, Math.min(f, edge.cap), level, it);
+                if (ret > 0) {
+                    edge.cap -= ret;
+                    this.adj[edge.to][edge.rev].cap += ret;
+                    return ret;
+                }
+            }
+            it[u]++;
+        }
+        return 0;
+    }
+
+    maxFlow(s, t) {
+        const level = new Array(this.n).fill(-1);
+        let flow = 0;
+        const INF = 1 << 30;
+
+        while (this.bfs(s, t, level)) {
+            const it = new Array(this.n).fill(0);
+            while (true) {
+                const f = this.dfs(s, t, INF, level, it);
+                if (f === 0) break;
+                flow += f;
+            }
+        }
+        return flow;
+    }
+}
+
+// 测试
+const dinic = new Dinic(6);
+dinic.addEdge(0, 1, 16);
+dinic.addEdge(0, 2, 13);
+dinic.addEdge(1, 2, 10);
+dinic.addEdge(1, 3, 12);
+dinic.addEdge(2, 1, 4);
+dinic.addEdge(2, 4, 14);
+dinic.addEdge(3, 2, 9);
+dinic.addEdge(3, 5, 20);
+dinic.addEdge(4, 3, 7);
+dinic.addEdge(4, 5, 4);
+
+console.log("Dinic最大流量:", dinic.maxFlow(0, 5)); // 23
+                    </code></pre></div>
+                    </div>
+                    <div id="dinic-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import deque
+
+class Dinic:
+    def __init__(self, n):
+        self.n = n
+        self.adj = [[] for _ in range(n)]
+
+    def add_edge(self, u, v, capacity):
+        self.adj[u].append([v, capacity, len(self.adj[v])])
+        self.adj[v].append([u, 0, len(self.adj[u]) - 1])
+
+    def bfs(self, s, t, level):
+        level[:] = [-1] * self.n
+        level[s] = 0
+        queue = deque([s])
+
+        while queue:
+            u = queue.popleft()
+            for v, cap, _ in self.adj[u]:
+                if cap > 0 and level[v] < 0:
+                    level[v] = level[u] + 1
+                    queue.append(v)
+        return level[t] >= 0
+
+    def dfs(self, u, t, f, level, it):
+        if u == t:
+            return f
+        for i in range(it[u], len(self.adj[u])):
+            it[u] = i
+            v, cap, rev = self.adj[u][i]
+            if cap > 0 and level[u] + 1 == level[v]:
+                ret = self.dfs(v, t, min(f, cap), level, it)
+                if ret:
+                    self.adj[u][i][1] -= ret
+                    self.adj[v][rev][1] += ret
+                    return ret
+        return 0
+
+    def max_flow(self, s, t):
+        level = [-1] * self.n
+        flow = 0
+        INF = 10 ** 18
+
+        while self.bfs(s, t, level):
+            it = [0] * self.n
+            while True:
+                f = self.dfs(s, t, INF, level, it)
+                if not f:
+                    break
+                flow += f
+        return flow
+
+# 测试
+dinic = Dinic(6)
+dinic.add_edge(0, 1, 16)
+dinic.add_edge(0, 2, 13)
+dinic.add_edge(1, 2, 10)
+dinic.add_edge(1, 3, 12)
+dinic.add_edge(2, 1, 4)
+dinic.add_edge(2, 4, 14)
+dinic.add_edge(3, 2, 9)
+dinic.add_edge(3, 5, 20)
+dinic.add_edge(4, 3, 7)
+dinic.add_edge(4, 5, 4)
+
+print("Dinic最大流量:", dinic.max_flow(0, 5))  # 23
+                    </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>最小割 (Min Cut)</h3>
+            <div class="algorithm-content">
+                <h3>最大流最小割定理</h3>
+                <p><strong>定理：</strong>在任何网络中，最大流的值等于最小割的容量。</p>
+                <p style="margin-top: 15px;"><strong>最小割定义：</strong></p>
+                <p>将网络中的顶点分成两个不相交的集合S和T，使得源点在S中，汇点在T中，且跨越S和T的边容量之和最小。</p>
+                <p style="margin-top: 15px;"><strong>求最小割方法：</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li>运行最大流算法</li>
+                    <li>在最终残量网络中，从源点出发沿残量边可达的顶点构成集合S</li>
+                    <li>跨越S和T的边即为最小割</li>
+                </ol>
+            </div>
+
+            <h3>Stoer-Wagner全局最小割算法</h3>
+            <div class="algorithm-content">
+                <p>求无向图中任意两点之间的最小割，时间复杂度O(V³)。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="stoer-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="stoer-python">Python</button>
+                    </div>
+                    <div id="stoer-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class StoerWagner {
+    constructor(n) {
+        this.n = n;
+        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
+    }
+
+    addEdge(u, v, weight) {
+        this.graph[u][v] += weight;
+        this.graph[v][u] += weight;
+    }
+
+    minCut() {
+        const vertices = Array.from({ length: this.n }, (_, i) => i);
+        let minCut = Infinity;
+
+        while (vertices.length > 1) {
+            const weights = new Array(this.n).fill(0);
+            const added = new Array(this.n).fill(false);
+            let prev = -1;
+
+            // 最大权重搜索（类似Prim）
+            for (let i = 0; i < vertices.length; i++) {
+                let maxWeight = -1;
+                let maxIdx = -1;
+
+                for (const v of vertices) {
+                    if (!added[v] && weights[v] > maxWeight) {
+                        maxWeight = weights[v];
+                        maxIdx = v;
+                    }
+                }
+
+                added[maxIdx] = true;
+
+                if (i === vertices.length - 1) {
+                    // 最后加入的顶点s和t
+                    const s = prev;
+                    const t = maxIdx;
+                    minCut = Math.min(minCut, maxWeight);
+
+                    // 合并s和t
+                    for (let v = 0; v < this.n; v++) {
+                        this.graph[s][v] += this.graph[t][v];
+                        this.graph[v][s] += this.graph[t][v];
+                    }
+
+                    vertices.splice(vertices.indexOf(t), 1);
+                    break;
+                }
+
+                prev = maxIdx;
+
+                for (const v of vertices) {
+                    if (!added[v]) {
+                        weights[v] += this.graph[maxIdx][v];
+                    }
+                }
+            }
+        }
+
+        return minCut;
+    }
+}
+
+// 测试：求图的全局最小割
+const sw = new StoerWagner(4);
+sw.addEdge(0, 1, 6);
+sw.addEdge(0, 2, 5);
+sw.addEdge(0, 3, 4);
+sw.addEdge(1, 2, 3);
+sw.addEdge(1, 3, 2);
+sw.addEdge(2, 3, 3);
+
+console.log("全局最小割:", sw.minCut());
+                    </code></pre></div>
+                    <div id="stoer-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+class StoerWagner:
+    def __init__(self, n):
+        self.n = n
+        self.graph = [[0] * n for _ in range(n)]
+
+    def add_edge(self, u, v, weight):
+        self.graph[u][v] += weight
+        self.graph[v][u] += weight
+
+    def min_cut(self):
+        vertices = list(range(self.n))
+        min_cut = float('inf')
+
+        while len(vertices) > 1:
+            weights = [0] * self.n
+            added = [False] * self.n
+            prev = -1
+
+            for i in range(len(vertices)):
+                max_weight = -1
+                max_idx = -1
+
+                for v in vertices:
+                    if not added[v] and weights[v] > max_weight:
+                        max_weight = weights[v]
+                        max_idx = v
+
+                added[max_idx] = True
+
+                if i == len(vertices) - 1:
+                    s = prev
+                    t = max_idx
+                    min_cut = min(min_cut, max_weight)
+
+                    # 合并s和t
+                    for v in range(self.n):
+                        self.graph[s][v] += self.graph[t][v]
+                        self.graph[v][s] += self.graph[t][v]
+
+                    vertices.remove(t)
+                    break
+
+                prev = max_idx
+
+                for v in vertices:
+                    if not added[v]:
+                        weights[v] += self.graph[max_idx][v]
+
+        return min_cut
+
+# 测试
+sw = StoerWagner(4)
+sw.add_edge(0, 1, 6)
+sw.add_edge(0, 2, 5)
+sw.add_edge(0, 3, 4)
+sw.add_edge(1, 2, 3)
+sw.add_edge(1, 3, 2)
+sw.add_edge(2, 3, 3)
+
+print("全局最小割:", sw.min_cut())
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>二分图最大匹配 (Hopcroft-Karp)</h3>
+            <div class="algorithm-content">
+                <p>在二分图中找到最大数量的匹配边，使得没有两条边共享同一个顶点。Hopcroft-Karp算法时间复杂度为O(E√V)。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="hopcroft-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="hopcroft-python">Python</button>
+                    </div>
+                    <div id="hopcroft-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class HopcroftKarp {
+    constructor(nLeft, nRight) {
+        this.nLeft = nLeft;
+        this.nRight = nRight;
+        this.adj = Array(nLeft).fill(null).map(() => []);
+        this.pairU = new Array(nLeft).fill(-1);
+        this.pairV = new Array(nRight).fill(-1);
+        this.dist = new Array(nLeft);
+    }
+
+    addEdge(u, v) {
+        this.adj[u].push(v);
+    }
+
+    bfs() {
+        const queue = [];
+        for (let u = 0; u < this.nLeft; u++) {
+            if (this.pairU[u] === -1) {
+                this.dist[u] = 0;
+                queue.push(u);
+            } else {
+                this.dist[u] = Infinity;
+            }
+        }
+
+        let found = false;
+        while (queue.length > 0) {
+            const u = queue.shift();
+            for (const v of this.adj[u]) {
+                if (this.pairV[v] !== -1 && this.dist[this.pairV[v]] === Infinity) {
+                    this.dist[this.pairV[v]] = this.dist[u] + 1;
+                    queue.push(this.pairV[v]);
+                }
+                if (this.pairV[v] === -1) {
+                    found = true;
+                }
+            }
+        }
+        return found;
+    }
+
+    dfs(u) {
+        for (const v of this.adj[u]) {
+            if (this.pairV[v] === -1 || 
+                (this.dist[this.pairV[v]] === this.dist[u] + 1 && 
+                 this.dfs(this.pairV[v]))) {
+                this.pairU[u] = v;
+                this.pairV[v] = u;
+                return true;
+            }
+        }
+        this.dist[u] = Infinity;
+        return false;
+    }
+
+    maxMatching() {
+        let matching = 0;
+        while (this.bfs()) {
+            for (let u = 0; u < this.nLeft; u++) {
+                if (this.pairU[u] === -1 && this.dfs(u)) {
+                    matching++;
+                }
+            }
+        }
+        return matching;
+    }
+}
+
+// 测试：学生-课程匹配问题
+const hk = new HopcroftKarp(4, 4);
+hk.addEdge(0, 0); // 学生0可选课程0
+hk.addEdge(0, 1); // 学生0可选课程1
+hk.addEdge(1, 1); // 学生1可选课程1
+hk.addEdge(1, 2); // 学生1可选课程2
+hk.addEdge(2, 2); // 学生2可选课程2
+hk.addEdge(3, 3); // 学生3可选课程3
+
+console.log("最大匹配数:", hk.maxMatching());
+                    </code></pre></div>
+                    <div id="hopcroft-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import deque
+
+class HopcroftKarp:
+    def __init__(self, n_left, n_right):
+        self.n_left = n_left
+        self.n_right = n_right
+        self.adj = [[] for _ in range(n_left)]
+        self.pair_u = [-1] * n_left
+        self.pair_v = [-1] * n_right
+        self.dist = [0] * n_left
+
+    def add_edge(self, u, v):
+        self.adj[u].append(v)
+
+    def bfs(self):
+        queue = deque()
+        for u in range(self.n_left):
+            if self.pair_u[u] == -1:
+                self.dist[u] = 0
+                queue.append(u)
+            else:
+                self.dist[u] = float('inf')
+
+        found = False
+        while queue:
+            u = queue.popleft()
+            for v in self.adj[u]:
+                if self.pair_v[v] != -1 and self.dist[self.pair_v[v]] == float('inf'):
+                    self.dist[self.pair_v[v]] = self.dist[u] + 1
+                    queue.append(self.pair_v[v])
+                if self.pair_v[v] == -1:
+                    found = True
+        return found
+
+    def dfs(self, u):
+        for v in self.adj[u]:
+            if self.pair_v[v] == -1 or \
+               (self.dist[self.pair_v[v]] == self.dist[u] + 1 and 
+                self.dfs(self.pair_v[v])):
+                self.pair_u[u] = v
+                self.pair_v[v] = u
+                return True
+        self.dist[u] = float('inf')
+        return False
+
+    def max_matching(self):
+        matching = 0
+        while self.bfs():
+            for u in range(self.n_left):
+                if self.pair_u[u] == -1 and self.dfs(u):
+                    matching += 1
+        return matching
+
+# 测试
+hk = HopcroftKarp(4, 4)
+hk.add_edge(0, 0)
+hk.add_edge(0, 1)
+hk.add_edge(1, 1)
+hk.add_edge(1, 2)
+hk.add_edge(2, 2)
+hk.add_edge(3, 3)
+
+print("最大匹配数:", hk.max_matching())
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>应用场景</h3>
+            <div class="algorithm-content">
+                <h4>最大流应用：</h4>
+                <ul>
+                    <li><strong>网络流量优化：</strong>数据网络中的最大数据传输</li>
+                    <li><strong>任务分配：</strong>将任务分配给工人，最大化完成数量</li>
+                    <li><strong>交通流量：</strong>城市道路网络的最大通行能力</li>
+                </ul>
+                <h4 style="margin-top: 15px;">最小割应用：</h4>
+                <ul>
+                    <li><strong>网络可靠性：</strong>找出最脆弱的连接</li>
+                    <li><strong>图像分割：</strong>计算机视觉中的前景背景分离</li>
+                    <li><strong>聚类分析：</strong>将相似节点分到同一组</li>
+                </ul>
+                <h4 style="margin-top: 15px;">二分图匹配应用：</h4>
+                <ul>
+                    <li><strong>工作分配：</strong>将工作分配给合适的工人</li>
+                    <li><strong>学校录取：</strong>学生-学校匹配</li>
+                    <li><strong>在线约会：</strong>用户匹配推荐</li>
+                </ul>
+            </div>
+
             <h3>学习建议</h3>
             <div class="algorithm-content">
                 <ul>
@@ -719,6 +1393,9 @@ func main() {
                     <li>理解不同算法的适用场景</li>
                     <li>多练习经典问题：最短路径、最小生成树</li>
                     <li>学习BFS和DFS在图中的应用</li>
+                    <li>深入理解最大流最小割定理</li>
+                    <li>对比Ford-Fulkerson和Dinic算法的效率差异</li>
+                    <li>理解残量网络和增广路径的概念</li>
                 </ul>
             </div>
         </div>

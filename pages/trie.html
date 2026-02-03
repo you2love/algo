@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字典树(Trie) - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>字典树 (Trie)</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是字典树？</h3>
+                <p>字典树（Trie，又称前缀树）是一种树形数据结构，用于高效存储和检索字符串。它利用字符串的公共前缀来减少查询时间，是处理大量字符串检索问题的利器。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>插入</h4>
+                    <p>O(m)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>查找</h4>
+                    <p>O(m)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>空间</h4>
+                    <p>O(m×n)</p>
+                </div>
+            </div>
+
+            <h3>字典树的结构特点</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>根节点：</strong>不表示任何字符</li>
+                    <li><strong>边：</strong>用字符标记，从父节点指向子节点</li>
+                    <li><strong>节点：</strong>存储额外信息（如是否为单词结尾、词频等）</li>
+                    <li><strong>公共前缀：</strong>相同前缀的字符串共享同一路径</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>示例结构：</strong></p>
+                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
+ROOT
+├── A
+│   ├── P
+│   │   ├── P (isWord)
+│   │   └── L
+│   │       └── E (isWord)
+│   └── R
+│       └── T (isWord)
+└── C
+    └── A
+        └── T (isWord)
+                </div>
+            </div>
+
+            <h3>基本操作实现</h3>
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="trie-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="trie-python">Python</button>
+                </div>
+                <div id="trie-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class TrieNode {
+    constructor() {
+        this.children = {};
+        this.isEndOfWord = false;
+    }
+}
+
+class Trie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = new TrieNode();
+            }
+            node = node.children[char];
+        }
+        node.isEndOfWord = true;
+    }
+
+    search(word) {
+        const node = this._findNode(word);
+        return node !== null && node.isEndOfWord;
+    }
+
+    startsWith(prefix) {
+        return this._findNode(prefix) !== null;
+    }
+
+    _findNode(prefix) {
+        let node = this.root;
+        for (const char of prefix) {
+            if (!node.children[char]) {
+                return null;
+            }
+            node = node.children[char];
+        }
+        return node;
+    }
+
+    delete(word) {
+        this._delete(this.root, word, 0);
+    }
+
+    _delete(node, word, index) {
+        if (index === word.length) {
+            if (!node.isEndOfWord) return false;
+            node.isEndOfWord = false;
+            return Object.keys(node.children).length === 0;
+        }
+
+        const char = word[index];
+        if (!node.children[char]) return false;
+
+        const shouldDeleteChild = this._delete(node.children[char], word, index + 1);
+
+        if (shouldDeleteChild) {
+            delete node.children[char];
+            return Object.keys(node.children).length === 0 && !node.isEndOfWord;
+        }
+        return false;
+    }
+}
+
+// 测试
+const trie = new Trie();
+trie.insert("apple");
+trie.insert("app");
+trie.insert("application");
+
+console.log(trie.search("app"));      // true
+console.log(trie.search("appl"));     // false
+console.log(trie.startsWith("appl")); // true
+console.log(trie.startsWith("bat"));  // false
+                    </code></pre></div>
+                </div>
+                <div id="trie-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end_of_word = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end_of_word = True
+
+    def search(self, word):
+        node = self._find_node(word)
+        return node is not None and node.is_end_of_word
+
+    def starts_with(self, prefix):
+        return self._find_node(prefix) is not None
+
+    def _find_node(self, prefix):
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        return node
+
+    def delete(self, word):
+        self._delete(self.root, word, 0)
+
+    def _delete(self, node, word, index):
+        if index == len(word):
+            if not node.is_end_of_word:
+                return False
+            node.is_end_of_word = False
+            return len(node.children) == 0
+
+        char = word[index]
+        if char not in node.children:
+            return False
+
+        should_delete = self._delete(node.children[char], word, index + 1)
+
+        if should_delete:
+            del node.children[char]
+            return len(node.children) == 0 and not node.is_end_of_word
+        return False
+
+# 测试
+trie = Trie()
+trie.insert("apple")
+trie.insert("app")
+trie.insert("application")
+
+print(trie.search("app"))       # True
+print(trie.search("appl"))      # False
+print(trie.starts_with("appl")) # True
+print(trie.starts_with("bat"))  # False
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>字典树的应用场景</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>搜索引擎：</strong>自动补全、提示功能</li>
+                    <li><strong>拼写检查：</strong>快速判断单词是否存在</li>
+                    <li><strong>IP路由：</strong>最长前缀匹配</li>
+                    <li><strong>词频统计：</strong>高效存储大量单词及其频率</li>
+                    <li><strong>电话号码系统：</strong>电话号码归属地查询</li>
+                </ul>
+            </div>
+
+            <h3>字典树的优化</h3>
+            <div class="algorithm-content">
+                <p><strong>1. 压缩字典树（Radix Tree / Patricia Trie）</strong></p>
+                <p>将只有一个子节点的中间节点压缩，减少空间开销。</p>
+                <p style="margin-top: 15px;"><strong>2. 数组实现（固定字符集）</strong></p>
+                <p>用数组代替哈希表，牺牲空间换取时间。</p>
+                <div class="code-block line-numbers"><pre><code class="language-javascript">
+class TrieNode {
+    constructor(charSetSize = 26) {
+        this.children = new Array(charSetSize).fill(null);
+        this.isEndOfWord = false;
+    }
+}
+                </code></pre></div>
+            </div>
+
+            <h3>LeetCode相关题目</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>208. 实现 Trie (前缀树)</li>
+                    <li>211. 添加与搜索单词 - 数据结构设计</li>
+                    <li>212. 单词搜索 II</li>
+                    <li>648. 单词替换</li>
+                    <li>677. 键值映射</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

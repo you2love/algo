@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC自动机 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>Aho-Corasick 自动机</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是AC自动机？</h3>
+                <p>Aho-Corasick（AC）自动机是一种多模式字符串匹配算法，用于在单个文本中同时查找多个模式串。它在1975年由Alfred Aho、Margaret Corasick和David Weinberger共同提出。</p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>构建</h4>
+                    <p>O(Σ×m)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>匹配</h4>
+                    <p>O(n + z)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>空间</h4>
+                    <p>O(Σ×m)</p>
+                </div>
+            </div>
+
+            <h3>为什么需要AC自动机？</h3>
+            <div class="algorithm-content">
+                <p><strong>问题：</strong>在文本中查找1000个敏感词，文本长度100万字符。</p>
+                <p><strong>朴素方法：</strong>对每个敏感词进行KMP匹配 → 1000 × 100万 = 10亿次操作</p>
+                <p style="margin-top: 10px;"><strong>AC自动机：</strong>只需遍历文本一次 → 100万次操作</p>
+                <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>构建模式串的Trie树</li>
+                    <li>在Trie上添加失配边（Fail Link）</li>
+                    <li>匹配时沿失配边跳转，避免回溯</li>
+                </ul>
+            </div>
+
+            <h3>AC自动机的三个核心概念</h3>
+            <div class="algorithm-content">
+                <p><strong>1. Go函数（转移边）</strong></p>
+                <p>从当前状态沿着字符转移到下一个状态，如果不存在则通过失配边查找。</p>
+                <p style="margin-top: 15px;"><strong>2. Fail函数（失配边）</strong></p>
+                <p>当当前状态无法继续匹配时，跳转到哪个状态继续匹配。这是AC自动机的核心。</p>
+                <p style="margin-top: 15px;"><strong>3. Output函数（输出边）</strong></p>
+                <p>记录当前状态对应的所有模式串。</p>
+            </div>
+
+            <h3>构建失配边（Fail Link）</h3>
+            <div class="algorithm-content">
+                <p><strong>BFS层次遍历构建：</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>根节点的所有直接子节点的失配边指向根节点</li>
+                    <li>对于每个节点，通过其父节点的失配边找到最长后缀匹配</li>
+                    <li>如果不存在这样的后缀，则失配边指向根节点</li>
+                </ol>
+                <p style="margin-top: 15px;"><strong>示例：</strong></p>
+                <p>模式串：{"he", "she", "his", "hers"}</p>
+                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
+根节点 → 失配边 → 根节点
+h → 失配边 → 根节点
+  → e → 失配边 → 根节点 (结束：输出"he")
+  → i → 失配边 → 根节点 (结束：输出"his")
+  → e → s → 失配边 → h→e (结束：输出"she", "he")
+              → r → 失配边 → h→e→r (结束：输出"hers", "he")
+                </div>
+            </div>
+
+            <h3>算法实现</h3>
+            <div class="code-tabs">
+                <div class="code-tab-header">
+                    <button class="code-tab-btn active" data-tab="ac-js">JavaScript</button>
+                    <button class="code-tab-btn" data-tab="ac-python">Python</button>
+                </div>
+                <div id="ac-js" class="code-tab-content active">
+                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+class AhoCorasick {
+    constructor() {
+        this.root = { children: {}, fail: 0, output: [] };
+    }
+
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = { children: {}, fail: 0, output: [] };
+            }
+            node = node.children[char];
+        }
+        node.output.push(word);
+    }
+
+    build() {
+        const queue = [];
+        // 初始化第一层节点的fail指向根节点
+        for (const char in this.root.children) {
+            this.root.children[char].fail = 0;
+            queue.push(this.root.children[char]);
+        }
+
+        // BFS构建失配边
+        while (queue.length > 0) {
+            const current = queue.shift();
+
+            for (const char in current.children) {
+                const child = current.children[char];
+                queue.push(child);
+
+                // 设置子节点的fail
+                let failNode = current.fail;
+                while (failNode && !failNode.children[char]) {
+                    failNode = failNode.fail;
+                }
+                child.fail = failNode ? failNode.children[char] : 0;
+
+                // 合并output
+                child.output = [...child.output, ...child.fail.output];
+            }
+        }
+    }
+
+    search(text) {
+        const results = [];
+        let node = this.root;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+
+            while (node && !node.children[char]) {
+                node = node.fail;
+            }
+            node = node ? node.children[char] : this.root;
+
+            // 输出所有匹配的模式串
+            for (const pattern of node.output) {
+                results.push({ pattern, index: i - pattern.length + 1 });
+            }
+        }
+
+        return results;
+    }
+}
+
+// 测试
+const ac = new AhoCorasick();
+ac.insert("he");
+ac.insert("she");
+ac.insert("his");
+ac.insert("hers");
+ac.build();
+
+const text = "ahishers";
+const results = ac.search(text);
+console.log("匹配结果：");
+results.forEach(r => console.log(`"${r.pattern}" 在位置 ${r.index} 匹配`));
+                    </code></pre></div>
+                </div>
+                <div id="ac-python" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import deque
+
+class AhoCorasick:
+    def __init__(self):
+        self.root = {'children': {}, 'fail': 0, 'output': []}
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            if char not in node['children']:
+                node['children'][char] = {'children': {}, 'fail': 0, 'output': []}
+            node = node['children'][char]
+        node['output'].append(word)
+
+    def build(self):
+        queue = deque()
+        # 初始化第一层节点的fail指向根节点
+        for char in self.root['children']:
+            self.root['children'][char]['fail'] = 0
+            queue.append(self.root['children'][char])
+
+        # BFS构建失配边
+        while queue:
+            current = queue.popleft()
+
+            for char in current['children']:
+                child = current['children'][char]
+                queue.append(child)
+
+                # 设置子节点的fail
+                fail_node = current['fail']
+                while fail_node and char not in fail_node['children']:
+                    fail_node = fail_node['fail']
+                child['fail'] = fail_node['children'][char] if fail_node else 0
+
+                # 合并output
+                child['output'].extend(child['fail']['output'])
+
+    def search(self, text):
+        results = []
+        node = self.root
+
+        for i, char in enumerate(text):
+            while node and char not in node['children']:
+                node = node['fail']
+            node = node['children'][char] if node else self.root
+
+            # 输出所有匹配的模式串
+            for pattern in node['output']:
+                results.append({'pattern': pattern, 'index': i - len(pattern) + 1})
+
+        return results
+
+# 测试
+ac = AhoCorasick()
+ac.insert("he")
+ac.insert("she")
+ac.insert("his")
+ac.insert("hers")
+ac.build()
+
+text = "ahishers"
+results = ac.search(text)
+print("匹配结果：")
+for r in results:
+    print(f'"{r["pattern"]}" 在位置 {r["index"]} 匹配')
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <h3>匹配过程示例</h3>
+            <div class="algorithm-content">
+                <p>文本: "ahishers"，模式: {"he", "she", "his", "hers"}</p>
+                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
+位置 1: 'a' → 无匹配
+位置 2: 'h' → 进入h节点
+位置 3: 'i' → 进入hi节点，输出"his"
+位置 4: 's' → 失配边跳转 → 进入s节点 → 进入sh节点 → 进入she节点，输出"she", "he"
+位置 5: 'h' → 失配边跳转 → 进入h节点
+位置 6: 'e' → 进入he节点，输出"he"
+位置 7: 'r' → 进入her节点 → 进入hers节点，输出"hers", "he"
+                </div>
+            </div>
+
+            <h3>AC自动机的优化</h3>
+            <div class="algorithm-content">
+                <p><strong>1. 字典树优化（fail链压缩）</strong></p>
+                <p>将空的子节点指针直接指向fail节点对应的子节点，避免循环查找。</p>
+                <p style="margin-top: 15px;"><strong>2. 输出边优化</strong></p>
+                <p>使用链表存储output，避免每次都遍历fail链。</p>
+                <p style="margin-top: 15px;"><strong>3. 双数组Trie树</strong></p>
+                <p>减少内存占用，适用于超大规模模式集。</p>
+            </div>
+
+            <h3>应用场景</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>敏感词过滤：</strong>内容审核系统</li>
+                    <li><strong>病毒特征检测：</strong>杀毒软件</li>
+                    <li><strong>关键词提取：</strong>文本分析</li>
+                    <li><strong>DNA序列匹配：</strong>生物信息学</li>
+                    <li><strong>日志分析：</strong>异常模式检测</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本算法 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .algo-section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .algo-section:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>文本算法</h2>
+            
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li>1. <a href="#kmp">KMP算法 - 单模式字符串匹配</a></li>
+                    <li>2. <a href="#trie">字典树(Trie) - 前缀树数据结构</a></li>
+                    <li>3. <a href="#levenshtein">编辑距离 - 字符串相似度度量</a></li>
+                    <li>4. <a href="#ac">AC自动机 - 多模式字符串匹配</a></li>
+                </ul>
+            </div>
+
+            <div class="algo-section" id="kmp">
+                <h2>KMP算法</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是KMP算法？</h3>
+                    <p>KMP算法（Knuth-Morris-Pratt算法）是一种高效的字符串匹配算法，由Donald Knuth、James Morris和Vaughan Pratt于1977年共同提出。它用于在主文本串中查找模式串的出现位置，时间复杂度为O(n+m)。</p>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(n + m)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(m)</p>
+                    </div>
+                </div>
+
+                <h3>为什么需要KMP？</h3>
+                <div class="algorithm-content">
+                    <p><strong>暴力匹配的缺点：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>当匹配失败时，模式串总是回退到起始位置</li>
+                        <li>已匹配的信息被完全丢弃，无法利用</li>
+                        <li>最坏情况下时间复杂度为O(n*m)</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>KMP的核心思想：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>当匹配失败时，利用已匹配的信息跳过不必要的比较</li>
+                        <li>通过"部分匹配表"（Next数组）指导模式串的移动</li>
+                        <li>文本串的指针永不后退</li>
+                    </ul>
+                </div>
+
+                <h3>前缀函数（Next数组）原理</h3>
+                <div class="algorithm-content">
+                    <p><strong>定义：</strong>next[i]表示模式串P[0...i]的最长相等前后缀的长度。</p>
+                    <p style="margin-top: 15px;"><strong>计算next数组的递推公式：</strong></p>
+                    <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2;">
+                        <p>if P[i] == P[j]: next[i] = j + 1</p>
+                        <p>else: j = next[j-1], 继续比较</p>
+                        <p>如果j为0且不匹配: next[i] = 0</p>
+                    </div>
+                </div>
+
+                <h3>手动计算next数组示例</h3>
+                <div class="algorithm-content">
+                    <p>以模式串"ABABC"为例：</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px; text-align: center;">i</th>
+                            <th style="padding: 12px; text-align: center;">字符</th>
+                            <th style="padding: 12px; text-align: center;">最长相等前后缀</th>
+                            <th style="padding: 12px; text-align: center;">next[i]</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; text-align: center;">0</td>
+                            <td style="padding: 12px; text-align: center;">A</td>
+                            <td style="padding: 12px; text-align: center;">无</td>
+                            <td style="padding: 12px; text-align: center;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; text-align: center;">1</td>
+                            <td style="padding: 12px; text-align: center;">B</td>
+                            <td style="padding: 12px; text-align: center;">无</td>
+                            <td style="padding: 12px; text-align: center;">0</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; text-align: center;">2</td>
+                            <td style="padding: 12px; text-align: center;">A</td>
+                            <td style="padding: 12px; text-align: center;">"A"</td>
+                            <td style="padding: 12px; text-align: center;">1</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; text-align: center;">3</td>
+                            <td style="padding: 12px; text-align: center;">B</td>
+                            <td style="padding: 12px; text-align: center;">"AB"</td>
+                            <td style="padding: 12px; text-align: center;">2</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; text-align: center;">4</td>
+                            <td style="padding: 12px; text-align: center;">C</td>
+                            <td style="padding: 12px; text-align: center;">无</td>
+                            <td style="padding: 12px; text-align: center;">0</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 15px;">最终next数组：[0, 0, 1, 2, 0]</p>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="kmp-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="kmp-python">Python</button>
+                    </div>
+                    <div id="kmp-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+function computeNext(pattern) {
+    const next = new Array(pattern.length).fill(0);
+    let j = 0;
+    
+    for (let i = 1; i < pattern.length; i++) {
+        while (j > 0 && pattern[i] !== pattern[j]) {
+            j = next[j - 1];
+        }
+        if (pattern[i] === pattern[j]) {
+            j++;
+        }
+        next[i] = j;
+    }
+    return next;
+}
+
+function kmpSearch(text, pattern) {
+    if (pattern.length === 0) return 0;
+    
+    const next = computeNext(pattern);
+    let j = 0;
+    
+    for (let i = 0; i < text.length; i++) {
+        while (j > 0 && text[i] !== pattern[j]) {
+            j = next[j - 1];
+        }
+        if (text[i] === pattern[j]) {
+            j++;
+        }
+        if (j === pattern.length) {
+            return i - pattern.length + 1;
+        }
+    }
+    return -1;
+}
+
+// 测试
+console.log(kmpSearch("ABABABABC", "ABABC")); // 4
+                        </code></pre></div>
+                    </div>
+                    <div id="kmp-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+def compute_next(pattern):
+    next_arr = [0] * len(pattern)
+    j = 0
+    for i in range(1, len(pattern)):
+        while j > 0 and pattern[i] != pattern[j]:
+            j = next_arr[j - 1]
+        if pattern[i] == pattern[j]:
+            j += 1
+        next_arr[i] = j
+    return next_arr
+
+def kmp_search(text, pattern):
+    if len(pattern) == 0:
+        return 0
+    next_arr = compute_next(pattern)
+    j = 0
+    for i in range(len(text)):
+        while j > 0 and text[i] != pattern[j]:
+            j = next_arr[j - 1]
+        if text[i] == pattern[j]:
+            j += 1
+        if j == len(pattern):
+            return i - len(pattern) + 1
+    return -1
+
+# 测试
+print(kmp_search("ABABABABC", "ABABC"))  # 4
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>KMP应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li>文本编辑器中的查找功能</li>
+                        <li>生物信息学中的DNA序列匹配</li>
+                        <li>字符串查找和替换操作</li>
+                        <li>编译器中的词法分析</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="trie">
+                <h2>字典树 (Trie)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是字典树？</h3>
+                    <p>字典树（Trie，又称前缀树）是一种树形数据结构，用于高效存储和检索字符串。它利用字符串的公共前缀来减少查询时间。</p>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>插入</h4>
+                        <p>O(m)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>查找</h4>
+                        <p>O(m)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间</h4>
+                        <p>O(m×n)</p>
+                    </div>
+                </div>
+
+                <h3>字典树的结构特点</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>根节点：</strong>不表示任何字符</li>
+                        <li><strong>边：</strong>用字符标记，从父节点指向子节点</li>
+                        <li><strong>节点：</strong>存储额外信息（如是否为单词结尾）</li>
+                        <li><strong>公共前缀：</strong>相同前缀的字符串共享同一路径</li>
+                    </ul>
+                </div>
+
+                <h3>基本操作实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="trie-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="trie-python">Python</button>
+                    </div>
+                    <div id="trie-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class TrieNode {
+    constructor() {
+        this.children = {};
+        this.isEndOfWord = false;
+    }
+}
+
+class Trie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = new TrieNode();
+            }
+            node = node.children[char];
+        }
+        node.isEndOfWord = true;
+    }
+
+    search(word) {
+        const node = this._findNode(word);
+        return node !== null && node.isEndOfWord;
+    }
+
+    startsWith(prefix) {
+        return this._findNode(prefix) !== null;
+    }
+
+    _findNode(prefix) {
+        let node = this.root;
+        for (const char of prefix) {
+            if (!node.children[char]) return null;
+            node = node.children[char];
+        }
+        return node;
+    }
+}
+
+// 测试
+const trie = new Trie();
+trie.insert("apple");
+trie.insert("app");
+trie.insert("application");
+console.log(trie.search("app"));      // true
+console.log(trie.startsWith("appl")); // true
+                        </code></pre></div>
+                    </div>
+                    <div id="trie-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end_of_word = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end_of_word = True
+
+    def search(self, word):
+        node = self._find_node(word)
+        return node is not None and node.is_end_of_word
+
+    def starts_with(self, prefix):
+        return self._find_node(prefix) is not None
+
+    def _find_node(self, prefix):
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        return node
+
+# 测试
+trie = Trie()
+trie.insert("apple")
+trie.insert("app")
+trie.insert("application")
+print(trie.search("app"))       # True
+print(trie.starts_with("appl")) # True
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>Trie应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>搜索引擎：</strong>自动补全、提示功能</li>
+                        <li><strong>拼写检查：</strong>快速判断单词是否存在</li>
+                        <li><strong>IP路由：</strong>最长前缀匹配</li>
+                        <li><strong>词频统计：</strong>高效存储大量单词</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="levenshtein">
+                <h2>编辑距离 (Levenshtein Distance)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是编辑距离？</h3>
+                    <p>编辑距离表示将一个字符串转换为另一个字符串所需的最少编辑操作次数。允许的编辑操作包括：插入、删除、替换一个字符。</p>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(m×n)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(min(m,n))</p>
+                    </div>
+                </div>
+
+                <h3>编辑操作定义</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px; text-align: left;">操作</th>
+                            <th style="padding: 12px; text-align: left;">说明</th>
+                            <th style="padding: 12px; text-align: left;">示例</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">插入</td>
+                            <td style="padding: 12px;">在任意位置插入一个字符</td>
+                            <td style="padding: 12px;">kitten → kitt<strong>e</strong>n</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">删除</td>
+                            <td style="padding: 12px;">删除任意位置的字符</td>
+                            <td style="padding: 12px;">kitten → kitt<strong></strong>n</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">替换</td>
+                            <td style="padding: 12px;">将一个字符替换为另一个</td>
+                            <td style="padding: 12px;">kitten → sitt<strong>s</strong>en</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>动态规划原理</h3>
+                <div class="algorithm-content">
+                    <p><strong>状态定义：</strong></p>
+                    <p style="font-family: 'Consolas', monospace; background: #2d2d2d; padding: 10px; border-radius: 8px; margin: 10px 0;">dp[i][j] = word1前i个字符转换为word2前j个字符的最少操作次数</p>
+                    
+                    <p style="margin-top: 15px;"><strong>递推公式：</strong></p>
+                    <div style="font-family: 'Consolas', monospace; background: #2d2d2d; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                        <p>if word1[i-1] == word2[j-1]: dp[i][j] = dp[i-1][j-1]</p>
+                        <p>else: dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1</p>
+                    </div>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="edit-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="edit-python">Python</button>
+                    </div>
+                    <div id="edit-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+function minDistance(word1, word2) {
+    const m = word1.length;
+    const n = word2.length;
+    const dp = new Array(n + 1);
+    
+    for (let j = 0; j <= n; j++) dp[j] = j;
+    
+    for (let i = 1; i <= m; i++) {
+        const prev = dp[0];
+        dp[0] = i;
+        for (let j = 1; j <= n; j++) {
+            const temp = dp[j];
+            if (word1[i-1] === word2[j-1]) {
+                dp[j] = prev;
+            } else {
+                dp[j] = Math.min(dp[j], dp[j-1], prev) + 1;
+            }
+            prev = temp;
+        }
+    }
+    return dp[n];
+}
+
+console.log(minDistance("kitten", "sitting")); // 3
+                        </code></pre></div>
+                    </div>
+                    <div id="edit-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+def min_distance(word1, word2):
+    m, n = len(word1), len(word2)
+    dp = list(range(n + 1))
+    
+    for i in range(1, m + 1):
+        prev = dp[0]
+        dp[0] = i
+        for j in range(1, n + 1):
+            temp = dp[j]
+            if word1[i-1] == word2[j-1]:
+                dp[j] = prev
+            else:
+                dp[j] = min(dp[j], dp[j-1], prev) + 1
+            prev = temp
+    return dp[n]
+
+print(min_distance("kitten", "sitting"))  # 3
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>编辑距离应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>拼写检查：</strong>找到最相似的正确单词</li>
+                        <li><strong>DNA序列比对：</strong>生物信息学中的序列相似度计算</li>
+                        <li><strong>模糊搜索：</strong>支持近似匹配的搜索系统</li>
+                        <li><strong>文本相似度检测：</strong>plagiarism检测</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="ac">
+                <h2>Aho-Corasick 自动机</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是AC自动机？</h3>
+                    <p>AC自动机是一种多模式字符串匹配算法，用于在单个文本中同时查找多个模式串。它在1975年由Alfred Aho、Margaret Corasick提出。</p>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>构建</h4>
+                        <p>O(Σ×m)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>匹配</h4>
+                        <p>O(n + z)</p>
+                    </div>
+                </div>
+
+                <h3>为什么需要AC自动机？</h3>
+                <div class="algorithm-content">
+                    <p><strong>问题：</strong>在文本中查找1000个敏感词，文本长度100万字符。</p>
+                    <p><strong>朴素方法：</strong>对每个敏感词进行KMP匹配 → 1000 × 100万 = 10亿次操作</p>
+                    <p style="margin-top: 10px;"><strong>AC自动机：</strong>只需遍历文本一次 → 100万次操作</p>
+                </div>
+
+                <h3>AC自动机的核心概念</h3>
+                <div class="algorithm-content">
+                    <p><strong>1. Go函数（转移边）</strong></p>
+                    <p>从当前状态沿着字符转移到下一个状态。</p>
+                    <p style="margin-top: 15px;"><strong>2. Fail函数（失配边）</strong></p>
+                    <p>当当前状态无法继续匹配时，跳转到哪个状态继续匹配。</p>
+                    <p style="margin-top: 15px;"><strong>3. Output函数</strong></p>
+                    <p>记录当前状态对应的所有模式串。</p>
+                </div>
+
+                <h3>构建失配边（Fail Link）</h3>
+                <div class="algorithm-content">
+                    <p><strong>BFS层次遍历构建：</strong></p>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li>根节点的所有直接子节点的失配边指向根节点</li>
+                        <li>对于每个节点，通过其父节点的失配边找到最长后缀匹配</li>
+                        <li>如果不存在这样的后缀，则失配边指向根节点</li>
+                    </ol>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="ac-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="ac-python">Python</button>
+                    </div>
+                    <div id="ac-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class AhoCorasick {
+    constructor() {
+        this.root = { children: {}, fail: 0, output: [] };
+    }
+
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = { children: {}, fail: 0, output: [] };
+            }
+            node = node.children[char];
+        }
+        node.output.push(word);
+    }
+
+    build() {
+        const queue = [];
+        for (const char in this.root.children) {
+            this.root.children[char].fail = 0;
+            queue.push(this.root.children[char]);
+        }
+
+        while (queue.length > 0) {
+            const current = queue.shift();
+            for (const char in current.children) {
+                const child = current.children[char];
+                queue.push(child);
+
+                let failNode = current.fail;
+                while (failNode && !failNode.children[char]) {
+                    failNode = failNode.fail;
+                }
+                child.fail = failNode ? failNode.children[char] : 0;
+                child.output = [...child.output, ...child.fail.output];
+            }
+        }
+    }
+
+    search(text) {
+        const results = [];
+        let node = this.root;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            while (node && !node.children[char]) {
+                node = node.fail;
+            }
+            node = node ? node.children[char] : this.root;
+
+            for (const pattern of node.output) {
+                results.push({ pattern, index: i - pattern.length + 1 });
+            }
+        }
+        return results;
+    }
+}
+
+// 测试
+const ac = new AhoCorasick();
+ac.insert("he");
+ac.insert("she");
+ac.insert("his");
+ac.insert("hers");
+ac.build();
+console.log(ac.search("ahishers"));
+                        </code></pre></div>
+                    </div>
+                    <div id="ac-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import deque
+
+class AhoCorasick:
+    def __init__(self):
+        self.root = {'children': {}, 'fail': 0, 'output': []}
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            if char not in node['children']:
+                node['children'][char] = {'children': {}, 'fail': 0, 'output': []}
+            node = node['children'][char]
+        node['output'].append(word)
+
+    def build(self):
+        queue = deque()
+        for char in self.root['children']:
+            self.root['children'][char]['fail'] = 0
+            queue.append(self.root['children'][char])
+
+        while queue:
+            current = queue.popleft()
+            for char in current['children']:
+                child = current['children'][char]
+                queue.append(child)
+
+                fail_node = current['fail']
+                while fail_node and char not in fail_node['children']:
+                    fail_node = fail_node['fail']
+                child['fail'] = fail_node['children'][char] if fail_node else 0
+                child['output'].extend(child['fail']['output'])
+
+    def search(self, text):
+        results = []
+        node = self.root
+        for i, char in enumerate(text):
+            while node and char not in node['children']:
+                node = node['fail']
+            node = node['children'][char] if node else self.root
+            for pattern in node['output']:
+                results.append({'pattern': pattern, 'index': i - len(pattern) + 1})
+        return results
+
+# 测试
+ac = AhoCorasick()
+ac.insert("he")
+ac.insert("she")
+ac.insert("his")
+ac.insert("hers")
+ac.build()
+print(ac.search("ahishers"))
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>AC自动机应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>敏感词过滤：</strong>内容审核系统</li>
+                        <li><strong>病毒特征检测：</strong>杀毒软件</li>
+                        <li><strong>关键词提取：</strong>文本分析</li>
+                        <li><strong>日志分析：</strong>异常模式检测</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>四种算法的关系与选择</h3>
+            <div class="algorithm-content">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #3498db; color: white;">
+                        <th style="padding: 12px; text-align: left;">算法</th>
+                        <th style="padding: 12px; text-align: left;">适用场景</th>
+                        <th style="padding: 12px; text-align: left;">时间复杂度</th>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">KMP</td>
+                        <td style="padding: 12px;">单模式匹配</td>
+                        <td style="padding: 12px;">O(n+m)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">Trie</td>
+                        <td style="padding: 12px;">字符串存储与前缀查询</td>
+                        <td style="padding: 12px;">O(m)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px;">编辑距离</td>
+                        <td style="padding: 12px;">字符串相似度计算</td>
+                        <td style="padding: 12px;">O(m×n)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;">AC自动机</td>
+                        <td style="padding: 12px;">多模式匹配</td>
+                        <td style="padding: 12px;">O(n+z)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>
