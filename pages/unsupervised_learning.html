@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无监督学习 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .algo-section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .algo-section:last-child {
+            border-bottom: none;
+        }
+        .formula {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Consolas', monospace;
+            color: #f8f8f2;
+            overflow-x: auto;
+        }
+        .cluster-viz {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .cluster-point {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>无监督学习算法</h2>
+            
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li>1. <a href="#intro">无监督学习概述</a></li>
+                    <li>2. <a href="#kmeans">K-Means 聚类</a></li>
+                    <li>3. <a href="#hierarchical">层次聚类</a></li>
+                    <li>4. <a href="#dbscan">DBSCAN 密度聚类</a></li>
+                    <li>5. <a href="#pca">PCA 主成分分析</a></li>
+                    <li>6. <a href="#tsne">t-SNE 降维可视化</a></li>
+                    <li>7. <a href="#gmm">高斯混合模型 (GMM)</a></li>
+                    <li>8. <a href="#comparison">算法对比与选择</a></li>
+                </ul>
+            </div>
+
+            <div class="algo-section" id="intro">
+                <h2>无监督学习概述</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是无监督学习？</h3>
+                    <p>无监督学习是机器学习的一个分支，处理没有标签的数据。它的目标是从数据中发现隐藏的模式、结构或分布，而不需要预先定义的正确答案。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>与有监督学习的区别：</strong></p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">特性</th>
+                            <th style="padding: 12px;">有监督学习</th>
+                            <th style="padding: 12px;">无监督学习</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">数据</td>
+                            <td style="padding: 12px;">有标签(X, y)</td>
+                            <td style="padding: 12px;">无标签(X)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">目标</td>
+                            <td style="padding: 12px;">预测新样本标签</td>
+                            <td style="padding: 12px;">发现数据内在结构</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">评估</td>
+                            <td style="padding: 12px;">准确率、召回率等</td>
+                            <td style="padding: 12px;">轮廓系数、肘部法则等</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>主要任务</h4>
+                        <p>聚类、降维、关联规则</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>核心挑战</h4>
+                        <p>无真实标签，评估困难</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>应用场景</h4>
+                        <p>客户分群、异常检测、特征提取</p>
+                    </div>
+                </div>
+
+                <h3>无监督学习的主要任务</h3>
+                <div class="algorithm-content">
+                    <p><strong>1. 聚类 (Clustering)</strong></p>
+                    <p>将相似的数据点分组，同组内数据相似度高，不同组间相似度低。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>2. 降维 (Dimensionality Reduction)</strong></p>
+                    <p>将高维数据映射到低维空间，同时保留重要信息。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>3. 密度估计 (Density Estimation)</strong></p>
+                    <p>估计数据的概率分布，用于异常检测等。</p>
+                </div>
+            </div>
+
+            <div class="algo-section" id="kmeans">
+                <h2>K-Means 聚类</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>K-Means是最流行的聚类算法之一，目标是将数据分成K个簇，使得每个数据点属于离它最近的簇中心。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>优化目标（簇内平方和）：</strong></p>
+                    <div class="formula">
+                        <p>J = Σᵢ Σⱼ ||xᵢ⁽ʲ⁾ - μⱼ||²</p>
+                        <p>其中：μⱼ是第j个簇中心，xᵢ⁽ʲ⁾属于第j个簇的数据点</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(n × k × i)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(n + k)</p>
+                    </div>
+                </div>
+
+                <h3>算法步骤</h3>
+                <div class="algorithm-content">
+                    <ol style="margin-left: 20px;">
+                        <li><strong>初始化：</strong>随机选择K个数据点作为初始簇中心</li>
+                        <li><strong>分配步骤：</strong>将每个数据点分配给最近的簇中心</li>
+                        <li><strong>更新步骤：</strong>重新计算每个簇的中心（均值）</li>
+                        <li><strong>迭代：</strong>重复步骤2-3直到收敛（簇中心不变或达到最大迭代次数）</li>
+                    </ol>
+
+                    <div class="formula">
+                        <p>分配：Sⱼ⁽ᵗ⁾ = {xᵢ : ||xᵢ - μⱼ⁽ᵗ⁾||² ≤ ||xᵢ - μₗ⁽ᵗ⁾||², ∀l ≠ j}</p>
+                        <p>更新：μⱼ⁽ᵗ⁺¹⁾ = (1/|Sⱼ⁽ᵗ⁾|) Σ_{xᵢ ∈ Sⱼ⁽ᵗ⁾} xᵢ</p>
+                    </div>
+                </div>
+
+                <h3>K-Means++初始化</h3>
+                <div class="algorithm-content">
+                    <p>标准K-Means的随机初始化可能导致收敛到局部最优。K-Means++改进初始化策略：</p>
+                    <ol style="margin-left: 20px;">
+                        <li>随机选择第一个簇中心</li>
+                        <li>对于每个后续簇中心，选择概率与到最近簇中心距离的平方成正比</li>
+                        <li>重复直到选够K个簇中心</li>
+                    </ol>
+                    <p style="margin-top: 15px;"><strong>优点：</strong>更可能收敛到全局最优，减少迭代次数。</p>
+                </div>
+
+                <h3>选择最优K值</h3>
+                <div class="algorithm-content">
+                    <p><strong>肘部法则 (Elbow Method)：</strong></p>
+                    <p>绘制不同K值对应的簇内平方和(SSE)，选择SSE下降速率明显减缓的"肘部"点。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>轮廓系数 (Silhouette Score)：</strong></p>
+                    <div class="formula">
+                        <p>s(i) = (b(i) - a(i)) / max(a(i), b(i))</p>
+                        <p>其中：a(i)是同簇内平均距离，b(i)是到最近簇的平均距离</p>
+                        <p>轮廓系数范围：[-1, 1]，越接近1越好</p>
+                    </div>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="kmeans-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="kmeans-python">Python</button>
+                    </div>
+                    <div id="kmeans-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class KMeans {
+    constructor(k, maxIter = 100) {
+        this.k = k;
+        this.maxIter = maxIter;
+        this.centers = [];
+        this.labels = [];
+    }
+
+    // K-Means++初始化
+    _initCenters(data) {
+        const n = data.length;
+        const centers = [];
+        
+        // 随机选择第一个中心
+        const firstIdx = Math.floor(Math.random() * n);
+        centers.push(data[firstIdx].slice());
+        
+        while (centers.length < this.k) {
+            const distances = data.map(point => {
+                const minDist = Math.min(...centers.map(c => 
+                    this._euclideanDistance(point, c)
+                ));
+                return minDist * minDist;
+            });
+            
+            const totalDist = distances.reduce((a, b) => a + b, 0);
+            let rand = Math.random() * totalDist;
+            
+            for (let i = 0; i < n; i++) {
+                rand -= distances[i];
+                if (rand <= 0) {
+                    centers.push(data[i].slice());
+                    break;
+                }
+            }
+        }
+        
+        return centers;
+    }
+
+    _euclideanDistance(a, b) {
+        return Math.sqrt(a.reduce((sum, val, i) => sum + (val - b[i]) ** 2, 0));
+    }
+
+    fit(data) {
+        this.centers = this._initCenters(data);
+        
+        for (let iter = 0; iter < this.maxIter; iter++) {
+            // 分配步骤
+            this.labels = data.map(point => {
+                let minDist = Infinity;
+                let label = 0;
+                this.centers.forEach((center, idx) => {
+                    const dist = this._euclideanDistance(point, center);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        label = idx;
+                    }
+                });
+                return label;
+            });
+            
+            // 更新步骤
+            const newCenters = Array(this.k).fill(null).map(() => 
+                Array(data[0].length).fill(0)
+            );
+            const counts = Array(this.k).fill(0);
+            
+            data.forEach((point, idx) => {
+                const label = this.labels[idx];
+                counts[label]++;
+                point.forEach((val, d) => {
+                    newCenters[label][d] += val;
+                });
+            });
+            
+            const converged = newCenters.every((center, idx) => {
+                if (counts[idx] === 0) return true;
+                const newCenter = center.map(v => v / counts[idx]);
+                const dist = this._euclideanDistance(newCenter, this.centers[idx]);
+                this.centers[idx] = newCenter;
+                return dist < 1e-6;
+            });
+            
+            if (converged) break;
+        }
+    }
+
+    predict(point) {
+        let minDist = Infinity;
+        let label = 0;
+        this.centers.forEach((center, idx) => {
+            const dist = this._euclideanDistance(point, center);
+            if (dist < minDist) {
+                minDist = dist;
+                label = idx;
+            }
+        });
+        return label;
+    }
+
+    // 计算SSE（簇内平方和）
+    calculateSSE(data) {
+        return data.reduce((sum, point, idx) => {
+            const center = this.centers[this.labels[idx]];
+            return sum + this._euclideanDistance(point, center) ** 2;
+        }, 0);
+    }
+}
+
+// 测试
+const data = [
+    [1, 2], [1, 4], [1, 0],
+    [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0]
+];
+const kmeans = new KMeans(3);
+kmeans.fit(data);
+console.log("聚类标签:", kmeans.labels);
+console.log("簇中心:", kmeans.centers);
+                        </code></pre></div>
+                    </div>
+                    <div id="kmeans-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+
+class KMeans:
+    def __init__(self, k, max_iter=100):
+        self.k = k
+        self.max_iter = max_iter
+        self.centers = []
+        self.labels = []
+    
+    def _init_centers(self, data):
+        n = data.shape[0]
+        centers = []
+        
+        # 随机选择第一个中心
+        first_idx = np.random.randint(n)
+        centers.append(data[first_idx].copy())
+        
+        while len(centers) < self.k:
+            distances = np.array([min([np.linalg.norm(x - c) for c in centers]) ** 2 
+                                  for x in data])
+            probs = distances / distances.sum()
+            cumsum = np.cumsum(probs)
+            r = np.random()
+            
+            for i, p in enumerate(cumsum):
+                if r <= p:
+                    centers.append(data[i].copy())
+                    break
+        
+        return np.array(centers)
+    
+    def fit(self, data):
+        self.centers = self._init_centers(data)
+        
+        for _ in range(self.max_iter):
+            # 分配步骤
+            self.labels = np.argmin(
+                [[np.linalg.norm(x - c) for c in self.centers] 
+                 for x in data], axis=1)
+            
+            # 更新步骤
+            new_centers = np.zeros_like(self.centers)
+            counts = np.zeros(self.k)
+            
+            for i, x in enumerate(data):
+                new_centers[self.labels[i]] += x
+                counts[self.labels[i]] += 1
+            
+            counts[counts == 0] = 1  # 避免除零
+            new_centers = new_centers / counts.reshape(-1, 1)
+            
+            if np.allclose(self.centers, new_centers):
+                break
+            self.centers = new_centers
+    
+    def predict(self, point):
+        return np.argmin([np.linalg.norm(point - c) for c in self.centers])
+    
+    def calculate_sse(self, data):
+        return sum(np.linalg.norm(x - self.centers[label]) ** 2 
+                   for x, label in zip(data, self.labels))
+
+# 测试
+data = np.array([
+    [1, 2], [1, 4], [1, 0],
+    [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0]
+])
+kmeans = KMeans(3)
+kmeans.fit(data)
+print("聚类标签:", kmeans.labels)
+print("簇中心:", kmeans.centers)
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>K-Means的优缺点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>简单易实现，计算效率高</li>
+                        <li>可扩展性好，适合大规模数据</li>
+                        <li>结果易于解释</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>需要预先指定K值</li>
+                        <li>对异常值敏感</li>
+                        <li>只能发现球形簇</li>
+                        <li>可能收敛到局部最优</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="hierarchical">
+                <h2>层次聚类 (Hierarchical Clustering)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>层次聚类构建一个聚类树（dendrogram）来表示数据的层次结构。可分为凝聚式（自底向上）和分裂式（自顶向下）两种方法。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>凝聚式层次聚类步骤：</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li>每个数据点作为一个簇</li>
+                        <li>计算所有簇对之间的距离</li>
+                        <li>合并距离最近的两个簇</li>
+                        <li>重复步骤2-3直到只剩一个簇</li>
+                    </ol>
+                </div>
+
+                <h3>链接方式</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">链接方式</th>
+                            <th style="padding: 12px;">公式</th>
+                            <th style="padding: 12px;">特点</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">Single Link</td>
+                            <td style="padding: 12px;">min(d(a,b))</td>
+                            <td style="padding: 12px;">易产生链式效应</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">Complete Link</td>
+                            <td style="padding: 12px;">max(d(a,b))</td>
+                            <td style="padding: 12px;">倾向于紧凑簇</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">Average Link</td>
+                            <td style="padding: 12px;">mean(d(a,b))</td>
+                            <td style="padding: 12px;">平衡策略</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">Ward Link</td>
+                            <td style="padding: 12px;">ΔSS</td>
+                            <td style="padding: 12px;">最小化方差增量</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="hier-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="hier-python">Python</button>
+                    </div>
+                    <div id="hier-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class HierarchicalClustering {
+    constructor(method = 'average') {
+        this.method = method;
+    }
+
+    _distance(a, b) {
+        return Math.sqrt(a.reduce((sum, val, i) => 
+            sum + (val - b[i]) ** 2, 0));
+    }
+
+    _clusterDistance(c1, c2, method) {
+        const distances = [];
+        for (const p1 of c1) {
+            for (const p2 of c2) {
+                distances.push(this._distance(p1, p2));
+            }
+        }
+
+        switch (method) {
+            case 'single':
+                return Math.min(...distances);
+            case 'complete':
+                return Math.max(...distances);
+            case 'average':
+                return distances.reduce((a, b) => a + b, 0) / distances.length;
+            default:
+                return Math.min(...distances);
+        }
+    }
+
+    fit(data) {
+        // 初始化：每个点一个簇
+        let clusters = data.map((point, idx) => ({
+            id: idx,
+            points: [point]
+        }));
+
+        const history = [];
+
+        while (clusters.length > 1) {
+            let minDist = Infinity;
+            let mergeIdx = [0, 1];
+
+            // 找最近的两个簇
+            for (let i = 0; i < clusters.length; i++) {
+                for (let j = i + 1; j < clusters.length; j++) {
+                    const dist = this._clusterDistance(
+                        clusters[i].points, 
+                        clusters[j].points, 
+                        this.method
+                    );
+                    if (dist < minDist) {
+                        minDist = dist;
+                        mergeIdx = [i, j];
+                    }
+                }
+            }
+
+            // 合并两个簇
+            const [i, j] = mergeIdx;
+            const newCluster = {
+                id: `cluster-${clusters.length}`,
+                points: [...clusters[i].points, ...clusters[j].points],
+                children: [clusters[i], clusters[j]],
+                distance: minDist
+            };
+
+            history.push({
+                merged: [clusters[i].id, clusters[j].id],
+                newCluster: newCluster.id,
+                distance: minDist
+            });
+
+            clusters.splice(j, 1);
+            clusters.splice(i, 1);
+            clusters.push(newCluster);
+        }
+
+        return {
+            root: clusters[0],
+            history
+        };
+    }
+
+    // 从树中提取指定数量的簇
+    cutTree(root, k) {
+        const result = [];
+        
+        function traverse(node, depth) {
+            if (!node.children || node.children.length === 0) {
+                result.push([node.points]);
+                return;
+            }
+            
+            const remainingClusters = 1 + result.length;
+            const clustersNeeded = k - remainingClusters + 1;
+            const depthPerCluster = Math.floor(depth / clustersNeeded);
+            
+            if (depth >= depthPerCluster || result.length >= k - 1) {
+                result.push(node.children.flatMap(c => c.points));
+            } else {
+                node.children.forEach(child => traverse(child, depth));
+            }
+        }
+        
+        traverse(root, 10);  // 10是近似深度
+        return result;
+    }
+}
+
+// 测试
+const data = [[1,2], [1,4], [1,0], [4,2], [4,4], [4,0]];
+const hc = new HierarchicalClustering('average');
+const result = hc.fit(data);
+console.log("聚类树:", result);
+                        </code></pre></div>
+                    </div>
+                    <div id="hier-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.spatial.distance import pdist
+
+class HierarchicalClustering:
+    def __init__(self, method='average'):
+        self.method = method
+    
+    def fit(self, data):
+        """使用scipy实现"""
+        self.data = np.array(data)
+        self.Z = linkage(self.data, method=self.method)
+        return self.Z
+    
+    def get_clusters(self, n_clusters):
+        """获取指定数量的簇"""
+        return fcluster(self.Z, n_clusters, criterion='maxclust')
+    
+    def get_dendrogram(self):
+        """返回树状图数据"""
+        from scipy.cluster.hierarchy import dendrogram
+        return dendrogram(self.Z)
+
+# 测试
+data = np.array([[1,2], [1,4], [1,0], [4,2], [4,4], [4,0]])
+hc = HierarchicalClustering('average')
+hc.fit(data)
+labels = hc.get_clusters(2)
+print("聚类标签:", labels)
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>层次聚类的特点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>不需要预先指定K值</li>
+                        <li>可以发现任意形状的簇</li>
+                        <li>提供层次结构信息</li>
+                        <li>结果可解释性强</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>计算复杂度高O(n³)</li>
+                        <li>对噪声和异常值敏感</li>
+                        <li>一旦合并/分裂不可撤销</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="dbscan">
+                <h2>DBSCAN 密度聚类</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>DBSCAN（Density-Based Spatial Clustering of Applications with Noise）基于密度进行聚类，可以发现任意形状的簇，并能识别噪声点。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>核心概念：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>ε邻域：</strong>以点p为中心，ε为半径的区域</li>
+                        <li><strong>核心点：</strong>邻域内至少有minPts个点</li>
+                        <li><strong>密度直达：</strong>核心点p的ε邻域内的点q</li>
+                        <li><strong>密度可达：</strong>通过密度直达链连接</li>
+                        <li><strong>密度相连：</strong>存在核心点o使得p和q都密度可达</li>
+                    </ul>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(n log n)（使用空间索引）</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(n)</p>
+                    </div>
+                </div>
+
+                <h3>算法步骤</h3>
+                <div class="algorithm-content">
+                    <ol style="margin-left: 20px;">
+                        <li>任意选择一个未访问的点p</li>
+                        <li>如果p是核心点，则扩展一个簇</li>
+                        <li>递归访问p的所有密度可达点，加入簇</li>
+                        <li>如果p是边界点或噪声点，继续下一个点</li>
+                        <li>重复直到所有点都被访问</li>
+                    </ol>
+                </div>
+
+                <h3>选择参数</h3>
+                <div class="algorithm-content">
+                    <p><strong>ε的选择：</strong></p>
+                    <p>使用k-距离图，选择k-距离曲线急剧下降的点作为ε。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>minPts的选择：</strong></p>
+                    <p>通常取数据维数+1，或根据领域知识设置。</p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">数据维度</th>
+                            <th style="padding: 12px;">建议minPts</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">2维</td>
+                            <td style="padding: 12px;">4</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">高维</td>
+                            <td style="padding: 12px;">2×维度</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="dbscan-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="dbscan-python">Python</button>
+                    </div>
+                    <div id="dbscan-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class DBSCAN {
+    constructor(eps = 0.5, minPts = 5) {
+        this.eps = eps;
+        this.minPts = minPts;
+        this.labels = [];
+        this.clusters = [];
+    }
+
+    _distance(a, b) {
+        return Math.sqrt(a.reduce((sum, val, i) => 
+            sum + (val - b[i]) ** 2, 0));
+    }
+
+    _getNeighbors(data, idx) {
+        const neighbors = [];
+        for (let i = 0; i < data.length; i++) {
+            if (i !== idx && this._distance(data[i], data[idx]) <= this.eps) {
+                neighbors.push(i);
+            }
+        }
+        return neighbors;
+    }
+
+    fit(data) {
+        const n = data.length;
+        this.labels = new Array(n).fill(-1);  // -1表示未访问
+        let clusterId = 0;
+
+        for (let i = 0; i < n; i++) {
+            if (this.labels[i] !== -1) continue;
+
+            const neighbors = this._getNeighbors(data, i);
+            
+            if (neighbors.length < this.minPts) {
+                this.labels[i] = -1;  // 噪声点
+            } else {
+                this._expandCluster(data, i, neighbors, clusterId);
+                clusterId++;
+            }
+        }
+
+        return this.labels;
+    }
+
+    _expandCluster(data, idx, neighbors, clusterId) {
+        this.labels[idx] = clusterId;
+        const queue = [...neighbors];
+        let head = 0;
+
+        while (head < queue.length) {
+            const current = queue[head++];
+            
+            if (this.labels[current] === -2) {
+                this.labels[current] = clusterId;
+            }
+            
+            if (this.labels[current] !== -1) continue;
+            
+            this.labels[current] = clusterId;
+            
+            const currentNeighbors = this._getNeighbors(data, current);
+            
+            if (currentNeighbors.length >= this.minPts) {
+                queue.push(...currentNeighbors);
+            }
+        }
+    }
+}
+
+// 测试
+const data = [
+    [1, 2], [2, 2], [1, 1], [8, 7], [8, 8], [9, 8],
+    [1, 5], [2, 5], [3, 5], [8, 3], [9, 3]
+];
+const dbscan = new DBSCAN(1.5, 2);
+const labels = dbscan.fit(data);
+console.log("聚类标签:", labels);
+// -1表示噪声点，0,1,2,...表示不同簇
+                        </code></pre></div>
+                    </div>
+                    <div id="dbscan-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from sklearn.cluster import DBSCAN
+
+class DBSCAN:
+    def __init__(self, eps=0.5, min_samples=5):
+        self.eps = eps
+        self.min_samples = min_samples
+    
+    def fit(self, data):
+        data = np.array(data)
+        self.model = DBSCAN(eps=self.eps, min_samples=self.min_samples)
+        self.labels = self.model.fit_predict(data)
+        return self.labels
+    
+    def get_clusters(self):
+        return self.labels
+
+# 测试
+data = np.array([
+    [1, 2], [2, 2], [1, 1], [8, 7], [8, 8], [9, 8],
+    [1, 5], [2, 5], [3, 5], [8, 3], [9, 3]
+])
+dbscan = DBSCAN(eps=1.5, min_samples=2)
+labels = dbscan.fit(data)
+print("聚类标签:", labels)  # -1表示噪声点
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>DBSCAN的优缺点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>不需要预先指定K值</li>
+                        <li>可以发现任意形状的簇</li>
+                        <li>能识别噪声点</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>对参数ε和minPts敏感</li>
+                        <li>在高维数据中表现不佳</li>
+                        <li>密度变化大的数据难以处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="pca">
+                <h2>PCA 主成分分析</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>PCA（Principal Component Analysis）是最常用的降维方法，通过线性变换将数据投影到方差最大的方向上，实现降维同时保留最多信息。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>找到数据方差最大的方向（第一主成分）</li>
+                        <li>找到与第一主成分正交且方差最大的方向（第二主成分）</li>
+                        <li>依此类推，得到一组正交的主成分</li>
+                    </ul>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(p²n + pn²)（SVD）或 O(p³)（特征分解）</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(pn)</p>
+                    </div>
+                </div>
+
+                <h3>数学推导</h3>
+                <div class="algorithm-content">
+                    <p><strong>步骤1：数据中心化</strong></p>
+                    <div class="formula">
+                        <p>X̃ = X - μ</p>
+                        <p>其中μ是每个特征的均值</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>步骤2：计算协方差矩阵</strong></p>
+                    <div class="formula">
+                        <p>Σ = (1/(n-1)) × X̃ᵀX̃</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>步骤3：特征分解</strong></p>
+                    <div class="formula">
+                        <p>Σ = VΛVᵀ</p>
+                        <p>其中Λ是对角矩阵，包含特征值（方差）</p>
+                        <p>V的列是特征向量（主成分方向）</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>步骤4：选择主成分并投影</strong></p>
+                    <div class="formula">
+                        <p>选择前k个最大的特征值对应的特征向量</p>
+                        <p>Y = X̃ × W</p>
+                        <p>W是k个特征向量组成的投影矩阵</p>
+                    </div>
+                </div>
+
+                <h3>方差解释率</h3>
+                <div class="algorithm-content">
+                    <p>第i个主成分的方差解释率：</p>
+                    <div class="formula">
+                        <p>解释率ᵢ = λᵢ / Σⱼλⱼ</p>
+                    </div>
+                    <p style="margin-top: 15px;"><strong>累计解释率：</strong></p>
+                    <div class="formula">
+                        <p>累计解释率(k) = Σᵢ₌₁ᵏ λᵢ / Σⱼλⱼ</p>
+                    </div>
+                    <p style="margin-top: 15px;">通常选择累计解释率>85%或95%的主成分数量。</p>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="pca-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="pca-python">Python</button>
+                    </div>
+                    <div id="pca-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class PCA {
+    constructor(n_components) {
+        this.n_components = n_components;
+        this.components = [];
+        this.explained_variance = [];
+        this.mean = [];
+    }
+
+    fit(data) {
+        const n = data.length;
+        const p = data[0].length;
+        
+        // 步骤1：计算均值并中心化
+        this.mean = Array(p).fill(0);
+        for (const row of data) {
+            for (let j = 0; j < p; j++) {
+                this.mean[j] += row[j];
+            }
+        }
+        this.mean = this.mean.map(v => v / n);
+        
+        const centered = data.map(row => 
+            row.map((val, j) => val - this.mean[j])
+        );
+        
+        // 步骤2：计算协方差矩阵 (n×p)ᵀ × (n×p) = (p×p)
+        const cov = Array(p).fill(null).map(() => Array(p).fill(0));
+        for (const row of centered) {
+            for (let i = 0; i < p; i++) {
+                for (let j = i; j < p; j++) {
+                    cov[i][j] += row[i] * row[j];
+                    if (i !== j) {
+                        cov[j][i] = cov[i][j];
+                    }
+                }
+            }
+        }
+        for (let i = 0; i < p; i++) {
+            for (let j = 0; j < p; j++) {
+                cov[i][j] /= (n - 1);
+            }
+        }
+        
+        // 步骤3：特征分解（使用幂迭代法简化版）
+        const { vectors, values } = this._eigenDecomposition(cov);
+        
+        // 排序并选择前n_components个主成分
+        const indices = values.map((v, i) => [v, i])
+            .sort((a, b) => b[0] - a[0])
+            .slice(0, this.n_components);
+        
+        this.components = indices.map(([v, i]) => vectors[i]);
+        this.explained_variance = indices.map(([v]) => v);
+        const totalVariance = values.reduce((a, b) => a + b, 0);
+        this.explained_variance_ratio = this.explained_variance
+            .map(v => v / totalVariance);
+        
+        return this;
+    }
+
+    transform(data) {
+        const centered = data.map(row => 
+            row.map((val, j) => val - this.mean[j])
+        );
+        
+        return centered.map(row => 
+            this.components.map(comp => 
+                comp.reduce((sum, val, i) => sum + val * row[i], 0)
+            )
+        );
+    }
+
+    _eigenDecomposition(matrix) {
+        const n = matrix.length;
+        let v = Array(n).fill(0).map((_, i) => {
+            const row = matrix[i];
+            const len = Math.sqrt(row.reduce((s, x) => s + x * x, 0));
+            return row.map(x => x / (len || 1));
+        });
+        
+        // 简化：只返回前几个特征值
+        const maxIter = 100;
+        const values = [];
+        const vectors = [];
+        let A = matrix.map(row => [...row]);
+        
+        for (let k = 0; k < Math.min(n, 3); k++) {
+            // 幂迭代
+            let x = Array(n).fill(0).map(() => Math.random());
+            for (let iter = 0; iter < maxIter; iter++) {
+                const y = x.map((_, i) => 
+                    A[i].reduce((sum, val, j) => sum + val * x[j], 0)
+                );
+                const norm = Math.sqrt(y.reduce((s, val) => s + val * val, 0));
+                x = y.map(v => v / norm);
+            }
+            
+            // 计算特征值
+            const lambda = x.reduce((sum, val, i) => 
+                sum + x[i] * A[i].reduce((s, a, j) => s + a * x[j], 0), 0);
+            values.push(lambda);
+            vectors.push(x);
+            
+            // 降秩（简化处理）
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    A[i][j] -= lambda * x[i] * x[j];
+                }
+            }
+        }
+        
+        return { values, vectors };
+    }
+}
+
+// 测试
+const data = [
+    [2.5, 2.4], [0.5, 0.7], [2.2, 2.9], [1.9, 2.2],
+    [3.1, 3.0], [2.3, 2.7], [2.0, 1.6], [1.0, 1.1]
+];
+const pca = new PCA(1);
+pca.fit(data);
+const reduced = pca.transform(data);
+console.log("降维结果:", reduced);
+console.log("解释方差比:", pca.explained_variance_ratio);
+                        </code></pre></div>
+                    </div>
+                    <div id="d-pca-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from sklearn.decomposition import PCA
+
+class PCA:
+    def __init__(self, n_components):
+        self.n_components = n_components
+        self.model = PCA(n_components=n_components)
+    
+    def fit(self, data):
+        data = np.array(data)
+        self.model.fit(data)
+        return self
+    
+    def transform(self, data):
+        data = np.array(data)
+        return self.model.transform(data)
+    
+    def explained_variance_ratio(self):
+        return self.model.explained_variance_ratio_
+
+# 测试
+data = np.array([
+    [2.5, 2.4], [0.5, 0.7], [2.2, 2.9], [1.9, 2.2],
+    [3.1, 3.0], [2.3, 2.7], [2.0, 1.6], [1.0, 1.1]
+])
+pca = PCA(n_components=1)
+pca.fit(data)
+reduced = pca.transform(data)
+print("降维结果:", reduced.flatten())
+print("解释方差比:", pca.explained_variance_ratio())
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>PCA的应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>降维可视化：</strong>将高维数据降到2D/3D进行可视化</li>
+                        <li><strong>特征压缩：</strong>减少特征数量，保留主要信息</li>
+                        <li><strong>去相关：</strong>消除特征间的相关性</li>
+                        <li><strong>预处理：</strong>作为其他算法的预处理步骤</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="tsne">
+                <h2>t-SNE 降维可视化</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>t-SNE（t-distributed Stochastic Neighbor Embedding）是一种非线性降维方法，特别适合高维数据的可视化。它保留了数据的局部结构，使相似的数据点在低维空间中靠近。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>在高维空间中计算点对之间的相似度（使用高斯分布）</li>
+                        <li>在低维空间中计算点对之间的相似度（使用t分布）</li>
+                        <li>最小化两种分布的KL散度</li>
+                    </ul>
+                </div>
+
+                <h3>数学公式</h3>
+                <div class="algorithm-content">
+                    <p><strong>高维空间的相似度：</strong></p>
+                    <div class="formula">
+                        <p>pⱼ|ᵢ = exp(-||xᵢ - xⱼ||² / 2σᵢ²) / Σₖ≠ᵢ exp(-||xᵢ - xₖ||² / 2σᵢ²)</p>
+                        <p>pᵢⱼ = (pⱼ|ᵢ + pᵢ|ⱼ) / (2n)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>低维空间的相似度（t分布）：</strong></p>
+                    <div class="formula">
+                        <p>qᵢⱼ = (1 + ||yᵢ - yⱼ||²)⁻¹ / Σₖ≠ₗ (1 + ||yₖ - yₗ||²)⁻¹</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>KL散度损失函数：</strong></p>
+                    <div class="formula">
+                        <p>C = KL(P || Q) = Σᵢⱼ pᵢⱼ log(pᵢⱼ / qᵢⱼ)</p>
+                    </div>
+                    
+                    <p style="margin-top: 15px;"><strong>为什么使用t分布？</strong></p>
+                    <p>t分布有更重的尾部，可以缓解高维空间中的拥挤问题，使相似点在低维空间中不会过于拥挤。</p>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(n² log n)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(n²)</p>
+                    </div>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="tsne-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="tsne-python">Python</button>
+                    </div>
+                    <div id="tsne-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class TSNE {
+    constructor(n_components = 2, perplexity = 30, learning_rate = 200) {
+        this.n_components = n_components;
+        this.perplexity = perplexity;
+        this.learning_rate = learning_rate;
+        this.max_iter = 1000;
+        this.momentum = 0.5;
+    }
+
+    _computeP(data) {
+        const n = data.length;
+        const P = Array(n).fill(null).map(() => Array(n).fill(0));
+        
+        for (let i = 0; i < n; i++) {
+            // 使用二分搜索找到合适的σ
+            let minSigma = 0.01, maxSigma = 1000;
+            let sigma = 1;
+            
+            for (let iter = 0; iter < 30; iter++) {
+                sigma = (minSigma + maxSigma) / 2;
+                
+                // 计算条件概率
+                const row = [];
+                let sum = 0;
+                for (let j = 0; j < n; j++) {
+                    if (i === j) {
+                        row.push(0);
+                        continue;
+                    }
+                    const dist = this._distance(data[i], data[j]);
+                    const val = Math.exp(-dist * dist / (2 * sigma * sigma));
+                    row.push(val);
+                    sum += val;
+                }
+                
+                // 计算perplexity
+                const p = row.map(v => sum > 0 ? v / sum : 0);
+                const h = this._entropy(p);
+                const target = Math.log(this.perplexity);
+                
+                if (Math.abs(h - target) < 0.1) break;
+                
+                if (h < target) {
+                    minSigma = sigma;
+                } else {
+                    maxSigma = sigma;
+                }
+            }
+            
+            // 填充对称P矩阵
+            for (let j = 0; j < n; j++) {
+                if (i !== j) {
+                    P[i][j] = Math.exp(-this._distance(data[i], data[j]) ** 2 / (2 * sigma * sigma));
+                }
+            }
+        }
+        
+        // 对称化并归一化
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                const avg = (P[i][j] + P[j][i]) / (2 * n);
+                P[i][j] = P[j][i] = avg;
+            }
+        }
+        
+        return P;
+    }
+
+    _entropy(probs) {
+        return -probs.reduce((sum, p) => {
+            return p > 1e-10 ? sum + p * Math.log2(p) : sum;
+        }, 0);
+    }
+
+    _distance(a, b) {
+        return Math.sqrt(a.reduce((sum, val, i) => sum + (val - b[i]) ** 2, 0));
+    }
+
+    fit(data) {
+        const n = data.length;
+        
+        // 计算P矩阵
+        const P = this._computeP(data);
+        
+        // 初始化低维表示
+        let Y = data.map(() => Array(this.n_components).fill(0)
+            .map(() => (Math.random() - 0.5) * 0.01));
+        let Y_grad = Array(n).fill(null).map(() => 
+            Array(this.n_components).fill(0));
+        
+        // 梯度下降
+        for (let iter = 0; iter < this.max_iter; iter++) {
+            // 计算Q矩阵
+            const Q = Array(n).fill(null).map(() => Array(n).fill(0));
+            let sumQ = 0;
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const dist = this._distance(Y[i], Y[j]);
+                    const val = 1 / (1 + dist * dist);
+                    Q[i][j] = Q[j][i] = val;
+                    sumQ += 2 * val;
+                }
+            }
+            
+            // 计算梯度
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (i === j) continue;
+                    const pq = P[i][j] - Q[i][j] / sumQ;
+                    const factor = 4 * pq * (Y[i][0] - Y[j][0]) / (1 + this._distance(Y[i], Y[j]) ** 2);
+                    Y_grad[i][0] += factor;
+                }
+            }
+            
+            // 更新Y
+            const momentum = iter < 250 ? 0.5 : 0.8;
+            for (let i = 0; i < n; i++) {
+                for (let d = 0; d < this.n_components; d++) {
+                    Y[i][d] += this.learning_rate * Y_grad[i][d] + 
+                               momentum * (i > 0 ? Y[i-1][d] : 0);
+                }
+            }
+        }
+        
+        return Y;
+    }
+}
+                        </code></pre></div>
+                    </div>
+                    <div id="tsne-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from sklearn.manifold import TSNE
+import numpy as np
+
+class TSNE:
+    def __init__(self, n_components=2, perplexity=30, learning_rate=200):
+        self.n_components = n_components
+        self.perplexity = perplexity
+        self.learning_rate = learning_rate
+        self.model = TSNE(n_components=n_components, perplexity=perplexity,
+                         learning_rate=learning_rate)
+    
+    def fit_transform(self, data):
+        data = np.array(data)
+        return self.model.fit_transform(data)
+
+# 测试
+data = np.random.randn(100, 10)  # 100个样本，10维
+tsne = TSNE(n_components=2, perplexity=30)
+result = tsne.fit_transform(data)
+print("t-SNE降维结果形状:", result.shape)
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>t-SNE的特点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>能保留数据的局部结构</li>
+                        <li>可视化效果优秀</li>
+                        <li>可以发现聚类结构</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>计算复杂度高</li>
+                        <li>不能直接用于新数据（无transform方法）</li>
+                        <li>结果可能随参数变化而变化</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="gmm">
+                <h2>高斯混合模型 (GMM)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>GMM（Gaussian Mixture Model）假设数据由多个高斯分布混合而成，每个分布对应一个聚类。它不仅能聚类，还能给出样本属于各簇的概率。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>概率模型：</strong></p>
+                    <div class="formula">
+                        <p>P(X) = Σₖ πₖ N(X | μₖ, Σₖ)</p>
+                        <p>其中：πₖ是混合系数，N是高斯分布</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>参数：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>πₖ：各成分的权重（Σπₖ = 1）</li>
+                        <li>μₖ：各成分的均值</li>
+                        <li>Σₖ：各成分的协方差矩阵</li>
+                    </ul>
+                </div>
+
+                <h3>EM算法求解</h3>
+                <div class="algorithm-content">
+                    <p>使用EM（Expectation-Maximization）算法迭代求解：</p>
+                    
+                    <p style="margin-top: 15px;"><strong>E步（期望）：</strong>计算每个样本属于各成分的概率</p>
+                    <div class="formula">
+                        <p>γ(zₙₖ) = πₖ N(xₙ | μₖ, Σₖ) / Σⱼ πⱼ N(xₙ | μⱼ, Σⱼ)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>M步（最大化）：</strong>更新参数</p>
+                    <div class="formula">
+                        <p>μₖ = Σₙ γ(zₙₖ) xₙ / Σₙ γ(zₙₖ)</p>
+                        <p>Σₖ = Σₙ γ(zₙₖ) (xₙ - μₖ)(xₙ - μₖ)ᵀ / Σₙ γ(zₙₖ)</p>
+                        <p>πₖ = Nₖ / N（Nₖ是分配到簇k的样本数）</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>时间复杂度</h4>
+                        <p>O(n × k × d² × iter)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(n × k + k × d²)</p>
+                    </div>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="gmm-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="gmm-python">Python</button>
+                    </div>
+                    <div id="gmm-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class GMM {
+    constructor(k, maxIter = 100, tol = 1e-6) {
+        this.k = k;
+        this.maxIter = maxIter;
+        this.tol = tol;
+        this.weights = [];
+        this.means = [];
+        this.covariances = [];
+        this.pi = [];
+    }
+
+    _gaussian(x, mean, cov) {
+        const d = x.length;
+        const diff = x.map((val, i) => val - mean[i]);
+        
+        // 计算协方差矩阵的逆和行列式（简化版：假设对角矩阵）
+        let logDet = 0;
+        for (let i = 0; i < d; i++) {
+            logDet += Math.log(cov[i][i] + 1e-10);
+        }
+        
+        let mahalanobis = 0;
+        for (let i = 0; i < d; i++) {
+            mahalanobis += (diff[i] ** 2) / (cov[i][i] + 1e-10);
+        }
+        
+        const normConst = d * Math.log(2 * Math.PI) + logDet;
+        return Math.exp(-0.5 * (mahalanobis + normConst));
+    }
+
+    fit(data) {
+        const n = data.length;
+        const d = data[0].length;
+        
+        // 初始化：使用K-Means的结果
+        this._initWithKMeans(data);
+        
+        for (let iter = 0; iter < this.maxIter; iter++) {
+            // E步：计算responsibility
+            const responsibilities = Array(n).fill(null)
+                .map(() => Array(this.k).fill(0));
+            
+            for (let i = 0; i < n; i++) {
+                let sum = 0;
+                for (let j = 0; j < this.k; j++) {
+                    const prob = this.pi[j] * 
+                        this._gaussian(data[i], this.means[j], this.covariances[j]);
+                    responsibilities[i][j] = prob;
+                    sum += prob;
+                }
+                
+                if (sum > 0) {
+                    for (let j = 0; j < this.k; j++) {
+                        responsibilities[i][j] /= sum;
+                    }
+                }
+            }
+            
+            // M步：更新参数
+            let totalResponsibility = Array(this.k).fill(0);
+            const newMeans = Array(this.k).fill(null)
+                .map(() => Array(d).fill(0));
+            const newCovariances = Array(this.k).fill(null)
+                .map(() => Array(d).fill(0).map(() => Array(d).fill(0)));
+            const newPi = Array(this.k).fill(0);
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < this.k; j++) {
+                    const r = responsibilities[i][j];
+                    totalResponsibility[j] += r;
+                    newPi[j] += r;
+                    
+                    for (let p = 0; p < d; p++) {
+                        newMeans[j][p] += r * data[i][p];
+                    }
+                }
+            }
+            
+            // 更新均值和混合系数
+            for (let j = 0; j < this.k; j++) {
+                if (totalResponsibility[j] > 0) {
+                    for (let p = 0; p < d; p++) {
+                        this.means[j][p] = newMeans[j][p] / totalResponsibility[j];
+                    }
+                }
+                this.pi[j] = newPi[j] / n;
+            }
+            
+            // 更新协方差
+            for (let j = 0; j < this.k; j++) {
+                for (let i = 0; i < n; i++) {
+                    const r = responsibilities[i][j];
+                    const diff = data[i].map((val, p) => val - this.means[j][p]);
+                    for (let p = 0; p < d; p++) {
+                        for (let q = 0; q < d; q++) {
+                            newCovariances[j][p][q] += r * diff[p] * diff[q];
+                        }
+                    }
+                }
+                
+                for (let p = 0; p < d; p++) {
+                    for (let q = 0; q < d; q++) {
+                        this.covariances[j][p][q] = 
+                            newCovariances[j][p][q] / (totalResponsibility[j] + 1e-10);
+                    }
+                }
+            }
+            
+            // 检查收敛
+            // 省略收敛检查代码
+            if (iter > 0 && Math.abs(this._logLikelihood(data) - this._prevLogLikelihood) < this.tol) {
+                break;
+            }
+            this._prevLogLikelihood = this._logLikelihood(data);
+        }
+    }
+
+    _logLikelihood(data) {
+        let logLikelihood = 0;
+        for (const x of data) {
+            let sum = 0;
+            for (let j = 0; j < this.k; j++) {
+                sum += this.pi[j] * this._gaussian(x, this.means[j], this.covariances[j]);
+            }
+            logLikelihood += Math.log(sum + 1e-10);
+        }
+        return logLikelihood;
+    }
+
+    _initWithKMeans(data) {
+        // 简化的K-Means初始化
+        this.pi = Array(this.k).fill(1 / this.k);
+        this.means = data.slice(0, this.k);
+        this.covariances = Array(this.k).fill(null)
+            .map(() => Array(data[0].length).fill(0)
+                .map(() => Array(data[0].length).fill(1)));
+    }
+
+    predict(data) {
+        return data.map(x => {
+            let maxProb = -1;
+            let label = 0;
+            for (let j = 0; j < this.k; j++) {
+                const prob = this.pi[j] * this._gaussian(x, this.means[j], this.covariances[j]);
+                if (prob > maxProb) {
+                    maxProb = prob;
+                    label = j;
+                }
+            }
+            return label;
+        });
+    }
+
+    predictProba(data) {
+        return data.map(x => {
+            const probs = [];
+            let sum = 0;
+            for (let j = 0; j < this.k; j++) {
+                const prob = this.pi[j] * this._gaussian(x, this.means[j], this.covariances[j]);
+                probs.push(prob);
+                sum += prob;
+            }
+            return probs.map(p => p / (sum + 1e-10));
+        });
+    }
+}
+
+// 测试
+const data = [
+    [1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0]
+];
+const gmm = new GMM(3);
+gmm.fit(data);
+console.log("聚类标签:", gmm.predict(data));
+console.log("概率:", gmm.predictProba([[3, 3]]));
+                        </code></pre></div>
+                    </div>
+                    <div id="gmm-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from sklearn.mixture import GaussianMixture
+
+class GMM:
+    def __init__(self, n_components, max_iter=100):
+        self.n_components = n_components
+        self.max_iter = max_iter
+        self.model = GaussianMixture(n_components=n_components, max_iter=max_iter)
+    
+    def fit(self, data):
+        data = np.array(data)
+        self.model.fit(data)
+        return self
+    
+    def predict(self, data):
+        data = np.array(data)
+        return self.model.predict(data)
+    
+    def predict_proba(self, data):
+        data = np.array(data)
+        return self.model.predict_proba(data)
+
+# 测试
+data = np.array([
+    [1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0]
+])
+gmm = GMM(n_components=3)
+gmm.fit(data)
+print("聚类标签:", gmm.predict(data))
+print("概率:", gmm.predict_proba([[3, 3]]))
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>GMM vs K-Means</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">特性</th>
+                            <th style="padding: 12px;">K-Means</th>
+                            <th style="padding: 12px;">GMM</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">聚类形状</td>
+                            <td style="padding: 12px;">球形</td>
+                            <td style="padding: 12px;">椭圆</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">输出</td>
+                            <td style="padding: 12px;">硬标签</td>
+                            <td style="padding: 12px;">概率+硬标签</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">收敛速度</td>
+                            <td style="padding: 12px;">快</td>
+                            <td style="padding: 12px;">慢</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">异常值</td>
+                            <td style="padding: 12px;">敏感</td>
+                            <td style="padding: 12px;">较鲁棒</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="algo-section" id="comparison">
+                <h2>算法对比与选择</h2>
+                
+                <h3>聚类算法对比</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">算法</th>
+                            <th style="padding: 12px;">K值</th>
+                            <th style="padding: 12px;">形状</th>
+                            <th style="padding: 12px;">噪声</th>
+                            <th style="padding: 12px;">规模</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">K-Means</td>
+                            <td style="padding: 12px;">需指定</td>
+                            <td style="padding: 12px;">球形</td>
+                            <td style="padding: 12px;">敏感</td>
+                            <td style="padding: 12px;">大</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">层次聚类</td>
+                            <td style="padding: 12px;">可选</td>
+                            <td style="padding: 12px;">任意</td>
+                            <td style="padding: 12px;">敏感</td>
+                            <td style="padding: 12px;">小</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">DBSCAN</td>
+                            <td style="padding: 12px;">自动</td>
+                            <td style="padding: 12px;">任意</td>
+                            <td style="padding: 12px;">鲁棒</td>
+                            <td style="padding: 12px;">中</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">GMM</td>
+                            <td style="padding: 12px;">需指定</td>
+                            <td style="padding: 12px;">椭圆</td>
+                            <td style="padding: 12px;">较鲁棒</td>
+                            <td style="padding: 12px;">中</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>降维算法对比</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">算法</th>
+                            <th style="padding: 12px;">线性/非线性</th>
+                            <th style="padding: 12px;">保留全局</th>
+                            <th style="padding: 12px;">保留局部</th>
+                            <th style="padding: 12px;">速度</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">PCA</td>
+                            <td style="padding: 12px;">线性</td>
+                            <td style="padding: 12px;">✓</td>
+                            <td style="padding: 12px;"></td>
+                            <td style="padding: 12px;">快</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">t-SNE</td>
+                            <td style="padding: 12px;">非线性</td>
+                            <td style="padding: 12px;"></td>
+                            <td style="padding: 12px;">✓✓</td>
+                            <td style="padding: 12px;">慢</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>选择建议</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>大规模球形聚类：</strong>K-Means</li>
+                        <li><strong>任意形状+噪声：</strong>DBSCAN</li>
+                        <li><strong>需要层次结构：</strong>层次聚类</li>
+                        <li><strong>需要概率输出：</strong>GMM</li>
+                        <li><strong>高维可视化：</strong>t-SNE</li>
+                        <li><strong>特征压缩：</strong>PCA</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>
