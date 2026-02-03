@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>排序算法 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -53,8 +55,7 @@
                         <button class="code-tab-btn" data-tab="bubble-go">Go</button>
                     </div>
                     <div id="bubble-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function bubbleSort(arr) {
     const n = arr.length;
     for (let i = 0; i < n - 1; i++) {
@@ -70,12 +71,10 @@ function bubbleSort(arr) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(bubbleSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="bubble-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def bubble_sort(arr):
     n = len(arr)
     for i in range(n - 1):
@@ -87,12 +86,10 @@ def bubble_sort(arr):
 # 测试
 arr = [64, 34, 25, 12, 22, 11, 90]
 print(bubble_sort(arr.copy()))  # [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="bubble-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -114,8 +111,7 @@ func main() {
     sorted := bubbleSort(arr)
     fmt.Println(sorted) // [11 12 22 25 34 64 90]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -130,8 +126,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="quick-go">Go</button>
                     </div>
                     <div id="quick-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function quickSort(arr, left = 0, right = arr.length - 1) {
     if (left < right) {
         const pivotIndex = partition(arr, left, right);
@@ -159,12 +154,10 @@ function partition(arr, left, right) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(quickSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="quick-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def quick_sort(arr, left=0, right=None):
     if right is None:
         right = len(arr) - 1
@@ -190,12 +183,10 @@ def partition(arr, left, right):
 # 测试
 arr = [64, 34, 25, 12, 22, 11, 90]
 print(quick_sort(arr.copy()))  # [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="quick-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -228,8 +219,7 @@ func main() {
     quickSort(arr, 0, len(arr)-1)
     fmt.Println(arr) // [11 12 22 25 34 64 90]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -244,8 +234,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="merge-go">Go</button>
                     </div>
                     <div id="merge-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function mergeSort(arr) {
     if (arr.length <= 1) return arr;
     
@@ -274,12 +263,10 @@ function merge(left, right) {
 // 测试
 const arr = [64, 34, 25, 12, 22, 11, 90];
 console.log(mergeSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="merge-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def merge_sort(arr):
     if len(arr) <= 1:
         return arr
@@ -309,12 +296,10 @@ def merge(left, right):
 # 测试
 arr = [64, 34, 25, 12, 22, 11, 90]
 print(merge_sort(arr))  # [11, 12, 22, 25, 34, 64, 90]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="merge-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -355,8 +340,7 @@ func main() {
     sorted := mergeSort(arr)
     fmt.Println(sorted) // [11 12 22 25 34 64 90]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -375,5 +359,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

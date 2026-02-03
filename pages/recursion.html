@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>递归与回溯 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -62,8 +64,7 @@
                         <button class="code-tab-btn" data-tab="factorial-go">Go</button>
                     </div>
                     <div id="factorial-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function factorial(n) {
     // 基本情况
     if (n <= 1) return 1;
@@ -75,12 +76,10 @@ function factorial(n) {
 // 测试
 console.log(factorial(5)); // 120
 console.log(factorial(0)); // 1
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="factorial-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def factorial(n):
     if n <= 1:
         return 1
@@ -89,12 +88,10 @@ def factorial(n):
 # 测试
 print(factorial(5))  # 120
 print(factorial(0))  # 1
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="factorial-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -110,8 +107,7 @@ func main() {
     fmt.Println(factorial(5)) // 120
     fmt.Println(factorial(0)) // 1
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -126,8 +122,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="hanoi-go">Go</button>
                     </div>
                     <div id="hanoi-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function hanoi(n, source, auxiliary, target) {
     if (n === 1) {
         console.log(`Move disk 1 from ${source} to ${target}`);
@@ -147,12 +142,10 @@ function hanoi(n, source, auxiliary, target) {
 // 测试
 console.log('3层汉诺塔解法：');
 hanoi(3, 'A', 'B', 'C');
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="hanoi-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def hanoi(n, source, auxiliary, target):
     if n == 1:
         print(f"Move disk 1 from {source} to {target}")
@@ -165,12 +158,10 @@ def hanoi(n, source, auxiliary, target):
 # 测试
 print('3层汉诺塔解法：')
 hanoi(3, 'A', 'B', 'C')
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="hanoi-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -190,8 +181,7 @@ func main() {
     fmt.Println("3层汉诺塔解法：")
     hanoi(3, "A", "B", "C")
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -211,8 +201,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="nqueen-go">Go</button>
                     </div>
                     <div id="nqueen-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function solveNQueens(n) {
     const solutions = [];
     const board = Array(n).fill(null).map(() => Array(n).fill('.'));
@@ -259,12 +248,10 @@ function solveNQueens(n) {
 const result = solveNQueens(4);
 console.log(`4皇后有 ${result.length} 种解法`);
 console.log(result[0]);
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="nqueen-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def solve_n_queens(n):
     solutions = []
     board = [['.' for _ in range(n)] for _ in range(n)]
@@ -302,12 +289,10 @@ def solve_n_queens(n):
 result = solve_n_queens(4)
 print(f"4皇后有 {len(result)} 种解法")
 print(result[0])
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="nqueen-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -376,8 +361,7 @@ func main() {
     fmt.Printf("4皇后有 %d 种解法\n", len(result))
     fmt.Println(result[0])
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -392,8 +376,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="permute-go">Go</button>
                     </div>
                     <div id="permute-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function permute(nums) {
     const result = [];
     
@@ -423,12 +406,10 @@ function permute(nums) {
 // 测试
 console.log(permute([1, 2, 3]));
 // [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="permute-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def permute(nums):
     result = []
     
@@ -455,12 +436,10 @@ def permute(nums):
 # 测试
 print(permute([1, 2, 3]))
 # [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="permute-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -503,8 +482,7 @@ func main() {
     fmt.Println(result)
     // [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -519,8 +497,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="subsets-go">Go</button>
                     </div>
                     <div id="subsets-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function subsets(nums) {
     const result = [];
     
@@ -541,12 +518,10 @@ function subsets(nums) {
 // 测试
 console.log(subsets([1, 2, 3]));
 // [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="subsets-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def subsets(nums):
     result = []
     
@@ -564,12 +539,10 @@ def subsets(nums):
 # 测试
 print(subsets([1, 2, 3]))
 # [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="subsets-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -599,8 +572,7 @@ func main() {
     fmt.Println(result)
     // [[] [1] [1 2] [1 2 3] [1 3] [2] [2 3] [3]]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -618,5 +590,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据结构 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -53,8 +55,8 @@
                         <button class="code-tab-btn" data-tab="list-go">Go</button>
                     </div>
                     <div id="list-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class ListNode {
     constructor(val = 0, next = null) {
         this.val = val;
@@ -139,12 +141,12 @@ list.append(3);
 list.print(); // 1 -> 2 -> 3
 list.reverse();
 list.print(); // 3 -> 2 -> 1
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="list-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
@@ -216,12 +218,12 @@ if __name__ == "__main__":
     lst.print()  # 1 -> 2 -> 3
     lst.reverse()
     lst.print()  # 3 -> 2 -> 1
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="list-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 package main
 
 import "fmt"
@@ -313,7 +315,7 @@ func main() {
     list.Reverse()
     list.Print() // 3 -> 2 -> 1
 }
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                 </div>
@@ -329,8 +331,8 @@ func main() {
                         <button class="code-tab-btn" data-tab="stack-go">Go</button>
                     </div>
                     <div id="stack-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class Stack {
     constructor() {
         this.items = [];
@@ -382,12 +384,12 @@ function isValidParentheses(s) {
 // 测试
 console.log(isValidParentheses("()[]{}")); // true
 console.log(isValidParentheses("([)]")); // false
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="stack-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class Stack:
     def __init__(self):
         self.items = []
@@ -433,12 +435,12 @@ def is_valid_parentheses(s):
 # 测试
 print(is_valid_parentheses("()[]{}"))  # True
 print(is_valid_parentheses("([)]"))    # False
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="stack-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 package main
 
 type Stack struct {
@@ -504,7 +506,7 @@ func main() {
     println(isValidParentheses("()[]{}")) // true
     println(isValidParentheses("([)]"))   // false
 }
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                 </div>
@@ -520,8 +522,8 @@ func main() {
                         <button class="code-tab-btn" data-tab="queue-go">Go</button>
                     </div>
                     <div id="queue-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class Queue {
     constructor() {
         this.items = [];
@@ -588,12 +590,12 @@ queue.enqueue(1);
 queue.enqueue(2);
 queue.enqueue(3);
 console.log(queue.dequeue()); // 1
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="queue-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class Queue:
     def __init__(self):
         self.items = []
@@ -652,12 +654,12 @@ if __name__ == "__main__":
     queue.enqueue(2)
     queue.enqueue(3)
     print(queue.dequeue())  # 1
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="queue-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 package main
 
 type Queue struct {
@@ -749,7 +751,7 @@ func main() {
     queue.Enqueue(3)
     println(queue.Dequeue()) // 1
 }
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                 </div>
@@ -765,8 +767,8 @@ func main() {
                         <button class="code-tab-btn" data-tab="bst-go">Go</button>
                     </div>
                     <div id="bst-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class TreeNode {
     constructor(val) {
         this.val = val;
@@ -836,12 +838,12 @@ const bst = new BinarySearchTree();
 [5, 3, 7, 2, 4, 6, 8].forEach(val => bst.insert(val));
 console.log(bst.inOrder()); // [2, 3, 4, 5, 6, 7, 8]
 console.log(bst.search(4)); // true
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="bst-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 class TreeNode:
     def __init__(self, val):
         self.val = val
@@ -903,12 +905,12 @@ if __name__ == "__main__":
         bst.insert(val)
     print(bst.in_order())  # [2, 3, 4, 5, 6, 7, 8]
     print(bst.search(4))   # True
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                     <div id="bst-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
 package main
 
 import "fmt"
@@ -993,7 +995,7 @@ func main() {
     fmt.Println(bst.InOrder()) // [2 3 4 5 6 7 8]
     fmt.Println(bst.Search(4)) // true
 }
-                            </pre>
+                            </code></code></code></code></pre>
                         </div>
                     </div>
                 </div>
@@ -1002,8 +1004,8 @@ func main() {
             <h3>堆 (Heap)</h3>
             <div class="algorithm-content">
                 <p>完全二叉树，常用于实现优先队列。分为最大堆和最小堆。</p>
-                <div class="code-block">
-                    <pre>
+<div class="code-block line-numbers">
+                            <pre><code class="language-python">
 class MinHeap {
     constructor() {
         this.heap = [];
@@ -1097,15 +1099,15 @@ const heap = new MinHeap();
 [5, 3, 8, 1, 2, 9].forEach(val => heap.insert(val));
 console.log(heap.extractMin()); // 1
 console.log(heap.peek()); // 2
-                    </pre>
+                    </code></pre>
                 </div>
             </div>
 
             <h3>哈希表 (Hash Table)</h3>
             <div class="algorithm-content">
                 <p>通过哈希函数将键映射到值的数据结构，支持平均O(1)时间复杂度的插入、删除和查找。</p>
-                <div class="code-block">
-                    <pre>
+<div class="code-block line-numbers">
+                            <pre><code class="language-python">
 class HashTable {
     constructor(size = 10) {
         this.size = size;
@@ -1171,7 +1173,7 @@ hashTable.set('age', 25);
 console.log(hashTable.get('name')); // Alice
 hashTable.delete('age');
 console.log(hashTable.get('age')); // undefined
-                    </pre>
+                    </code></pre>
                 </div>
             </div>
 
@@ -1188,5 +1190,9 @@ console.log(hashTable.get('age')); // undefined
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

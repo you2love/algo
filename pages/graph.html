@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图算法 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -53,8 +55,7 @@
                         <button class="code-tab-btn" data-tab="dijkstra-go">Go</button>
                     </div>
                     <div id="dijkstra-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function dijkstra(graph, start) {
     const distances = {};
     const visited = new Set();
@@ -115,12 +116,10 @@ const graph = {
 };
 console.log(dijkstra(graph, 'A'));
 // { A: 0, B: 4, C: 2, D: 5 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="dijkstra-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 import heapq
 
 def dijkstra(graph, start):
@@ -150,12 +149,10 @@ graph = {
     'D': {'B': 10, 'C': 3}
 }
 print(dijkstra(graph, 'A'))  # {'A': 0, 'B': 4, 'C': 2, 'D': 5}
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="dijkstra-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -252,8 +249,7 @@ func main() {
     }
     fmt.Println(dijkstra(graph, "A"))  // map[A:0 B:4 C:2 D:5]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -268,8 +264,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="floyd-go">Go</button>
                     </div>
                     <div id="floyd-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function floydWarshall(graph) {
     const n = graph.length;
     const dist = Array(n).fill(null).map(() => Array(n).fill(Infinity));
@@ -306,12 +301,10 @@ const graph = [
     [2, Infinity, Infinity, 0]
 ];
 console.log(floydWarshall(graph));
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="floyd-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def floyd_warshall(graph):
     n = len(graph)
     dist = [[float('inf')] * n for _ in range(n)]
@@ -338,12 +331,10 @@ graph = [
     [2, float('inf'), float('inf'), 0]
 ]
 print(floyd_warshall(graph))
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="floyd-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -395,8 +386,7 @@ func main() {
     result := floydWarshall(graph)
     fmt.Println(result)
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -411,8 +401,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="prim-go">Go</button>
                     </div>
                     <div id="prim-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function prim(graph) {
     const n = graph.length;
     const key = Array(n).fill(Infinity);
@@ -457,12 +446,10 @@ console.log("最小生成树的边：");
 for (let i = 1; i < mst.length; i++) {
     console.log(`${mst[i]} - ${i}`);
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="prim-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def prim(graph):
     n = len(graph)
     key = [float('inf')] * n
@@ -498,12 +485,10 @@ mst = prim(graph)
 print("最小生成树的边：")
 for i in range(1, len(mst)):
     print(f"{mst[i]} - {i}")
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="prim-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -560,8 +545,7 @@ func main() {
         fmt.Printf("%d - %d\n", mst[i], i)
     }
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -576,8 +560,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="topo-go">Go</button>
                     </div>
                     <div id="topo-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function topologicalSort(graph) {
     const inDegree = {};
     const queue = [];
@@ -626,12 +609,10 @@ const courseGraph = {
     'F': []
 };
 console.log(topologicalSort(courseGraph)); // ['B', 'A', 'D', 'C', 'E', 'F']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="topo-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 from collections import deque
 
 def topological_sort(graph):
@@ -665,12 +646,10 @@ course_graph = {
     'F': []
 }
 print(topological_sort(course_graph))  # ['B', 'A', 'D', 'C', 'E', 'F']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="topo-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -728,8 +707,7 @@ func main() {
     }
     fmt.Println(topologicalSort(courseGraph))  // [B A D C E F]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -747,5 +725,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

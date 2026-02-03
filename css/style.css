@@ -316,17 +316,57 @@ body {
 }
 
 .code-block {
-    background: #282c34;
-    color: #abb2bf;
+    background: #0d1117;
+    color: #c9d1d9;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 6px;
     overflow-x: auto;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.6;
     margin: 15px 0;
+    border: 1px solid #30363d;
 }
 
 .code-block pre {
     margin: 0;
+}
+
+.code-block pre code {
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* 行号样式 */
+.line-numbers .code-block pre {
+    position: relative;
+    padding-left: 3.5em;
+    counter-reset: linenumber;
+}
+
+.line-numbers .code-block pre code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .code-block pre code::before {
+    content: counter(linenumber);
+    color: #484f58;
+    display: inline-block;
+    padding-right: 0.5em;
+    padding-left: 0;
+    width: 2.5em;
+    text-align: right;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.line-numbers .code-block pre code::before,
+.line-numbers .code-block pre code::after {
+    content: normal;
 }
 
 /* 多语言代码标签页样式 */
@@ -336,36 +376,51 @@ body {
 
 .code-tab-header {
     display: flex;
-    gap: 5px;
+    gap: 0;
     margin-bottom: 0;
-    border-bottom: none;
+    border-bottom: 1px solid #30363d;
 }
 
 .code-tab-btn {
     padding: 10px 20px;
     border: none;
-    background: #e0e0e0;
-    color: #666;
+    background: #21262d;
+    color: #8b949e;
     cursor: pointer;
-    border-radius: 5px 5px 0 0;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    border: 1px solid #30363d;
+    border-bottom: none;
+    margin-left: -1px;
+    transition: all 0.2s ease;
+}
+
+.code-tab-btn:first-child {
+    margin-left: 0;
+    border-radius: 6px 0 0 0;
+}
+
+.code-tab-btn:last-child {
+    border-radius: 0 6px 0 0;
 }
 
 .code-tab-btn:hover {
-    background: #d0d0d0;
+    background: #30363d;
+    color: #c9d1d9;
 }
 
 .code-tab-btn.active {
-    background: #282c34;
-    color: #fff;
+    background: #0d1117;
+    color: #58a6ff;
+    border-bottom: 2px solid #0d1117;
 }
 
 .code-tab-content {
     display: none;
-    background: #282c34;
-    border-radius: 0 5px 5px 5px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-top: none;
+    border-radius: 0 6px 6px 6px;
     padding: 20px;
 }
 
@@ -376,8 +431,13 @@ body {
 .code-tab-content .code-block {
     margin: 0;
     background: transparent;
+    border: none;
     border-radius: 0;
     padding: 0;
+}
+
+.code-tab-content .line-numbers .code-block pre {
+    padding-left: 3.5em;
 }
 
 .complexity {

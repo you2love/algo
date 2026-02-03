@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>搜索算法 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -53,8 +55,7 @@
                         <button class="code-tab-btn" data-tab="binary-go">Go</button>
                     </div>
                     <div id="binary-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function binarySearch(arr, target) {
     let left = 0;
     let right = arr.length - 1;
@@ -78,12 +79,10 @@ function binarySearch(arr, target) {
 const sortedArr = [1, 3, 5, 7, 9, 11, 13, 15, 17];
 console.log(binarySearch(sortedArr, 7)); // 3
 console.log(binarySearch(sortedArr, 4)); // -1
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="binary-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def binary_search(arr, target):
     left, right = 0, len(arr) - 1
     
@@ -103,12 +102,10 @@ def binary_search(arr, target):
 sorted_arr = [1, 3, 5, 7, 9, 11, 13, 15, 17]
 print(binary_search(sorted_arr, 7))  # 3
 print(binary_search(sorted_arr, 4))  # -1
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="binary-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -136,8 +133,7 @@ func main() {
     fmt.Println(binarySearch(sortedArr, 7)) // 3
     fmt.Println(binarySearch(sortedArr, 4)) // -1
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -152,8 +148,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="dfs-go">Go</button>
                     </div>
                     <div id="dfs-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 // 图的邻接表表示
 const graph = {
     A: ['B', 'C'],
@@ -185,12 +180,10 @@ function dfs(graph, start) {
 
 // 测试
 console.log(dfs(graph, 'A')); // ['A', 'B', 'D', 'E', 'F', 'C']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="dfs-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 # 图的邻接表表示
 graph = {
     'A': ['B', 'C'],
@@ -218,12 +211,10 @@ def dfs(graph, start):
 
 # 测试
 print(dfs(graph, 'A'))  # ['A', 'B', 'D', 'E', 'F', 'C']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="dfs-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -261,8 +252,7 @@ func main() {
     result := dfs(graph, "A")
     fmt.Println(result) // [A B D E F C]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -277,8 +267,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="bfs-go">Go</button>
                     </div>
                     <div id="bfs-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 // 使用相同的图结构
 function bfs(graph, start) {
     const visited = new Set([start]);
@@ -302,12 +291,10 @@ function bfs(graph, start) {
 
 // 测试
 console.log(bfs(graph, 'A')); // ['A', 'B', 'C', 'D', 'E', 'F']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="bfs-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 # 使用相同的图结构
 def bfs(graph, start):
     visited = {start}
@@ -327,12 +314,10 @@ def bfs(graph, start):
 
 # 测试
 print(bfs(graph, 'A'))  # ['A', 'B', 'C', 'D', 'E', 'F']
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="bfs-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -372,8 +357,7 @@ func main() {
     result := bfs(graph, "A")
     fmt.Println(result) // [A B C D E F]
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -422,5 +406,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

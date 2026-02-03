@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>算法学习指南 - 程序员必备</title>
+    <title>数据结构与算法</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -13,15 +15,14 @@
             <ul class="nav-links">
                 <li><a href="#home">首页</a></li>
                 <li><a href="#algorithms">算法分类</a></li>
-                <li><a href="#practice">在线练习</a></li>
             </ul>
         </div>
     </nav>
 
     <header id="home" class="hero">
         <div class="container">
-            <h1>算法学习指南</h1>
-            <p>系统化学习数据结构与算法，成为更好的程序员</p>
+            <h1>AlgoLearn</h1>
+            <p></p>
             <a href="#algorithms" class="btn btn-primary">开始学习</a>
         </div>
     </header>
@@ -70,33 +71,39 @@
                     <p>Google核心算法 - 网页重要性评估与链接分析</p>
                     <a href="pages/pagerank.html" class="btn btn-secondary">开始学习</a>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="practice" class="practice-section">
-        <div class="container">
-            <h2>在线练习</h2>
-            <div class="practice-platforms">
-                <div class="platform-card">
-                    <h3>LeetCode</h3>
-                    <p>全球最大的编程题库</p>
-                    <a href="https://leetcode.com" target="_blank" class="btn btn-outline">访问</a>
+                <div class="algorithm-card" data-category="word2vec">
+                    <h3>Word2Vec</h3>
+                    <p>词向量表示 - 词语的分布式语义表示与向量运算</p>
+                    <a href="pages/word2vec.html" class="btn btn-secondary">开始学习</a>
                 </div>
-                <div class="platform-card">
-                    <h3>牛客网</h3>
-                    <p>国内知名编程练习平台</p>
-                    <a href="https://nowcoder.com" target="_blank" class="btn btn-outline">访问</a>
+                <div class="algorithm-card" data-category="bp">
+                    <h3>BP算法</h3>
+                    <p>反向传播 - 神经网络训练的核心算法与梯度计算</p>
+                    <a href="pages/bp.html" class="btn btn-secondary">开始学习</a>
                 </div>
-                <div class="platform-card">
-                    <h3>HackerRank</h3>
-                    <p>国际编程挑战平台</p>
-                    <a href="https://hackerrank.com" target="_blank" class="btn btn-outline">访问</a>
+                <div class="algorithm-card" data-category="fsa">
+                    <h3>有限状态自动机</h3>
+                    <p>DFA与NFA - 字符串模式匹配与正则表达式引擎</p>
+                    <a href="pages/fsa.html" class="btn btn-secondary">开始学习</a>
+                </div>
+                <div class="algorithm-card" data-category="pda">
+                    <h3>下推自动机</h3>
+                    <p>PDA - 上下文无关文法的识别与栈式计算</p>
+                    <a href="pages/pda.html" class="btn btn-secondary">开始学习</a>
+                </div>
+                <div class="algorithm-card" data-category="recommendation">
+                    <h3>推荐系统</h3>
+                    <p>协同过滤与矩阵分解 - 用户偏好预测与物品推荐</p>
+                    <a href="pages/recommendation.html" class="btn btn-secondary">开始学习</a>
                 </div>
             </div>
         </div>
     </section>
 
     <script src="js/main.js"></script>
+    <script src="lib/prism/prism.min.js"></script>
+    <script src="lib/prism/prism-python.min.js"></script>
+    <script src="lib/prism/prism-go.min.js"></script>
+    <script src="lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

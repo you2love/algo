@@ -68,6 +68,12 @@ function initCodeTabs() {
             const targetContent = tabContainer.querySelector(`#${tabId}`);
             if (targetContent) {
                 targetContent.classList.add('active');
+                
+                // 重新应用语法高亮
+                const codeBlock = targetContent.querySelector('code');
+                if (codeBlock && window.Prism) {
+                    Prism.highlightElement(codeBlock);
+                }
             }
         });
     });
@@ -79,6 +85,13 @@ if (document.readyState === 'loading') {
 } else {
     initCodeTabs();
 }
+
+// 页面加载完成后初始化 Prism 行号
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.Prism && window.Prism.plugins && window.Prism.plugins.lineNumbers) {
+        // 行号插件会自动初始化
+    }
+});
 
 // 搜索功能（如果需要）
 function searchAlgorithms(query) {

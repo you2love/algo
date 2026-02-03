@@ -122,6 +122,8 @@
             border-radius: 3px;
         }
     </style>
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -366,8 +368,7 @@
                         <button class="code-tab-btn" data-tab="hll-go">Go</button>
                     </div>
                     <div id="hll-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 class HyperLogLog {
     constructor(p = 14) {
         this.p = p;                    // 精度参数
@@ -465,12 +466,10 @@ for (let i = 0; i < 100000; i++) {
 console.log(`实际不同元素数: 100000`);
 console.log(`HLL 估计值: ${hll.countDistinct()}`);
 console.log(`误差率: ${Math.abs(hll.countDistinct() - 100000) / 100000 * 100}%`);
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="hll-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 import math
 import random
 
@@ -556,12 +555,10 @@ if __name__ == "__main__":
     print(f"实际不同元素数: 100000")
     print(f"HLL 估计值: {hll.count_distinct()}")
     print(f"误差率: {abs(hll.count_distinct() - 100000) / 100000 * 100}%")
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="hll-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -689,8 +686,7 @@ func main() {
     diff := float64(hll.CountDistinct() - 100000)
     fmt.Printf("误差率: %.2f%%\n", math.Abs(diff)/100000*100)
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -775,14 +771,12 @@ func main() {
                 </p>
                 
                 <h3>3. Redis 实现</h3>
-                <div class="code-block">
-                    <pre>
+                <div class="code-block line-numbers"><pre><code class="language-javascript">
 // Redis 命令示例
 PFADD mykey "user1" "user2" "user3"  // 添加元素
 PFCOUNT mykey                           // 估计基数
 PFMERGE mergedkey key1 key2             // 合并两个 HLL
-                    </pre>
-                </div>
+                    </code></pre></div>
             </div>
 
             <h2>总结：为什么 HyperLogLog 有效？</h2>
@@ -810,5 +804,9 @@ PFMERGE mergedkey key1 key2             // 合并两个 HLL
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

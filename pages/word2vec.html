@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word2Vec - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .architecture-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .layer {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-width: 120px;
+        }
+        
+        .layer h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .arrow-right {
+            font-size: 30px;
+            color: white;
+        }
+        
+        .vector-visual {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .vector-dim {
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(180deg, #3498db, #2980b9);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .embedding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .word-vector {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #30363d;
+        }
+        
+        .word-vector .word {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+        
+        .word-vector .vector {
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #8b949e;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .highlight-text {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .math-formula {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .training-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f0f4f8;
+            border-radius: 10px;
+        }
+        
+        .training-step {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .training-step .step-num {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#practice">在线练习</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>Word2Vec - 词向量表示</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是Word2Vec？</h3>
+                <p>
+                    <strong>Word2Vec</strong> 是由 Google 在 2013 年提出的词嵌入（Word Embedding）技术，
+                    它将词语映射到低维稠密向量空间，使得语义相近的词语在向量空间中距离也相近。
+                </p>
+                <p>
+                    Word2Vec 的核心思想是：<span class="highlight-text">一个词语的意义可以由它的上下文来定义</span>。
+                    "你可以通过一个词的朋友（上下文）来判断它的身份"。
+                </p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>向量维度</h4>
+                    <p>通常 100-300 维</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>训练复杂度</h4>
+                    <p>O(E × log V)</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>推理速度</h4>
+                    <p>O(1) - 向量运算</p>
+                </div>
+            </div>
+
+            <h2>核心思想：分布式表示</h2>
+            
+            <div class="concept-box">
+                <h4>🎯 分布式表示 vs 独热编码</h4>
+                <p>
+                    <strong>传统独热编码</strong>：每个词用高维稀疏向量表示，词与词之间完全独立
+                </p>
+                <p>
+                    <strong>Word2Vec分布式表示</strong>：每个词用低维稠密向量表示，相似词距离更近
+                </p>
+            </div>
+
+            <h3>词向量示例</h3>
+            <div class="embedding-grid">
+                <div class="word-vector">
+                    <div class="word">king</div>
+                    <div class="vector">[0.5, 0.2, -0.1, ...]</div>
+                </div>
+                <div class="word-vector">
+                    <div class="word">queen</div>
+                    <div class="vector">[0.4, 0.3, -0.2, ...]</div>
+                </div>
+                <div class="word-vector">
+                    <div class="word">man</div>
+                    <div class="vector">[0.6, 0.1, 0.0, ...]</div>
+                </div>
+                <div class="word-vector">
+                    <div class="word">woman</div>
+                    <div class="vector">[0.5, 0.2, 0.1, ...]</div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #7f8c8d;">
+                可以通过向量运算发现语义关系：king - man + woman ≈ queen
+            </p>
+
+            <h2>两种模型架构</h2>
+
+            <h3>1. CBOW (Continuous Bag-of-Words)</h3>
+            <div class="algorithm-content">
+                <p>
+                    <strong>原理</strong>：利用上下文词语来预测当前词语
+                </p>
+                <p>
+                    输入：周围词的向量 → 神经网络 → 输出：目标词的预测概率
+                </p>
+                <div class="architecture-diagram">
+                    <div class="layer">
+                        <h4>输入层</h4>
+                        <p>上下文词向量</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(C个词的独热编码)</p>
+                    </div>
+                    <div class="arrow-right">→</div>
+                    <div class="layer">
+                        <h4>投影层</h4>
+                        <p>求和平均</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(N维稠密向量)</p>
+                    </div>
+                    <div class="arrow-right">→</div>
+                    <div class="layer">
+                        <h4>输出层</h4>
+                        <p>Softmax分类</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(预测目标词)</p>
+                    </div>
+                </div>
+                <p style="text-align: center;">
+                    <span class="highlight-text">适用场景</span>：小型语料库，频繁词
+                </p>
+            </div>
+
+            <h3>2. Skip-gram</h3>
+            <div class="algorithm-content">
+                <p>
+                    <strong>原理</strong>：利用当前词语来预测周围的上下文词语
+                </p>
+                <p>
+                    输入：当前词的向量 → 神经网络 → 输出：上下文词的预测概率
+                </p>
+                <div class="architecture-diagram">
+                    <div class="layer">
+                        <h4>输入层</h4>
+                        <p>当前词向量</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(词的独热编码)</p>
+                    </div>
+                    <div class="arrow-right">→</div>
+                    <div class="layer">
+                        <h4>投影层</h4>
+                        <p>线性变换</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(N维稠密向量)</p>
+                    </div>
+                    <div class="arrow-right">→</div>
+                    <div class="layer">
+                        <h4>输出层</h4>
+                        <p>Softmax分类</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em;">(预测C个上下文词)</p>
+                    </div>
+                </div>
+                <p style="text-align: center;">
+                    <span class="highlight-text">适用场景</span>：大型语料库，生僻词
+                </p>
+            </div>
+
+            <h2>数学原理详解</h2>
+
+            <h3>1. 目标函数</h3>
+            <div class="algorithm-content">
+                <p>Skip-gram 的目标函数：最大化语料库中所有窗口的词对共现概率</p>
+                <div class="math-formula">
+                    <p><strong>J(θ) = -1/T Σₜ₌1ᵀ Σ₋ₘ≤j≤m, j≠0 log P(wₜ₊ⱼ | wₜ)</strong></p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>T</strong> = 语料库大小</p>
+                    <p>• <strong>m</strong> = 窗口大小</p>
+                    <p>• <strong>wₜ</strong> = 中心词</p>
+                    <p>• <strong>P(wₜ₊ⱼ | wₜ)</strong> = 给定中心词，上下文词的条件概率</p>
+                </div>
+            </div>
+
+            <h3>2. 条件概率函数</h3>
+            <div class="algorithm-content">
+                <p>使用 softmax 函数定义条件概率：</p>
+                <div class="math-formula">
+                    <p><strong>P(w_O | w_I) = exp(v'ₒ · vᵢ) / Σₖ₌1ᵛ exp(v'ₖ · vᵢ)</strong></p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>vᵢ</strong> = 输入词向量 (center word)</p>
+                    <p>• <strong>v'ₒ</strong> = 输出词向量 (context word)</p>
+                    <p>• <strong>V</strong> = 词汇表大小</p>
+                </div>
+                <p style="color: #e74c3c; margin-top: 10px;">
+                    ⚠️ 原始 softmax 计算复杂度为 O(V)，对于大词汇表不实用
+                </p>
+            </div>
+
+            <h3>3. 优化技术：负采样</h3>
+            <div class="algorithm-content">
+                <p>
+                    <strong>负采样 (Negative Sampling)</strong> 是 Word2Vec 的关键优化，
+                    将多分类问题转化为二分类问题。
+                </p>
+                <div class="math-formula">
+                    <p><strong>目标</strong>：最大化正样本概率，最小化负样本概率</p>
+                    <br>
+                    <p><strong>负样本目标函数</strong>：</p>
+                    <p>log σ(v'ₒ · vᵢ) + Σₖ₌1ᴷ Eₖ₋[log σ(-v'ₖ · vᵢ)]</p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>σ(x) = 1/(1+e^(-x))</strong> = sigmoid 函数</p>
+                    <p>• <strong>K</strong> = 负样本数量 (通常5-20)</p>
+                </div>
+            </div>
+
+            <h2>训练过程可视化</h2>
+            <div class="training-visual">
+                <div class="training-step">
+                    <div class="step-num">1</div>
+                    <h4>初始化</h4>
+                    <p>随机初始化词向量</p>
+                </div>
+                <div class="training-step">
+                    <div class="step-num">2</div>
+                    <h4>采样</h4>
+                    <p>选择正样本词对</p>
+                </div>
+                <div class="training-step">
+                    <div class="step-num">3</div>
+                    <h4>负采样</h4>
+                    <p>随机选择负样本</p>
+                </div>
+                <div class="training-step">
+                    <div class="step-num">4</div>
+                    <h4>更新</h4>
+                    <p>梯度下降优化</p>
+                </div>
+                <div class="training-step">
+                    <div class="step-num">5</div>
+                    <h4>收敛</h4>
+                    <p>获得优质词向量</p>
+                </div>
+            </div>
+
+            <h2>完整实现</h2>
+            <div class="algorithm-content">
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="w2v-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="w2v-python">Python</button>
+                        <button class="code-tab-btn" data-tab="w2v-go">Go</button>
+                    </div>
+                    <div id="w2v-js" class="code-tab-content active">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
+class Word2Vec {
+    constructor(vocabSize = 10000, embeddingDim = 100, learningRate = 0.025, windowSize = 5) {
+        this.vocabSize = vocabSize;
+        this.embeddingDim = embeddingDim;
+        this.learningRate = learningRate;
+        this.windowSize = windowSize;
+        
+        // 初始化词向量矩阵 (随机值)
+        this.W = this.randomMatrix(vocabSize, embeddingDim);
+        this.W_prime = this.randomMatrix(vocabSize, embeddingDim);
+    }
+    
+    randomMatrix(rows, cols) {
+        return Array.from({length: rows}, () => 
+            Array.from({length: cols}, () => (Math.random() * 2 - 1) / Math.sqrt(embeddingDim)));
+    }
+    
+    sigmoid(x) {
+        return 1 / (1 + Math.exp(-Math.max(-500, Math.min(500, x))));
+    }
+    
+    // 训练一个 epoch
+    train(sentences, epochs = 5) {
+        const wordCounts = new Map();
+        
+        // 统计词频
+        sentences.forEach(sentence => {
+            sentence.forEach(word => {
+                wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
+            });
+        });
+        
+        // 构建词汇表（简化：使用原始词索引）
+        for (let epoch = 0; epoch < epochs; epoch++) {
+            sentences.forEach(sentence => {
+                for (let i = 0; i < sentence.length; i++) {
+                    const centerWord = sentence[i];
+                    
+                    for (let j = Math.max(0, i - this.windowSize); 
+                         j < Math.min(sentence.length, i + this.windowSize + 1); j++) {
+                        if (i !== j) {
+                            const contextWord = sentence[j];
+                            this.updateVectors(centerWord, contextWord);
+                        }
+                    }
+                }
+            });
+            
+            console.log(`Epoch ${epoch + 1} completed`);
+        }
+    }
+    
+    updateVectors(centerWord, contextWord) {
+        // 简化版负采样
+        const positiveSample = [contextWord];
+        const negativeSamples = [];
+        
+        // 随机选择负样本
+        for (let k = 0; k < 5; k++) {
+            const negWord = Math.floor(Math.random() * this.vocabSize);
+            if (negWord !== centerWord && negWord !== contextWord) {
+                negativeSamples.push(negWord);
+            }
+        }
+        
+        // 更新正样本
+        this.trainSample(centerWord, contextWord, 1);
+        
+        // 更新负样本
+        negativeSamples.forEach(negWord => {
+            this.trainSample(centerWord, negWord, -1);
+        });
+    }
+    
+    trainSample(centerWord, targetWord, label) {
+        const h = this.W[centerWord];  // 隐层向量
+        const v = this.W_prime[targetWord];  // 输出向量
+        
+        const score = this.sigmoid(this.dot(h, v));
+        const error = label - score;
+        
+        // 更新向量
+        for (let i = 0; i < this.embeddingDim; i++) {
+            const gradient = this.learningRate * error;
+            h[i] += gradient * v[i];
+            v[i] += gradient * h[i];
+        }
+        
+        this.W[centerWord] = h;
+        this.W_prime[targetWord] = v;
+    }
+    
+    dot(vec1, vec2) {
+        return vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
+    }
+    
+    // 获取词向量
+    getVector(word) {
+        return this.W[word];
+    }
+    
+    // 计算相似度
+    cosineSimilarity(word1, word2) {
+        const v1 = this.getVector(word1);
+        const v2 = this.getVector(word2);
+        
+        if (!v1 || !v2) return null;
+        
+        const dot = this.dot(v1, v2);
+        const mag1 = Math.sqrt(this.dot(v1, v1));
+        const mag2 = Math.sqrt(this.dot(v2, v2));
+        
+        return dot / (mag1 * mag2);
+    }
+    
+    // 找最相似的词
+    mostSimilar(word, topN = 10) {
+        const wordVec = this.getVector(word);
+        if (!wordVec) return [];
+        
+        const similarities = [];
+        for (let i = 0; i < this.vocabSize; i++) {
+            if (i !== word) {
+                const sim = this.cosineSimilarity(word, i);
+                similarities.push({word: i, similarity: sim});
+            }
+        }
+        
+        return similarities
+            .filter(s => s.similarity !== null)
+            .sort((a, b) => b.similarity - a.similarity)
+            .slice(0, topN);
+    }
+}
+
+// 使用示例
+const sentences = [
+    ['the', 'cat', 'sat', 'on', 'the', 'mat'],
+    ['the', 'dog', 'ran', 'to', 'the', 'park'],
+    ['cats', 'and', 'dogs', 'are', 'animals'],
+    ['a', 'cat', 'is', 'a', 'pet', 'animal']
+];
+
+const w2v = new Word2Vec(100, 50, 0.025, 2);
+w2v.train(sentences, 10);
+
+console.log('Word2Vec model trained!');
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="w2v-python" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-python">
+import numpy as np
+from collections import defaultdict
+import random
+
+class Word2Vec:
+    def __init__(self, vocab_size=10000, embedding_dim=100, learning_rate=0.025, window_size=5):
+        self.vocab_size = vocab_size
+        self.embedding_dim = embedding_dim
+        self.learning_rate = learning_rate
+        self.window_size = window_size
+        
+        # 初始化词向量矩阵 (Xavier初始化)
+        self.W = np.random.randn(vocab_size, embedding_dim) / np.sqrt(embedding_dim)
+        self.W_prime = np.random.randn(vocab_size, embedding_dim) / np.sqrt(embedding_dim)
+    
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
+    
+    def train(self, sentences, epochs=5):
+        """训练模型"""
+        for epoch in range(epochs):
+            for sentence in sentences:
+                for i, center_word in enumerate(sentence):
+                    for j, context_word in enumerate(sentence):
+                        if i != j:
+                            self.update_vectors(center_word, context_word)
+            print(f'Epoch {epoch + 1} completed')
+    
+    def update_vectors(self, center_word, context_word):
+        """更新向量（负采样）"""
+        # 正样本
+        self.train_sample(center_word, context_word, 1)
+        
+        # 负样本
+        for _ in range(5):
+            neg_word = random.randint(0, self.vocab_size - 1)
+            if neg_word != center_word and neg_word != context_word:
+                self.train_sample(center_word, neg_word, -1)
+    
+    def train_sample(self, center_word, target_word, label):
+        """训练单个样本"""
+        h = self.W[center_word]  # 隐层向量
+        v = self.W_prime[target_word]  # 输出向量
+        
+        score = self.sigmoid(np.dot(h, v))
+        error = label - score
+        
+        # 更新向量
+        gradient = self.learning_rate * error
+        self.W[center_word] += gradient * v
+        self.W_prime[target_word] += gradient * h
+    
+    def get_vector(self, word):
+        """获取词向量"""
+        return self.W[word]
+    
+    def cosine_similarity(self, word1, word2):
+        """计算余弦相似度"""
+        v1 = self.get_vector(word1)
+        v2 = self.get_vector(word2)
+        
+        if v1 is None or v2 is None:
+            return None
+        
+        return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+    
+    def most_similar(self, word, top_n=10):
+        """找最相似的词"""
+        word_vec = self.get_vector(word)
+        if word_vec is None:
+            return []
+        
+        similarities = []
+        for i in range(self.vocab_size):
+            if i != word:
+                sim = self.cosine_similarity(word, i)
+                if sim is not None:
+                    similarities.append((i, sim))
+        
+        return sorted(similarities, key=lambda x: x[1], reverse=True)[:top_n]
+    
+    def vector_math(self, positive, negative, top_n=5):
+        """向量运算: king - man + woman ≈ queen"""
+        result_vec = np.zeros(self.embedding_dim)
+        
+        for word in positive:
+            result_vec += self.get_vector(word)
+        
+        for word in negative:
+            result_vec -= self.get_vector(word)
+        
+        similarities = []
+        for i in range(self.vocab_size):
+            if i not in positive and i not in negative:
+                sim = np.dot(result_vec, self.get_vector(i)) / (
+                    np.linalg.norm(result_vec) * np.linalg.norm(self.get_vector(i))
+                )
+                similarities.append((i, sim))
+        
+        return sorted(similarities, key=lambda x: x[1], reverse=True)[:top_n]
+
+
+# 使用示例
+if __name__ == "__main__":
+    sentences = [
+        ['the', 'cat', 'sat', 'on', 'the', 'mat'],
+        ['the', 'dog', 'ran', 'to', 'the', 'park'],
+        ['cats', 'and', 'dogs', 'are', 'animals'],
+        ['a', 'cat', 'is', 'a', 'pet', 'animal']
+    ]
+    
+    w2v = Word2Vec(vocab_size=100, embedding_dim=50, learning_rate=0.025, window_size=2)
+    w2v.train(sentences, epochs=10)
+    
+    print("Word2Vec model trained!")
+    
+    # 示例：向量运算
+    # print("king - man + woman =", w2v.vector_math(['king'], ['man', 'woman']))
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="w2v-go" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+)
+
+type Word2Vec struct {
+    vocabSize     int
+    embeddingDim  int
+    learningRate  float64
+    windowSize    int
+    W             [][]float64
+    WPrime        [][]float64
+}
+
+func NewWord2Vec(vocabSize, embeddingDim int, learningRate float64, windowSize int) *Word2Vec {
+    w2v := &Word2Vec{
+        vocabSize:    vocabSize,
+        embeddingDim: embeddingDim,
+        learningRate: learningRate,
+        windowSize:   windowSize,
+    }
+    
+    // Xavier初始化
+    scale := math.Sqrt(2.0 / float64(embeddingDim))
+    w2v.W = make([][]float64, vocabSize)
+    w2v.WPrime = make([][]float64, vocabSize)
+    
+    for i := range w2v.W {
+        w2v.W[i] = make([]float64, embeddingDim)
+        w2v.WPrime[i] = make([]float64, embeddingDim)
+        for j := range w2v.W[i] {
+            w2v.W[i][j] = (rand.Float64()*2 - 1) * scale
+            w2v.WPrime[i][j] = (rand.Float64()*2 - 1) * scale
+        }
+    }
+    
+    return w2v
+}
+
+func (w2v *Word2Vec) sigmoid(x float64) float64 {
+    if x > 500 {
+        return 1.0
+    }
+    if x < -500 {
+        return 0.0
+    }
+    return 1 / (1 + math.Exp(-x))
+}
+
+func (w2v *Word2Vec) dot(v1, v2 []float64) float64 {
+    var sum float64
+    for i := range v1 {
+        sum += v1[i] * v2[i]
+    }
+    return sum
+}
+
+func (w2v *Word2Vec) trainSample(centerWord, targetWord int, label float64) {
+    h := w2v.W[centerWord]
+    v := w2v.WPrime[targetWord]
+    
+    score := w2v.sigmoid(w2v.dot(h, v))
+    error := label - score
+    
+    // 更新向量
+    for i := 0; i < w2v.embeddingDim; i++ {
+        gradient := w2v.learningRate * error
+        h[i] += gradient * v[i]
+        v[i] += gradient * h[i]
+    }
+    
+    w2v.W[centerWord] = h
+    w2v.WPrime[targetWord] = v
+}
+
+func (w2v *Word2Vec) updateVectors(centerWord, contextWord int) {
+    // 正样本
+    w2v.trainSample(centerWord, contextWord, 1)
+    
+    // 负样本
+    for k := 0; k < 5; k++ {
+        negWord := rand.Intn(w2v.vocabSize)
+        if negWord != centerWord && negWord != contextWord {
+            w2v.trainSample(centerWord, negWord, -1)
+        }
+    }
+}
+
+func (w2v *Word2Vec) Train(sentences [][]int, epochs int) {
+    for epoch := 0; epoch < epochs; epoch++ {
+        for _, sentence := range sentences {
+            for i, centerWord := range sentence {
+                for j, contextWord := range sentence {
+                    if i != j {
+                        w2v.updateVectors(centerWord, contextWord)
+                    }
+                }
+            }
+        }
+        fmt.Printf("Epoch %d completed\n", epoch+1)
+    }
+}
+
+func (w2v *Word2Vec) CosineSimilarity(word1, word2 int) float64 {
+    v1 := w2v.W[word1]
+    v2 := w2v.W[word2]
+    
+    dot := w2v.dot(v1, v2)
+    mag1 := math.Sqrt(w2v.dot(v1, v1))
+    mag2 := math.Sqrt(w2v.dot(v2, v2))
+    
+    return dot / (mag1 * mag2)
+}
+
+func (w2v *Word2Vec) MostSimilar(word int, topN int) []struct {
+    Word       int
+    Similarity float64
+} {
+    wordVec := w2v.W[word]
+    magWord := math.Sqrt(w2v.dot(wordVec, wordVec))
+    
+    similarities := make([]struct {
+        Word       int
+        Similarity float64
+    }, 0, topN)
+    
+    for i := 0; i < w2v.vocabSize; i++ {
+        if i != word {
+            v := w2v.W[i]
+            mag := math.Sqrt(w2v.dot(v, v))
+            sim := w2v.dot(wordVec, v) / (magWord * mag)
+            similarities = append(similarities, struct {
+                Word       int
+                Similarity float64
+            }{i, sim})
+        }
+    }
+    
+    // 排序
+    for i := 0; i < len(similarities)-1; i++ {
+        for j := i + 1; j < len(similarities); j++ {
+            if similarities[j].Similarity > similarities[i].Similarity {
+                similarities[i], similarities[j] = similarities[j], similarities[i]
+            }
+        }
+    }
+    
+    if len(similarities) > topN {
+        return similarities[:topN]
+    }
+    return similarities
+}
+
+func main() {
+    // 示例句子（需要先建立词索引映射）
+    sentences := [][]int{
+        {0, 1, 2, 3, 4, 5},
+        {0, 6, 7, 8, 9, 10},
+        {11, 12, 13, 14, 15},
+        {16, 1, 17, 16, 18, 19},
+    }
+    
+    w2v := NewWord2Vec(100, 50, 0.025, 2)
+    w2v.Train(sentences, 10)
+    
+    fmt.Println("Word2Vec model trained!")
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Word2Vec vs 其他方法对比</h2>
+            <div class="algorithm-content">
+                <table class="comparison-table">
+                    <tr>
+                        <th>特性</th>
+                        <th>Word2Vec</th>
+                        <th>GloVe</th>
+                        <th>FastText</th>
+                    </tr>
+                    <tr>
+                        <td>提出者</td>
+                        <td>Google</td>
+                        <td>Stanford</td>
+                        <td>Facebook</td>
+                    </tr>
+                    <tr>
+                        <td>训练目标</td>
+                        <td>预测概率</td>
+                        <td>共现概率比</td>
+                        <td>子词预测</td>
+                    </tr>
+                    <tr>
+                        <td>处理生僻词</td>
+                        <td>❌ 差</td>
+                        <td>❌ 差</td>
+                        <td>✅ 好</td>
+                    </tr>
+                    <tr>
+                        <td>训练速度</td>
+                        <td>快</td>
+                        <td>中等</td>
+                        <td>快</td>
+                    </tr>
+                    <tr>
+                        <td>向量质量</td>
+                        <td>好</td>
+                        <td>很好</td>
+                        <td>很好</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>实际应用场景</h2>
+            <div class="algorithm-content">
+                <h3>1. 语义相似度计算</h3>
+                <p>计算词语之间的语义相似度，用于搜索、推荐系统。</p>
+                
+                <h3>2. 文本分类</h3>
+                <p>将文本表示为词向量均值，作为分类器的输入特征。</p>
+                
+                <h3>3. 命名实体识别</h3>
+                <p>利用词向量捕捉词语的语义特征，提升 NER 准确率。</p>
+                
+                <h3>4. 机器翻译</h3>
+                <p>在共享的向量空间中建立不同语言词语的对应关系。</p>
+                
+                <h3>5. 情感分析</h3>
+                <p>通过词向量组合捕捉文本的情感极性。</p>
+            </div>
+
+            <h2>Word2Vec 的局限性</h2>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>无法处理多义词</strong>：每个词只有唯一一个向量</li>
+                    <li><strong>无法利用全局统计信息</strong>：只关注局部上下文</li>
+                    <li><strong>词序信息丢失</strong>：CBOW 和 Skip-gram 都不考虑词序</li>
+                    <li><strong>静态表示</strong>：无法根据上下文动态调整词义</li>
+                </ul>
+                <p style="color: #e74c3c; margin-top: 10px;">
+                    💡 这些局限性促进了 ELMo、BERT、GPT 等动态词向量模型的发展
+                </p>
+            </div>
+
+            <h2>总结：Word2Vec 的核心洞察</h2>
+            <div class="concept-box">
+                <h4>关键创新</h4>
+                <ol>
+                    <li><strong>分布式表示</strong>：将词表示为稠密向量，而非稀疏独热编码</li>
+                    <li><strong>上下文学习</strong>：通过预测上下文来学习词的语义表示</li>
+                    <li><strong>高效训练</strong>：负采样和层次 Softmax 大大降低了计算复杂度</li>
+                    <li><strong>语义运算</strong>：词向量支持有意义的代数运算</li>
+                    <li><strong>迁移学习</strong>：预训练的词向量可以迁移到各种 NLP 任务</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解分布式语义假设：一个词的意义由其上下文决定</li>
+                    <li>掌握 CBOW 和 Skip-gram 两种架构的原理和区别</li>
+                    <li>理解负采样和层次 Softmax 的优化思想</li>
+                    <li>使用 Gensim 或 TensorFlow 实现 Word2Vec</li>
+                    <li>在真实语料上训练模型，观察词向量的语义性质</li>
+                    <li>学习后续模型 ELMo、BERT，了解词向量技术的演进</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有限状态自动机 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .fsm-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .state-row {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .state {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            border: 3px solid transparent;
+        }
+        
+        .state.start {
+            border-color: #2ecc71;
+        }
+        
+        .state.accept {
+            border-color: #e74c3c;
+        }
+        
+        .state.accept::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #e74c3c;
+            border-radius: 50%;
+            top: -9px;
+            left: -9px;
+        }
+        
+        .state.current {
+            background: #3498db;
+            color: white;
+        }
+        
+        .transition-arrow {
+            font-size: 30px;
+            color: white;
+        }
+        
+        .transition-line {
+            position: absolute;
+            height: 3px;
+            background: rgba(255,255,255,0.7);
+            transform-origin: left center;
+        }
+        
+        .state-label {
+            color: white;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .transition-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .transition-table th,
+        .transition-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .transition-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .transition-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .highlight-text {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .math-formula {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .nfa-dfa-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .automaton-type {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .automaton-type h4 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .example-pattern {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+            border: 1px solid #30363d;
+        }
+        
+        .regex-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .regex-token {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .regex-token.operator {
+            background: #e74c3c;
+        }
+        
+        .regex-token.paren {
+            background: #9b59b6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>有限状态自动机 (FSA/FA)</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是有限状态自动机？</h3>
+                <p>
+                    <strong>有限状态自动机 (Finite State Automaton, FSA)</strong> 
+                    是一种抽象的计算模型，由有限个状态组成，通过接收输入符号在状态之间转移。
+                    它是正则语言的形式化描述，广泛应用于编译器、文本处理、网络协议等领域。
+                </p>
+                <p>
+                    有限状态自动机的核心思想是：<span class="highlight-text">
+                    通过有限的状态集合和状态转移规则来识别语言中的字符串</span>。
+                </p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>空间复杂度</h4>
+                    <p>O(|Q|) - 状态数</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>时间复杂度</h4>
+                    <p>O(n) - 字符串长度</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>识别能力</h4>
+                    <p>正则语言</p>
+                </div>
+            </div>
+
+            <h2>形式化定义</h2>
+            <div class="algorithm-content">
+                <p>一个确定有限自动机 (DFA) 是一个五元组：</p>
+                <div class="math-formula">
+                    <p><strong>M = (Q, Σ, δ, q₀, F)</strong></p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>Q</strong> = 有限状态集合 {q₀, q₁, ..., qₙ}</p>
+                    <p>• <strong>Σ</strong> = 输入字母表 (有限符号集)</p>
+                    <p>• <strong>δ</strong> = 状态转移函数 Q × Σ → Q</p>
+                    <p>• <strong>q₀</strong> = 初始状态 (q₀ ∈ Q)</p>
+                    <p>• <strong>F</strong> = 接受状态集合 (F ⊆ Q)</p>
+                </div>
+            </div>
+
+            <h2>DFA 示例：识别二进制偶数</h2>
+            <div class="fsm-diagram">
+                <p style="color: white; font-weight: bold;">识别规则：以 0 结尾的二进制数</p>
+                <div class="state-row">
+                    <div style="text-align: center;">
+                        <div class="state start accept">q₀</div>
+                        <div class="state-label">偶数 (初始/接受)</div>
+                    </div>
+                    <div class="transition-arrow">0 →</div>
+                    <div style="text-align: center;">
+                        <div class="state accept">q₀</div>
+                        <div class="state-label">保持偶数</div>
+                    </div>
+                    <div class="transition-arrow">1 →</div>
+                    <div style="text-align: center;">
+                        <div class="state">q₁</div>
+                        <div class="state-label">奇数</div>
+                    </div>
+                    <div class="transition-arrow">0 →</div>
+                    <div style="text-align: center;">
+                        <div class="state accept">q₀</div>
+                        <div class="state-label">变偶数</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>状态转移表</h3>
+            <div class="algorithm-content">
+                <table class="transition-table">
+                    <tr>
+                        <th>状态</th>
+                        <th>输入 0</th>
+                        <th>输入 1</th>
+                    </tr>
+                    <tr>
+                        <td>q₀ (初始/接受)</td>
+                        <td>q₀</td>
+                        <td>q₁</td>
+                    </tr>
+                    <tr>
+                        <td>q₁</td>
+                        <td>q₀</td>
+                        <td>q₁</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>NFA vs DFA</h2>
+            <div class="nfa-dfa-comparison">
+                <div class="automaton-type">
+                    <h4>DFA (确定有限自动机)</h4>
+                    <ul>
+                        <li>每个状态对每个输入有<strong>唯一</strong>转移</li>
+                        <li>ε转移：<strong>不允许</strong></li>
+                        <li>状态转移是确定的</li>
+                        <li>实现简单，效率高</li>
+                    </ul>
+                    <div class="example-pattern">
+                        示例：识别 a(b|c)*
+                    </div>
+                </div>
+                <div class="automaton-type">
+                    <h4>NFA (不确定有限自动机)</h4>
+                    <ul>
+                        <li>每个状态对每个输入可能有<strong>多个</strong>转移</li>
+                        <li>ε转移：<strong>允许</strong></li>
+                        <li>状态转移是不确定的</li>
+                        <li>结构更直观，易于构造</li>
+                    </ul>
+                    <div class="example-pattern">
+                        示例：识别 (a|b)*abb
+                    </div>
+                </div>
+            </div>
+
+            <h2>正则表达式与自动机</h2>
+            <div class="algorithm-content">
+                <p>正则表达式可以转换为等价的 DFA，这是正则表达式引擎的核心原理。</p>
+                
+                <h3>转换示例：a(b|c)*</h3>
+                <div class="regex-visual">
+                    <div class="regex-token">a</div>
+                    <div class="regex-token operator">|</div>
+                    <div class="regex-token">b</div>
+                    <div class="regex-token operator">|</div>
+                    <div class="regex-token">c</div>
+                    <div class="regex-token">*</div>
+                </div>
+                
+                <div class="concept-box">
+                    <h4>转换步骤</h4>
+                    <ol>
+                        <li>根据正则表达式构建语法树</li>
+                        <li>使用 Thompson 构造法构建 NFA</li>
+                        <li>使用子集构造法将 NFA 转换为 DFA</li>
+                        <li>对 DFA 进行状态最小化</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h2>完整实现</h2>
+            <div class="algorithm-content">
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="fsa-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="fsa-python">Python</button>
+                        <button class="code-tab-btn" data-tab="fsa-go">Go</button>
+                    </div>
+                    <div id="fsa-js" class="code-tab-content active">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
+class DFA {
+    constructor() {
+        this.states = new Set();
+        this.alphabet = new Set();
+        this.transitions = new Map();
+        this.startState = null;
+        this.acceptStates = new Set();
+    }
+    
+    addState(state) {
+        this.states.add(state);
+    }
+    
+    setStartState(state) {
+        this.startState = state;
+    }
+    
+    addAcceptState(state) {
+        this.acceptStates.add(state);
+    }
+    
+    addTransition(fromState, symbol, toState) {
+        const key = `${fromState}:${symbol}`;
+        this.transitions.set(key, toState);
+        this.alphabet.add(symbol);
+    }
+    
+    // 检查字符串是否被接受
+    accepts(input) {
+        let currentState = this.startState;
+        
+        for (const char of input) {
+            const key = `${currentState}:${char}`;
+            const nextState = this.transitions.get(key);
+            
+            if (nextState === undefined) {
+                return false; // 无效转移
+            }
+            
+            currentState = nextState;
+        }
+        
+        return this.acceptStates.has(currentState);
+    }
+    
+    // 获取转移函数
+    getTransition(state, symbol) {
+        return this.transitions.get(`${state}:${symbol}`);
+    }
+    
+    // 克隆 DFA
+    clone() {
+        const newDFA = new DFA();
+        newDFA.states = new Set(this.states);
+        newDFA.alphabet = new Set(this.alphabet);
+        newDFA.transitions = new Map(this.transitions);
+        newDFA.startState = this.startState;
+        newDFA.acceptStates = new Set(this.acceptStates);
+        return newDFA;
+    }
+}
+
+// NFA 类（支持 ε 转移和多值转移）
+class NFA {
+    constructor() {
+        this.states = new Set();
+        this.alphabet = new Set();
+        this.epsilonTransitions = new Map();
+        this.transitions = new Map();
+        this.startStates = new Set();
+        this.acceptStates = new Set();
+    }
+    
+    addState(state) {
+        this.states.add(state);
+    }
+    
+    addStartState(state) {
+        this.startStates.add(state);
+    }
+    
+    addAcceptState(state) {
+        this.acceptStates.add(state);
+    }
+    
+    addTransition(fromState, symbol, toState) {
+        const key = `${fromState}:${symbol}`;
+        if (!this.transitions.has(key)) {
+            this.transitions.set(key, new Set());
+        }
+        this.transitions.get(key).add(toState);
+        this.alphabet.add(symbol);
+    }
+    
+    addEpsilonTransition(fromState, toState) {
+        if (!this.epsilonTransitions.has(fromState)) {
+            this.epsilonTransitions.set(fromState, new Set());
+        }
+        this.epsilonTransitions.get(fromState).add(toState);
+    }
+    
+    // ε-闭包计算
+    epsilonClosure(states) {
+        const closure = new Set(states);
+        const stack = Array.from(states);
+        
+        while (stack.length > 0) {
+            const state = stack.pop();
+            
+            const epsilonNext = this.epsilonTransitions.get(state);
+            if (epsilonNext) {
+                for (const next of epsilonNext) {
+                    if (!closure.has(next)) {
+                        closure.add(next);
+                        stack.push(next);
+                    }
+                }
+            }
+        }
+        
+        return closure;
+    }
+    
+    // NFA 接受检查
+    accepts(input) {
+        let currentStates = this.epsilonClosure(this.startStates);
+        
+        for (const char of input) {
+            const nextStates = new Set();
+            
+            for (const state of currentStates) {
+                const key = `${state}:${char}`;
+                const trans = this.transitions.get(key);
+                if (trans) {
+                    nextStates.add(...trans);
+                }
+            }
+            
+            currentStates = this.epsilonClosure(nextStates);
+            
+            if (currentStates.size === 0) {
+                return false;
+            }
+        }
+        
+        // 检查是否有接受状态
+        for (const state of currentStates) {
+            if (this.acceptStates.has(state)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+
+// 正则表达式到 NFA 的转换 (Thompson 构造法)
+class RegexToNFA {
+    constructor() {
+        this.stateCounter = 0;
+    }
+    
+    newState() {
+        return `q${this.stateCounter++}`;
+    }
+    
+    // 基本正则表达式（单个字符）
+    basic(char) {
+        const start = this.newState();
+        const accept = this.newState();
+        
+        const nfa = {
+            start: start,
+            accept: accept,
+            transitions: new Map(),
+            epsilonTransitions: new Map()
+        };
+        
+        nfa.transitions.set(`${start}:${char}`, new Set([accept]));
+        
+        return nfa;
+    }
+    
+    // 并联：a|b
+    union(nfa1, nfa2) {
+        const start = this.newState();
+        const accept = this.newState();
+        
+        const epsilon1 = new Set([nfa1.start, nfa2.start]);
+        const epsilon2 = new Set([accept]);
+        
+        return {
+            start: start,
+            accept: accept,
+            transitions: new Map([...nfa1.transitions, ...nfa2.transitions]),
+            epsilonTransitions: new Map([
+                [start, epsilon1],
+                [nfa1.accept, epsilon2],
+                [nfa2.accept, epsilon2]
+            ])
+        };
+    }
+    
+    // 连接：ab
+    concat(nfa1, nfa2) {
+        return {
+            start: nfa1.start,
+            accept: nfa2.accept,
+            transitions: new Map([...nfa1.transitions, ...nfa2.transitions]),
+            epsilonTransitions: new Map([[nfa1.accept, new Set([nfa2.start])]])
+        };
+    }
+    
+    // 克林闭包：a*
+    kleeneStar(nfa) {
+        const start = this.newState();
+        const accept = this.newState();
+        
+        const epsilon1 = new Set([nfa.start, accept]);
+        const epsilon2 = new Set([accept]);
+        
+        return {
+            start: start,
+            accept: accept,
+            transitions: new Map(nfa.transitions),
+            epsilonTransitions: new Map([
+                [start, epsilon1],
+                [nfa.accept, epsilon2]
+            ])
+        };
+    }
+}
+
+// 使用示例
+const dfa = new DFA();
+dfa.addState('q0');
+dfa.addState('q1');
+dfa.setStartState('q0');
+dfa.addAcceptState('q0');
+
+dfa.addTransition('q0', '0', 'q0');
+dfa.addTransition('q0', '1', 'q1');
+dfa.addTransition('q1', '0', 'q0');
+dfa.addTransition('q1', '1', 'q1');
+
+// 测试
+const testStrings = ['0', '1', '00', '01', '10', '11', '000', '1010'];
+console.log('DFA 测试 (识别以0结尾的二进制数):');
+testStrings.forEach(str => {
+    console.log(`  "${str}": ${dfa.accepts(str) ? '接受' : '拒绝'}`);
+});
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="fsa-python" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-python">
+from collections import defaultdict
+
+
+class DFA:
+    def __init__(self):
+        self.states = set()
+        self.alphabet = set()
+        self.transitions = defaultdict(dict)
+        self.start_state = None
+        self.accept_states = set()
+    
+    def add_state(self, state):
+        self.states.add(state)
+    
+    def set_start_state(self, state):
+        self.start_state = state
+    
+    def add_accept_state(self, state):
+        self.accept_states.add(state)
+    
+    def add_transition(self, from_state, symbol, to_state):
+        self.transitions[from_state][symbol] = to_state
+        self.alphabet.add(symbol)
+    
+    def accepts(self, input_str):
+        current_state = self.start_state
+        
+        for char in input_str:
+            if char not in self.transitions[current_state]:
+                return False
+            current_state = self.transitions[current_state][char]
+        
+        return current_state in self.accept_states
+    
+    def get_transition(self, state, symbol):
+        return self.transitions[state].get(symbol)
+
+
+class NFA:
+    def __init__(self):
+        self.states = set()
+        self.alphabet = set()
+        self.epsilon_transitions = defaultdict(set)
+        self.transitions = defaultdict(lambda: defaultdict(set))
+        self.start_states = set()
+        self.accept_states = set()
+    
+    def add_state(self, state):
+        self.states.add(state)
+    
+    def add_start_state(self, state):
+        self.start_states.add(state)
+    
+    def add_accept_state(self, state):
+        self.accept_states.add(state)
+    
+    def add_transition(self, from_state, symbol, to_state):
+        self.transitions[from_state][symbol].add(to_state)
+        self.alphabet.add(symbol)
+    
+    def add_epsilon_transition(self, from_state, to_state):
+        self.epsilon_transitions[from_state].add(to_state)
+    
+    def epsilon_closure(self, states):
+        closure = set(states)
+        stack = list(states)
+        
+        while stack:
+            state = stack.pop()
+            for next_state in self.epsilon_transitions[state]:
+                if next_state not in closure:
+                    closure.add(next_state)
+                    stack.append(next_state)
+        
+        return closure
+    
+    def accepts(self, input_str):
+        current_states = self.epsilon_closure(self.start_states)
+        
+        for char in input_str:
+            next_states = set()
+            for state in current_states:
+                next_states.update(self.transitions[state][char])
+            
+            current_states = self.epsilon_closure(next_states)
+            
+            if not current_states:
+                return False
+        
+        return bool(current_states & self.accept_states)
+
+
+# 正则表达式到 NFA 转换
+class RegexToNFA:
+    def __init__(self):
+        self.state_counter = 0
+    
+    def new_state(self):
+        state = f"q{self.state_counter}"
+        self.state_counter += 1
+        return state
+    
+    def basic(self, char):
+        start = self.new_state()
+        accept = self.new_state()
+        
+        nfa = {
+            'start': start,
+            'accept': accept,
+            'transitions': {start: {char: {accept}}},
+            'epsilon': {}
+        }
+        
+        return nfa
+    
+    def union(self, nfa1, nfa2):
+        start = self.new_state()
+        accept = self.new_state()
+        
+        transitions = {**nfa1['transitions'], **nfa2['transitions']}
+        transitions[start] = {}
+        transitions[nfa1['accept']] = {}
+        transitions[nfa2['accept']] = {}
+        
+        epsilon = {start: {nfa1['start'], nfa2['accept']}}
+        epsilon[nfa1['accept']] = {accept}
+        epsilon[nfa2['accept']] = {accept}
+        
+        return {
+            'start': start,
+            'accept': accept,
+            'transitions': transitions,
+            'epsilon': epsilon
+        }
+    
+    def concat(self, nfa1, nfa2):
+        transitions = {**nfa1['transitions'], **nfa2['transitions']}
+        transitions[nfa1['accept']] = {}
+        
+        return {
+            'start': nfa1['start'],
+            'accept': nfa2['accept'],
+            'transitions': transitions,
+            'epsilon': {}
+        }
+    
+    def kleene_star(self, nfa):
+        start = self.new_state()
+        accept = self.new_state()
+        
+        transitions = dict(nfa['transitions'])
+        transitions[start] = {}
+        transitions[nfa['accept']] = {}
+        
+        epsilon = {
+            start: {nfa['start'], accept},
+            nfa['accept']: {accept}
+        }
+        
+        return {
+            'start': start,
+            'accept': accept,
+            'transitions': transitions,
+            'epsilon': epsilon
+        }
+
+
+# 使用示例
+if __name__ == "__main__":
+    # 构建 DFA：识别以 0 结尾的二进制数
+    dfa = DFA()
+    dfa.add_state('q0')
+    dfa.add_state('q1')
+    dfa.set_start_state('q0')
+    dfa.add_accept_state('q0')
+    
+    dfa.add_transition('q0', '0', 'q0')
+    dfa.add_transition('q0', '1', 'q1')
+    dfa.add_transition('q1', '0', 'q0')
+    dfa.add_transition('q1', '1', 'q1')
+    
+    # 测试
+    test_strings = ['0', '1', '00', '01', '10', '11', '000', '1010']
+    print('DFA 测试 (识别以0结尾的二进制数):')
+    for s in test_strings:
+        print(f'  "{s}": {"接受" if dfa.accepts(s) else "拒绝"}')
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="fsa-go" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+)
+
+type DFA struct {
+    states      map[string]bool
+    alphabet    map[string]bool
+    transitions map[string]map[string]string
+    startState  string
+    acceptStates map[string]bool
+}
+
+func NewDFA() *DFA {
+    return &DFA{
+        states:       make(map[string]bool),
+        alphabet:     make(map[string]bool),
+        transitions:  make(map[string]map[string]string),
+        acceptStates: make(map[string]bool),
+    }
+}
+
+func (dfa *DFA) AddState(state string) {
+    dfa.states[state] = true
+    dfa.transitions[state] = make(map[string]string)
+}
+
+func (dfa *DFA) SetStartState(state string) {
+    dfa.startState = state
+}
+
+func (dfa *DFA) AddAcceptState(state string) {
+    dfa.acceptStates[state] = true
+}
+
+func (dfa *DFA) AddTransition(fromState, symbol, toState string) {
+    dfa.states[fromState] = true
+    dfa.states[toState] = true
+    dfa.alphabet[symbol] = true
+    dfa.transitions[fromState][symbol] = toState
+}
+
+func (dfa *DFA) Accepts(input string) bool {
+    currentState := dfa.startState
+    
+    for _, char := range input {
+        nextState, ok := dfa.transitions[currentState][string(char)]
+        if !ok {
+            return false
+        }
+        currentState = nextState
+    }
+    
+    return dfa.acceptStates[currentState]
+}
+
+type NFA struct {
+    states           map[string]bool
+    alphabet         map[string]bool
+    epsilonTransitions map[string][]string
+    transitions      map[string]map[string][]string
+    startStates      map[string]bool
+    acceptStates     map[string]bool
+}
+
+func NewNFA() *NFA {
+    return &NFA{
+        states:       make(map[string]bool),
+        alphabet:     make(map[string]bool),
+        epsilonTransitions: make(map[string][]string),
+        transitions:  make(map[string]map[string][]string),
+        startStates:  make(map[string]bool),
+        acceptStates: make(map[string]bool),
+    }
+}
+
+func (nfa *NFA) AddState(state string) {
+    nfa.states[state] = true
+}
+
+func (nfa *NFA) AddStartState(state string) {
+    nfa.startStates[state] = true
+}
+
+func (nfa *NFA) AddAcceptState(state string) {
+    nfa.acceptStates[state] = true
+}
+
+func (nfa *NFA) AddTransition(fromState, symbol, toState string) {
+    nfa.states[fromState] = true
+    nfa.states[toState] = true
+    nfa.alphabet[symbol] = true
+    
+    if nfa.transitions[fromState] == nil {
+        nfa.transitions[fromState] = make(map[string][]string)
+    }
+    nfa.transitions[fromState][symbol] = append(nfa.transitions[fromState][symbol], toState)
+}
+
+func (nfa *NFA) AddEpsilonTransition(fromState, toState string) {
+    nfa.states[fromState] = true
+    nfa.states[toState] = true
+    nfa.epsilonTransitions[fromState] = append(nfa.epsilonTransitions[fromState], toState)
+}
+
+func (nfa *NFA) epsilonClosure(states map[string]bool) map[string]bool {
+    closure := make(map[string]bool)
+    var stack []string
+    
+    for s := range states {
+        closure[s] = true
+        stack = append(stack, s)
+    }
+    
+    for len(stack) > 0 {
+        state := stack[len(stack)-1]
+        stack = stack[:len(stack)-1]
+        
+        for _, next := range nfa.epsilonTransitions[state] {
+            if !closure[next] {
+                closure[next] = true
+                stack = append(stack, next)
+            }
+        }
+    }
+    
+    return closure
+}
+
+func (nfa *NFA) Accepts(input string) bool {
+    currentStates := nfa.epsilonClosure(nfa.startStates)
+    
+    for _, char := range input {
+        nextStates := make(map[string]bool)
+        
+        for state := range currentStates {
+            for _, next := range nfa.transitions[state][string(char)] {
+                nextStates[next] = true
+            }
+        }
+        
+        currentStates = nfa.epsilonClosure(nextStates)
+        
+        if len(currentStates) == 0 {
+            return false
+        }
+    }
+    
+    for state := range currentStates {
+        if nfa.acceptStates[state] {
+            return true
+        }
+    }
+    
+    return false
+}
+
+func main() {
+    // 构建 DFA：识别以 0 结尾的二进制数
+    dfa := NewDFA()
+    dfa.AddState("q0")
+    dfa.AddState("q1")
+    dfa.SetStartState("q0")
+    dfa.AddAcceptState("q0")
+    
+    dfa.AddTransition("q0", "0", "q0")
+    dfa.AddTransition("q0", "1", "q1")
+    dfa.AddTransition("q1", "0", "q0")
+    dfa.AddTransition("q1", "1", "q1")
+    
+    // 测试
+    testStrings := []string{"0", "1", "00", "01", "10", "11", "000", "1010"}
+    fmt.Println("DFA 测试 (识别以0结尾的二进制数):")
+    for _, s := range testStrings {
+        result := "拒绝"
+        if dfa.Accepts(s) {
+            result = "接受"
+        }
+        fmt.Printf("  \"%s\": %s\n", s, result)
+    }
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>应用场景</h2>
+            <div class="algorithm-content">
+                <h3>1. 正则表达式引擎</h3>
+                <p>大多数编程语言的正则表达式实现底层使用 NFA 或 DFA。</p>
+                
+                <h3>2. 词法分析</h3>
+                <p>编译器的前端使用有限自动机进行词法分析，识别关键字、标识符等。</p>
+                
+                <h3>3. 网络协议</h3>
+                <p>TCP/IP 协议栈的状态机实现网络连接管理。</p>
+                
+                <h3>4. 文本搜索</h3>
+                <p>grep、sed 等工具使用有限自动机进行模式匹配。</p>
+                
+                <h3>5. 游戏 AI</h3>
+                <p>有限状态机用于实现游戏角色的行为逻辑。</p>
+            </div>
+
+            <h2>有限自动机的局限性</h2>
+            <div class="algorithm-content">
+                <div class="concept-box">
+                    <h4>无法识别的语言</h4>
+                    <ul>
+                        <li><strong>aⁿbⁿ</strong> (n个a后跟n个b) - 需要栈来计数</li>
+                        <li><strong>平衡括号</strong> - 需要嵌套计数</li>
+                        <li><strong>{ww | w ∈ Σ*}</strong> - 需要比较两半</li>
+                    </ul>
+                    <p style="margin-top: 10px;">
+                        💡 这些语言需要下推自动机 (PDA) 或更强大的计算模型来识别
+                    </p>
+                </div>
+            </div>
+
+            <h2>总结：有限状态自动机的核心洞察</h2>
+            <div class="concept-box">
+                <h4>关键特性</h4>
+                <ol>
+                    <li><strong>有限状态</strong>：状态数量是固定的，不随输入增长</li>
+                    <li><strong>确定性/非确定性</strong>：DFA 状态转移唯一，NFA 可能有多个选择</li>
+                    <li><strong>等价性</strong>：每个 NFA 都可以转换为等价的 DFA</li>
+                    <li><strong>正则语言</strong>：有限自动机识别的语言正好是正则语言</li>
+                    <li><strong>高效识别</strong>：字符串识别只需 O(n) 时间</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解 DFA 和 NFA 的形式化定义</li>
+                    <li>掌握状态转移图和状态转移表的表示方法</li>
+                    <li>学习 NFA 到 DFA 的转换（子集构造法）</li>
+                    <li>理解正则表达式到 NFA 的转换（Thompson 构造法）</li>
+                    <li>了解正则表达式的效率问题和回溯机制</li>
+                    <li>学习有限自动机在编译器词法分析中的应用</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

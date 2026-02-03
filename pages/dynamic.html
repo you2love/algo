@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>动态规划 - 算法学习指南</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -53,8 +55,7 @@
                         <button class="code-tab-btn" data-tab="fib-go">Go</button>
                     </div>
                     <div id="fib-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 // 方法1: 递归（低效）
 function fibRecursive(n) {
     if (n <= 1) return n;
@@ -93,12 +94,10 @@ function fibOptimized(n) {
 
 // 测试
 console.log(fibDP(10)); // 55
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="fib-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 # 方法1: 递归（低效）
 def fib_recursive(n):
     if n <= 1:
@@ -137,12 +136,10 @@ def fib_optimized(n):
 
 # 测试
 print(fib_dp(10))  # 55
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="fib-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -196,8 +193,7 @@ func fibOptimized(n int) int {
 func main() {
     fmt.Println(fibDP(10)) // 55
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -212,8 +208,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="knapsack-go">Go</button>
                     </div>
                     <div id="knapsack-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function knapsack(weights, values, capacity) {
     const n = weights.length;
     const dp = Array(n + 1).fill(null).map(() => Array(capacity + 1).fill(0));
@@ -239,12 +234,10 @@ const weights = [1, 2, 3, 4, 5];
 const values = [10, 15, 20, 25, 30];
 const capacity = 10;
 console.log(knapsack(weights, values, capacity)); // 60
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="knapsack-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def knapsack(weights, values, capacity):
     n = len(weights)
     dp = [[0] * (capacity + 1) for _ in range(n + 1)]
@@ -266,12 +259,10 @@ weights = [1, 2, 3, 4, 5]
 values = [10, 15, 20, 25, 30]
 capacity = 10
 print(knapsack(weights, values, capacity))  # 60
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="knapsack-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -309,8 +300,7 @@ func main() {
     capacity := 10
     fmt.Println(knapsack(weights, values, capacity)) // 60
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -325,8 +315,7 @@ func main() {
                         <button class="code-tab-btn" data-tab="lis-go">Go</button>
                     </div>
                     <div id="lis-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 function lengthOfLIS(nums) {
     if (nums.length === 0) return 0;
     
@@ -347,12 +336,10 @@ function lengthOfLIS(nums) {
 
 // 测试
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="lis-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 def length_of_lis(nums):
     if not nums:
         return 0
@@ -370,12 +357,10 @@ def length_of_lis(nums):
 
 # 测试
 print(length_of_lis([10, 9, 2, 5, 3, 7, 101, 18]))  # 4
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="lis-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import "fmt"
@@ -410,8 +395,7 @@ func lengthOfLIS(nums []int) int {
 func main() {
     fmt.Println(lengthOfLIS([]int{10, 9, 2, 5, 3, 7, 101, 18})) // 4
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -440,5 +424,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

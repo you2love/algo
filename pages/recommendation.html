@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推荐系统算法 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .rec-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .rec-layer {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-width: 120px;
+        }
+        
+        .rec-layer h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .matrix-visual {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .matrix-container {
+            text-align: center;
+        }
+        
+        .matrix {
+            display: inline-block;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .matrix-cell {
+            width: 40px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #30363d;
+        }
+        
+        .matrix-cell.missing {
+            background: #21262d;
+            color: #484f58;
+        }
+        
+        .matrix-cell.rated {
+            background: #1f6feb;
+            color: white;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .math-formula {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .highlight-text {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .similarity-visual {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .user-item {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #30363d;
+            min-width: 100px;
+        }
+        
+        .user-item .name {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .user-item .items {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .item-tag {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        
+        .item-tag.positive {
+            background: #238636;
+            color: white;
+        }
+        
+        .item-tag.negative {
+            background: #da3633;
+            color: white;
+        }
+        
+        .item-tag.unknown {
+            background: #30363d;
+            color: #8b949e;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f4f8;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .flow-step {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .flow-step .step-num {
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">AlgoLearn</h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>推荐系统算法</h2>
+            
+            <div class="algorithm-content">
+                <h3>什么是推荐系统？</h3>
+                <p>
+                    <strong>推荐系统 (Recommendation System)</strong> 是信息过滤系统，
+                    通过分析用户行为和物品特征，向用户推荐可能感兴趣的物品。
+                </p>
+                <p>
+                    推荐系统的核心是：<span class="highlight-text">
+                    预测用户对物品的偏好，从海量物品中筛选出用户最可能喜欢的内容</span>。
+                </p>
+            </div>
+
+            <div class="complexity">
+                <div class="complexity-item">
+                    <h4>数据规模</h4>
+                    <p>用户/物品数百万级</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>核心挑战</h4>
+                    <p>稀疏性、冷启动、可扩展性</p>
+                </div>
+                <div class="complexity-item">
+                    <h4>评估指标</h4>
+                    <p>Precision@K, Recall@K, NDCG</p>
+                </div>
+            </div>
+
+            <h2>推荐算法分类</h2>
+            <div class="rec-diagram">
+                <div class="rec-layer">
+                    <h4>协同过滤</h4>
+                    <p style="color: #7f8c8d; font-size: 0.9em;">基于用户/物品相似度</p>
+                </div>
+                <div class="rec-layer">
+                    <h4>矩阵分解</h4>
+                    <p style="color: #7f8c8d; font-size: 0.9em;">隐向量表示</p>
+                </div>
+                <div class="rec-layer">
+                    <h4>基于内容</h4>
+                    <p style="color: #7f8c8d; font-size: 0.9em;">物品特征匹配</p>
+                </div>
+                <div class="rec-layer">
+                    <h4>深度学习</h4>
+                    <p style="color: #7f8c8d; font-size: 0.9em;">复杂特征提取</p>
+                </div>
+            </div>
+
+            <h2>1. 协同过滤 (Collaborative Filtering)</h2>
+            <div class="algorithm-content">
+                <p>
+                    <strong>协同过滤</strong> 是最经典的推荐算法，基于"相似用户有相似偏好"的假设。
+                    不需要物品内容特征，仅依赖用户行为数据。
+                </p>
+                
+                <h3>用户-物品评分矩阵</h3>
+                <div class="matrix-visual">
+                    <div class="matrix-container">
+                        <p style="margin-bottom: 10px; color: #7f8c8d;">评分矩阵 R</p>
+                        <div class="matrix">
+                            <div class="matrix-row">
+                                <div class="matrix-cell"></div>
+                                <div class="matrix-cell" style="color: #58a6ff;">Item1</div>
+                                <div class="matrix-cell" style="color: #58a6ff;">Item2</div>
+                                <div class="matrix-cell" style="color: #58a6ff;">Item3</div>
+                                <div class="matrix-cell" style="color: #58a6ff;">Item4</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell" style="color: #58a6ff;">User1</div>
+                                <div class="matrix-cell rated">5</div>
+                                <div class="matrix-cell rated">3</div>
+                                <div class="matrix-cell missing">?</div>
+                                <div class="matrix-cell rated">4</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell" style="color: #58a6ff;">User2</div>
+                                <div class="matrix-cell rated">4</div>
+                                <div class="matrix-cell missing">?</div>
+                                <div class="matrix-cell rated">2</div>
+                                <div class="matrix-cell rated">5</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell" style="color: #58a6ff;">User3</div>
+                                <div class="matrix-cell missing">?</div>
+                                <div class="matrix-cell rated">4</div>
+                                <div class="matrix-cell rated">4</div>
+                                <div class="matrix-cell missing">?</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell" style="color: #58a6ff;">User4</div>
+                                <div class="matrix-cell rated">2</div>
+                                <div class="matrix-cell rated">3</div>
+                                <div class="matrix-cell rated">5</div>
+                                <div class="matrix-cell rated">1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="text-align: center; color: #7f8c8d;">
+                    目标：预测 User1 对 Item3 的评分
+                </p>
+            </div>
+
+            <h3>相似度计算</h3>
+            <div class="algorithm-content">
+                <div class="math-formula">
+                    <p><strong>皮尔逊相关系数</strong>：</p>
+                    <p>sim(u, v) = Σ(rᵤᵢ - r̄ᵤ) × (rᵥᵢ - r̄ᵥ) / √Σ(rᵤᵢ - r̄ᵤ)² × √Σ(rᵥᵢ - r̄ᵥ)²</p>
+                    <br>
+                    <p><strong>余弦相似度</strong>：</p>
+                    <p>sim(u, v) = (rᵤ · rᵥ) / (||rᵤ|| × ||rᵥ||)</p>
+                    <br>
+                    <p><strong>欧氏距离</strong>：</p>
+                    <p>sim(u, v) = 1 / (1 + √Σ(rᵤᵢ - rᵥᵢ)²)</p>
+                </div>
+            </div>
+
+            <h3>基于用户的协同过滤 (User-CF)</h3>
+            <div class="algorithm-content">
+                <p><strong>核心思想</strong>：找到与目标用户相似的用户，推荐他们喜欢的物品。</p>
+                
+                <div class="math-formula">
+                    <p><strong>预测评分</strong>：</p>
+                    <p>r̂ᵤᵢ = r̄ᵤ + Σᵥ(sim(u, v) × (rᵥᵢ - r̄ᵥ)) / Σᵥ|sim(u, v)|</p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• r̄ᵤ = 用户 u 的平均评分</p>
+                    <p>• sim(u, v) = 用户 u 和 v 的相似度</p>
+                    <p>• 求和范围是与 u 有共同评分物品的用户 v</p>
+                </div>
+                
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="step-num">1</div>
+                        <p>计算用户相似度</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-num">2</div>
+                        <p>找到K个最相似用户</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-num">3</div>
+                        <p>加权平均预测评分</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-num">4</div>
+                        <p>返回Top-N推荐</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>基于物品的协同过滤 (Item-CF)</h3>
+            <div class="algorithm-content">
+                <p><strong>核心思想</strong>：基于用户历史偏好，推荐与喜欢物品相似的物品。</p>
+                
+                <div class="math-formula">
+                    <p><strong>预测评分</strong>：</p>
+                    <p>r̂ᵤᵢ = Σⱼ(rᵤⱼ × sim(i, j)) / Σⱼ|sim(i, j)|</p>
+                    <br>
+                    <p>Item-CF 特点：</p>
+                    <p>• 离线计算物品相似度，可实时推荐</p>
+                    <p>• 稳定性好，物品相似度变化慢</p>
+                    <p>• 亚马逊、Netflix早期采用此方法</p>
+                </div>
+            </div>
+
+            <h2>2. 矩阵分解 (Matrix Factorization)</h2>
+            <div class="algorithm-content">
+                <p>
+                    <strong>矩阵分解</strong> 将用户-物品评分矩阵分解为两个低维矩阵的乘积，
+                    发现用户和物品的隐含特征。
+                </p>
+                
+                <div class="math-formula">
+                    <p><strong>分解模型</strong>：</p>
+                    <p>R ≈ U × Vᵀ</p>
+                    <br>
+                    <p>其中：</p>
+                    <p>• <strong>R</strong> = m×n 用户-物品评分矩阵</p>
+                    <p>• <strong>U</strong> = m×k 用户隐向量矩阵</p>
+                    <p>• <strong>V</strong> = n×k 物品隐向量矩阵</p>
+                    <p>• <strong>k</strong> = 隐向量维度 (通常 20-200)</p>
+                </div>
+                
+                <div class="matrix-visual">
+                    <div class="matrix-container">
+                        <p style="margin-bottom: 10px; color: #7f8c8d;">评分矩阵 R (m×n)</p>
+                        <div class="matrix" style="font-size: 0.8em;">
+                            <div class="matrix-row">
+                                <div class="matrix-cell rated">5</div>
+                                <div class="matrix-cell rated">3</div>
+                                <div class="matrix-cell rated">?</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell rated">4</div>
+                                <div class="matrix-cell rated">?</div>
+                                <div class="matrix-cell rated">2</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell rated">?</div>
+                                <div class="matrix-cell rated">4</div>
+                                <div class="matrix-cell rated">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size: 30px; color: #3498db;">≈</div>
+                    <div class="matrix-container">
+                        <p style="margin-bottom: 10px; color: #7f8c8d;">用户矩阵 U (m×k)</p>
+                        <div class="matrix" style="font-size: 0.8em;">
+                            <div class="matrix-row">
+                                <div class="matrix-cell">0.8</div>
+                                <div class="matrix-cell">0.2</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell">0.5</div>
+                                <div class="matrix-cell">0.6</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell">0.3</div>
+                                <div class="matrix-cell">0.9</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size: 30px; color: #3498db;">×</div>
+                    <div class="matrix-container">
+                        <p style="margin-bottom: 10px; color: #7f8c8d;">物品矩阵 Vᵀ (k×n)</p>
+                        <div class="matrix" style="font-size: 0.8em;">
+                            <div class="matrix-row">
+                                <div class="matrix-cell">0.9</div>
+                                <div class="matrix-cell">0.4</div>
+                                <div class="matrix-cell">0.1</div>
+                            </div>
+                            <div class="matrix-row">
+                                <div class="matrix-cell">0.2</div>
+                                <div class="matrix-cell">0.7</div>
+                                <div class="matrix-cell">0.8</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>目标函数</h3>
+            <div class="algorithm-content">
+                <div class="math-formula">
+                    <p><strong>带正则化的平方损失</strong>：</p>
+                    <p>min Σ(rᵤᵢ - uᵤᵀvᵢ)² + λ(||U||² + ||V||²)</p>
+                    <br>
+                    <p>优化方法：</p>
+                    <p>• <strong>SGD</strong> - 随机梯度下降</p>
+                    <p>• <strong>ALS</strong> - 交替最小二乘 (适合并行化)</p>
+                    <p>• <strong>SVD</strong> - 奇异值分解</p>
+                </div>
+            </div>
+
+            <h2>完整实现</h2>
+            <div class="algorithm-content">
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="rec-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="rec-python">Python</button>
+                        <button class="code-tab-btn" data-tab="rec-go">Go</button>
+                    </div>
+                    <div id="rec-js" class="code-tab-content active">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-javascript">
+class UserBasedCF {
+    constructor(k = 5) {
+        this.k = k; // K近邻数
+        this.userRatings = new Map(); // userId -> {itemId: rating}
+        this.userSimilarity = new Map();
+    }
+    
+    addRating(userId, itemId, rating) {
+        if (!this.userRatings.has(userId)) {
+            this.userRatings.set(userId, new Map());
+        }
+        this.userRatings.get(userId).set(itemId, rating);
+    }
+    
+    // 计算用户相似度 (余弦相似度)
+    cosineSimilarity(user1, user2) {
+        const ratings1 = this.userRatings.get(user1);
+        const ratings2 = this.userRatings.get(user2);
+        
+        if (!ratings1 || !ratings2) return 0;
+        
+        // 找到共同评分的物品
+        const commonItems = [];
+        for (const [item, rating] of ratings1) {
+            if (ratings2.has(item)) {
+                commonItems.push(item);
+            }
+        }
+        
+        if (commonItems.length === 0) return 0;
+        
+        // 计算点积和模长
+        let dotProduct = 0;
+        let norm1 = 0;
+        let norm2 = 0;
+        
+        for (const item of commonItems) {
+            const r1 = ratings1.get(item);
+            const r2 = ratings2.get(item);
+            dotProduct += r1 * r2;
+            norm1 += r1 * r1;
+            norm2 += r2 * r2;
+        }
+        
+        if (norm1 === 0 || norm2 === 0) return 0;
+        
+        return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+    }
+    
+    // 找到K个最相似的用户
+    findSimilarUsers(targetUser) {
+        const similarities = [];
+        
+        for (const userId of this.userRatings.keys()) {
+            if (userId !== targetUser) {
+                const sim = this.cosineSimilarity(targetUser, userId);
+                if (sim > 0) {
+                    similarities.push({userId, similarity: sim});
+                }
+            }
+        }
+        
+        // 按相似度排序
+        similarities.sort((a, b) => b.similarity - a.similarity);
+        
+        return similarities.slice(0, this.k);
+    }
+    
+    // 预测用户对物品的评分
+    predictRating(targetUser, targetItem) {
+        const similarUsers = this.findSimilarUsers(targetUser);
+        
+        if (similarUsers.length === 0) return 0;
+        
+        const targetRatings = this.userRatings.get(targetUser);
+        const targetMean = this.getUserMean(targetUser);
+        
+        let numerator = 0;
+        let denominator = 0;
+        
+        for (const {userId, similarity} of similarUsers) {
+            const userRatings = this.userRatings.get(userId);
+            if (userRatings.has(targetItem)) {
+                const userMean = this.getUserMean(userId);
+                numerator += similarity * (userRatings.get(targetItem) - userMean);
+                denominator += Math.abs(similarity);
+            }
+        }
+        
+        if (denominator === 0) return targetMean;
+        
+        return targetMean + numerator / denominator;
+    }
+    
+    getUserMean(userId) {
+        const ratings = this.userRatings.get(userId);
+        if (!ratings || ratings.size === 0) return 0;
+        
+        let sum = 0;
+        for (const rating of ratings.values()) {
+            sum += rating;
+        }
+        return sum / ratings.size;
+    }
+    
+    // 为用户生成推荐列表
+    recommend(userId, topN = 10) {
+        const userRatings = this.userRatings.get(userId);
+        const ratedItems = userRatings ? new Set(userRatings.keys()) : new Set();
+        
+        // 获取所有物品
+        const allItems = new Set();
+        for (const ratings of this.userRatings.values()) {
+            for (const item of ratings.keys()) {
+                allItems.add(item);
+            }
+        }
+        
+        // 预测未评分物品的评分
+        const predictions = [];
+        for (const item of allItems) {
+            if (!ratedItems.has(item)) {
+                const rating = this.predictRating(userId, item);
+                if (rating > 0) {
+                    predictions.push({item, rating});
+                }
+            }
+        }
+        
+        // 按评分排序
+        predictions.sort((a, b) => b.rating - a.rating);
+        
+        return predictions.slice(0, topN);
+    }
+}
+
+// 矩阵分解推荐
+class MatrixFactorization {
+    constructor(factors = 20, learningRate = 0.005, regularization = 0.02, iterations = 100) {
+        this.factors = factors;
+        this.learningRate = learningRate;
+        this.regularization = regularization;
+        this.iterations = iterations;
+        this.userFactors = new Map();
+        this.itemFactors = new Map();
+    }
+    
+    // 初始化随机隐向量
+    initialize(users, items) {
+        for (const user of users) {
+            this.userFactors.set(user, this.randomVector());
+        }
+        for (const item of items) {
+            this.itemFactors.set(item, this.randomVector());
+        }
+    }
+    
+    randomVector() {
+        return Array.from({length: this.factors}, () => (Math.random() * 2 - 1) / Math.sqrt(this.factors));
+    }
+    
+    // SGD训练
+    train(ratings) {
+        // 初始化
+        const users = new Set();
+        const items = new Set();
+        for (const [user, item, rating] of ratings) {
+            users.add(user);
+            items.add(item);
+        }
+        this.initialize(Array.from(users), Array.from(items));
+        
+        // SGD迭代
+        for (let iter = 0; iter < this.iterations; iter++) {
+            for (const [user, item, rating] of ratings) {
+                const u = this.userFactors.get(user);
+                const v = this.itemFactors.get(item);
+                
+                // 计算预测评分
+                let prediction = 0;
+                for (let f = 0; f < this.factors; f++) {
+                    prediction += u[f] * v[f];
+                }
+                
+                // 计算误差
+                const error = rating - prediction;
+                
+                // 更新隐向量
+                for (let f = 0; f < this.factors; f++) {
+                    const u_old = u[f];
+                    const v_old = v[f];
+                    
+                    u[f] += this.learningRate * (error * v_old - this.regularization * u_old);
+                    v[f] += this.learningRate * (error * u_old - this.regularization * v_old);
+                }
+            }
+            
+            if (iter % 10 === 0) {
+                const rmse = this.calculateRMSE(ratings);
+                console.log(`Iteration ${iter}: RMSE = ${rmse.toFixed(4)}`);
+            }
+        }
+    }
+    
+    calculateRMSE(ratings) {
+        let sumError = 0;
+        let count = 0;
+        
+        for (const [user, item, rating] of ratings) {
+            const u = this.userFactors.get(user);
+            const v = this.itemFactors.get(item);
+            
+            let prediction = 0;
+            for (let f = 0; f < this.factors; f++) {
+                prediction += u[f] * v[f];
+            }
+            
+            sumError += Math.pow(rating - prediction, 2);
+            count++;
+        }
+        
+        return Math.sqrt(sumError / count);
+    }
+    
+    predict(user, item) {
+        const u = this.userFactors.get(user);
+        const v = this.itemFactors.get(item);
+        
+        if (!u || !v) return 0;
+        
+        let prediction = 0;
+        for (let f = 0; f < this.factors; f++) {
+            prediction += u[f] * v[f];
+        }
+        
+        // 限制在合理范围
+        return Math.max(1, Math.min(5, prediction));
+    }
+}
+
+// 使用示例
+const cf = new UserBasedCF(5);
+
+// 添加评分数据
+const ratings = [
+    ['user1', 'item1', 5],
+    ['user1', 'item2', 3],
+    ['user1', 'item4', 4],
+    ['user2', 'item1', 4],
+    ['user2', 'item3', 2],
+    ['user2', 'item4', 5],
+    ['user3', 'item2', 4],
+    ['user3', 'item3', 4],
+    ['user4', 'item1', 2],
+    ['user4', 'item2', 3],
+    ['user4', 'item3', 5],
+    ['user4', 'item4', 1],
+];
+
+ratings.forEach(([user, item, rating]) => {
+    cf.addRating(user, item, rating);
+});
+
+// 预测用户1对item3的评分
+console.log(`User1 对 Item3 的预测评分: ${cf.predictRating('user1', 'item3').toFixed(2)}`);
+
+// 生成推荐
+console.log(`\nUser3 的推荐列表:`);
+cf.recommend('user3', 3).forEach(({item, rating}) => {
+    console.log(`  Item ${item}: ${rating.toFixed(2)}`);
+});
+
+// 矩阵分解示例
+const mf = new MatrixFactorization(10, 0.005, 0.02, 50);
+mf.train(ratings.map(([u, i, r]) => [u, i, parseFloat(r)]));
+
+console.log(`\n矩阵分解预测 User1-Item3: ${mf.predict('user1', 'item3').toFixed(2)}`);
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="rec-python" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-python">
+import numpy as np
+from collections import defaultdict
+import random
+
+
+class UserBasedCF:
+    def __init__(self, k=5):
+        self.k = k
+        self.user_ratings = defaultdict(dict)
+    
+    def add_rating(self, user_id, item_id, rating):
+        self.user_ratings[user_id][item_id] = rating
+    
+    def cosine_similarity(self, user1, user2):
+        ratings1 = self.user_ratings[user1]
+        ratings2 = self.user_ratings[user2]
+        
+        # 共同评分的物品
+        common_items = set(ratings1.keys()) & set(ratings2.keys())
+        if not common_items:
+            return 0
+        
+        # 计算余弦相似度
+        dot_product = sum(ratings1[item] * ratings2[item] for item in common_items)
+        norm1 = np.sqrt(sum(ratings1[item]**2 for item in common_items))
+        norm2 = np.sqrt(sum(ratings2[item]**2 for item in common_items))
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0
+        
+        return dot_product / (norm1 * norm2)
+    
+    def find_similar_users(self, target_user):
+        similarities = []
+        for user_id in self.user_ratings.keys():
+            if user_id != target_user:
+                sim = self.cosine_similarity(target_user, user_id)
+                if sim > 0:
+                    similarities.append((user_id, sim))
+        
+        similarities.sort(key=lambda x: x[1], reverse=True)
+        return similarities[:self.k]
+    
+    def user_mean(self, user_id):
+        ratings = self.user_ratings[user_id]
+        return np.mean(list(ratings.values())) if ratings else 0
+    
+    def predict_rating(self, target_user, target_item):
+        similar_users = self.find_similar_users(target_user)
+        
+        if not similar_users:
+            return 0
+        
+        target_mean = self.user_mean(target_user)
+        
+        numerator = 0
+        denominator = 0
+        
+        for user_id, similarity in similar_users:
+            user_ratings = self.user_ratings[user_id]
+            if target_item in user_ratings:
+                user_mean = self.user_mean(user_id)
+                numerator += similarity * (user_ratings[target_item] - user_mean)
+                denominator += abs(similarity)
+        
+        if denominator == 0:
+            return target_mean
+        
+        return target_mean + numerator / denominator
+    
+    def recommend(self, user_id, top_n=10):
+        rated_items = set(self.user_ratings[user_id].keys())
+        
+        # 所有物品
+        all_items = set()
+        for ratings in self.user_ratings.values():
+            all_items.update(ratings.keys())
+        
+        predictions = []
+        for item in all_items - rated_items:
+            rating = self.predict_rating(user_id, item)
+            if rating > 0:
+                predictions.append((item, rating))
+        
+        predictions.sort(key=lambda x: x[1], reverse=True)
+        return predictions[:top_n]
+
+
+class MatrixFactorization:
+    def __init__(self, factors=20, learning_rate=0.005, regularization=0.02, iterations=100):
+        self.factors = factors
+        self.learning_rate = learning_rate
+        self.regularization = regularization
+        self.iterations = iterations
+        self.user_factors = {}
+        self.item_factors = {}
+    
+    def initialize(self, users, items):
+        scale = np.sqrt(2.0 / self.factors)
+        for user in users:
+            self.user_factors[user] = np.random.randn(self.factors) * scale
+        for item in items:
+            self.item_factors[item] = np.random.randn(self.factors) * scale
+    
+    def train(self, ratings):
+        # ratings: [(user, item, rating), ...]
+        users = set(r[0] for r in ratings)
+        items = set(r[1] for r in ratings)
+        self.initialize(users, items)
+        
+        for iter_idx in range(self.iterations):
+            for user, item, rating in ratings:
+                u = self.user_factors[user]
+                v = self.item_factors[item]
+                
+                # 预测评分
+                prediction = np.dot(u, v)
+                
+                # 误差
+                error = rating - prediction
+                
+                # 更新隐向量
+                u_new = u + self.learning_rate * (error * v - self.regularization * u)
+                v_new = v + self.learning_rate * (error * u - self.regularization * v)
+                
+                self.user_factors[user] = u_new
+                self.item_factors[item] = v_new
+            
+            if iter_idx % 10 == 0:
+                rmse = self.calculate_rmse(ratings)
+                print(f"Iteration {iter_idx}: RMSE = {rmse:.4f}")
+    
+    def calculate_rmse(self, ratings):
+        errors = []
+        for user, item, rating in ratings:
+            prediction = np.dot(self.user_factors[user], self.item_factors[item])
+            errors.append((rating - prediction) ** 2)
+        return np.sqrt(np.mean(errors))
+    
+    def predict(self, user, item):
+        if user not in self.user_factors or item not in self.item_factors:
+            return 0
+        prediction = np.dot(self.user_factors[user], self.item_factors[item])
+        return np.clip(prediction, 1, 5)
+
+
+if __name__ == "__main__":
+    # 用户协同过滤示例
+    cf = UserBasedCF(k=5)
+    
+    ratings = [
+        ('user1', 'item1', 5),
+        ('user1', 'item2', 3),
+        ('user1', 'item4', 4),
+        ('user2', 'item1', 4),
+        ('user2', 'item3', 2),
+        ('user2', 'item4', 5),
+        ('user3', 'item2', 4),
+        ('user3', 'item3', 4),
+        ('user4', 'item1', 2),
+        ('user4', 'item2', 3),
+        ('user4', 'item3', 5),
+        ('user4', 'item4', 1),
+    ]
+    
+    for user, item, rating in ratings:
+        cf.add_rating(user, item, rating)
+    
+    print(f"User1 对 Item3 的预测评分: {cf.predict_rating('user1', 'item3'):.2f}")
+    
+    print("\nUser3 的推荐列表:")
+    for item, rating in cf.recommend('user3', 3):
+        print(f"  Item {item}: {rating:.2f}")
+    
+    # 矩阵分解示例
+    print("\n" + "="*50)
+    print("矩阵分解推荐")
+    mf = MatrixFactorization(factors=10, learning_rate=0.005, regularization=0.02, iterations=50)
+    mf.train(ratings)
+    
+    print(f"\n矩阵分解预测 User1-Item3: {mf.predict('user1', 'item3'):.2f}")
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div id="rec-go" class="code-tab-content">
+                        <div class="code-block line-numbers">
+                            <pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+)
+
+type UserBasedCF struct {
+    k             int
+    userRatings   map[string]map[string]float64
+}
+
+func NewUserBasedCF(k int) *UserBasedCF {
+    return &UserBasedCF{
+        k:             k,
+        userRatings:   make(map[string]map[string]float64),
+    }
+}
+
+func (cf *UserBasedCF) AddRating(userId, itemId string, rating float64) {
+    if cf.userRatings[userId] == nil {
+        cf.userRatings[userId] = make(map[string]float64)
+    }
+    cf.userRatings[userId][itemId] = rating
+}
+
+func (cf *UserBasedCF) cosineSimilarity(user1, user2 string) float64 {
+    ratings1 := cf.userRatings[user1]
+    ratings2 := cf.userRatings[user2]
+    
+    // 共同评分的物品
+    var commonItems []string
+    for item := range ratings1 {
+        if _, ok := ratings2[item]; ok {
+            commonItems = append(commonItems, item)
+        }
+    }
+    
+    if len(commonItems) == 0 {
+        return 0
+    }
+    
+    // 计算余弦相似度
+    var dotProduct, norm1, norm2 float64
+    for _, item := range commonItems {
+        r1 := ratings1[item]
+        r2 := ratings2[item]
+        dotProduct += r1 * r2
+        norm1 += r1 * r1
+        norm2 += r2 * r2
+    }
+    
+    if norm1 == 0 || norm2 == 0 {
+        return 0
+    }
+    
+    return dotProduct / (math.Sqrt(norm1) * math.Sqrt(norm2))
+}
+
+func (cf *UserBasedCF) findSimilarUsers(targetUser string) []struct {
+    userId     string
+    similarity float64
+} {
+    var similarities []struct {
+        userId     string
+        similarity float64
+    }
+    
+    for userId := range cf.userRatings {
+        if userId != targetUser {
+            sim := cf.cosineSimilarity(targetUser, userId)
+            if sim > 0 {
+                similarities = append(similarities, struct {
+                    userId     string
+                    similarity float64
+                }{userId, sim})
+            }
+        }
+    }
+    
+    // 排序
+    for i := 0; i < len(similarities)-1; i++ {
+        for j := i + 1; j < len(similarities); j++ {
+            if similarities[j].similarity > similarities[i].similarity {
+                similarities[i], similarities[j] = similarities[j], similarities[i]
+            }
+        }
+    }
+    
+    if len(similarities) > cf.k {
+        return similarities[:cf.k]
+    }
+    return similarities
+}
+
+func (cf *UserBasedCF) userMean(userId string) float64 {
+    ratings := cf.userRatings[userId]
+    if len(ratings) == 0 {
+        return 0
+    }
+    
+    var sum float64
+    for _, rating := range ratings {
+        sum += rating
+    }
+    return sum / float64(len(ratings))
+}
+
+func (cf *UserBasedCF) PredictRating(targetUser, targetItem string) float64 {
+    similarUsers := cf.findSimilarUsers(targetUser)
+    
+    if len(similarUsers) == 0 {
+        return 0
+    }
+    
+    targetMean := cf.userMean(targetUser)
+    
+    var numerator, denominator float64
+    for _, su := range similarUsers {
+        userRatings := cf.userRatings[su.userId]
+        if rating, ok := userRatings[targetItem]; ok {
+            userMean := cf.userMean(su.userId)
+            numerator += su.similarity * (rating - userMean)
+            denominator += math.Abs(su.similarity)
+        }
+    }
+    
+    if denominator == 0 {
+        return targetMean
+    }
+    
+    return targetMean + numerator/denominator
+}
+
+type MatrixFactorization struct {
+    factors       int
+    learningRate  float64
+    regularization float64
+    iterations    int
+    userFactors   map[string][]float64
+    itemFactors   map[string][]float64
+}
+
+func NewMatrixFactorization(factors int, learningRate, regularization float64, iterations int) *MatrixFactorization {
+    return &MatrixFactorization{
+        factors:       factors,
+        learningRate:  learningRate,
+        regularization: regularization,
+        iterations:    iterations,
+        userFactors:   make(map[string][]float64),
+        itemFactors:   make(map[string][]float64),
+    }
+}
+
+func (mf *MatrixFactorization) initialize(users, items []string) {
+    scale := math.Sqrt(2.0 / float64(mf.factors))
+    for _, user := range users {
+        mf.userFactors[user] = make([]float64, mf.factors)
+        for i := range mf.userFactors[user] {
+            mf.userFactors[user][i] = (rand.Float64()*2 - 1) * scale
+        }
+    }
+    for _, item := range items {
+        mf.itemFactors[item] = make([]float64, mf.factors)
+        for i := range mf.itemFactors[item] {
+            mf.itemFactors[item][i] = (rand.Float64()*2 - 1) * scale
+        }
+    }
+}
+
+func (mf *MatrixFactorization) dot(v1, v2 []float64) float64 {
+    var sum float64
+    for i := range v1 {
+        sum += v1[i] * v2[i]
+    }
+    return sum
+}
+
+func (mf *MatrixFactorization) Train(ratings []struct {
+    user  string
+    item  string
+    rating float64
+}) {
+    // 收集用户和物品
+    userSet := make(map[string]bool)
+    itemSet := make(map[string]bool)
+    for _, r := range ratings {
+        userSet[r.user] = true
+        itemSet[r.item] = true
+    }
+    
+    var users, items []string
+    for u := range userSet {
+        users = append(users, u)
+    }
+    for i := range itemSet {
+        items = append(items, i)
+    }
+    
+    mf.initialize(users, items)
+    
+    for iter := 0; iter < mf.iterations; iter++ {
+        for _, r := range ratings {
+            u := mf.userFactors[r.user]
+            v := mf.itemFactors[r.item]
+            
+            // 预测评分
+            prediction := mf.dot(u, v)
+            
+            // 误差
+            error := r.rating - prediction
+            
+            // 更新隐向量
+            for f := 0; f < mf.factors; f++ {
+                uOld := u[f]
+                vOld := v[f]
+                
+                u[f] += mf.learningRate * (error*vOld - mf.regularization*uOld)
+                v[f] += mf.learningRate * (error*uOld - mf.regularization*vOld)
+            }
+        }
+        
+        if iter%10 == 0 {
+            rmse := mf.calculateRMSE(ratings)
+            fmt.Printf("Iteration %d: RMSE = %.4f\n", iter, rmse)
+        }
+    }
+}
+
+func (mf *MatrixFactorization) calculateRMSE(ratings []struct {
+    user  string
+    item  string
+    rating float64
+}) float64 {
+    var sumError float64
+    count := 0
+    
+    for _, r := range ratings {
+        prediction := mf.dot(mf.userFactors[r.user], mf.itemFactors[r.item])
+        sumError += (r.rating - prediction) * (r.rating - prediction)
+        count++
+    }
+    
+    return math.Sqrt(sumError / float64(count))
+}
+
+func (mf *MatrixFactorization) Predict(user, item string) float64 {
+    u := mf.userFactors[user]
+    v := mf.itemFactors[item]
+    
+    if u == nil || v == nil {
+        return 0
+    }
+    
+    prediction := mf.dot(u, v)
+    
+    // 限制在合理范围
+    if prediction < 1 {
+        return 1
+    }
+    if prediction > 5 {
+        return 5
+    }
+    return prediction
+}
+
+func main() {
+    // 用户协同过滤示例
+    cf := NewUserBasedCF(5)
+    
+    ratings := []struct {
+        user   string
+        item   string
+        rating float64
+    }{
+        {"user1", "item1", 5},
+        {"user1", "item2", 3},
+        {"user1", "item4", 4},
+        {"user2", "item1", 4},
+        {"user2", "item3", 2},
+        {"user2", "item4", 5},
+        {"user3", "item2", 4},
+        {"user3", "item3", 4},
+        {"user4", "item1", 2},
+        {"user4", "item2", 3},
+        {"user4", "item3", 5},
+        {"user4", "item4", 1},
+    }
+    
+    for _, r := range ratings {
+        cf.AddRating(r.user, r.item, r.rating)
+    }
+    
+    fmt.Printf("User1 对 Item3 的预测评分: %.2f\n", cf.PredictRating("user1", "item3"))
+    
+    // 矩阵分解示例
+    fmt.Println("\n矩阵分解推荐:")
+    mf := NewMatrixFactorization(10, 0.005, 0.02, 50)
+    mf.Train(ratings)
+    
+    fmt.Printf("\n矩阵分解预测 User1-Item3: %.2f\n", mf.Predict("user1", "item3"))
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>算法对比</h2>
+            <div class="algorithm-content">
+                <table class="comparison-table">
+                    <tr>
+                        <th>算法</th>
+                        <th>优点</th>
+                        <th>缺点</th>
+                        <th>适用场景</th>
+                    </tr>
+                    <tr>
+                        <td>User-CF</td>
+                        <td>新颖性好，适合社交推荐</td>
+                        <td>计算量大，用户偏好变化快</td>
+                        <td>用户数少于物品数</td>
+                    </tr>
+                    <tr>
+                        <td>Item-CF</td>
+                        <td>可离线计算，稳定性好</td>
+                        <td>热门物品推荐过多</td>
+                        <td>物品数少于用户数</td>
+                    </tr>
+                    <tr>
+                        <td>矩阵分解</td>
+                        <td>解决稀疏性，泛化能力强</td>
+                        <td>难以解释，可扩展性受限</td>
+                        <td>大规模稀疏矩阵</td>
+                    </tr>
+                    <tr>
+                        <td>深度学习</td>
+                        <td>特征提取能力强</td>
+                        <td>需要大量数据，可解释性差</td>
+                        <td>有复杂特征的场景</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>核心挑战</h2>
+            <div class="algorithm-content">
+                <div class="concept-box">
+                    <h4>1. 冷启动问题</h4>
+                    <p>新用户/物品缺乏历史数据</p>
+                    <p>解决方案：利用用户属性、内容特征、热门推荐</p>
+                </div>
+                
+                <div class="concept-box">
+                    <h4>2. 数据稀疏性</h4>
+                    <p>用户-物品矩阵非常稀疏 (99%+)</p>
+                    <p>解决方案：矩阵分解、协同过滤+内容混合</p>
+                </div>
+                
+                <div class="concept-box">
+                    <h4>3. 可扩展性</h4>
+                    <p>用户/物品数百万级，计算量大</p>
+                    <p>解决方案：局部敏感哈希、分布式计算</p>
+                </div>
+                
+                <div class="concept-box">
+                    <h4>4. 多样性vs准确性</h4>
+                    <p>过度精确导致推荐同质化</p>
+                    <p>解决方案：多样性排序、探索-利用平衡</p>
+                </div>
+            </div>
+
+            <h2>实际应用</h2>
+            <div class="algorithm-content">
+                <ul>
+                    <li><strong>电商推荐</strong>：淘宝、京东的商品推荐</li>
+                    <li><strong>内容推荐</strong>：抖音、B站的视频推荐</li>
+                    <li><strong>音乐推荐</strong>：网易云音乐的每日歌单</li>
+                    <li><strong>新闻推荐</strong>：今日头条的文章推荐</li>
+                    <li><strong>广告推荐</strong>：信息流广告投放</li>
+                </ul>
+            </div>
+
+            <h2>总结</h2>
+            <div class="concept-box">
+                <h4>核心要点</h4>
+                <ol>
+                    <li><strong>协同过滤</strong>：基于用户/物品相似度，不依赖内容</li>
+                    <li><strong>矩阵分解</strong>：低维隐向量表示，解决稀疏性</li>
+                    <li><strong>冷启动</strong>：新用户/物品是核心挑战</li>
+                    <li><strong>评估指标</strong>：Precision@K, Recall@K, NDCG</li>
+                    <li><strong>实际系统</strong>：通常混合多种算法</li>
+                </ol>
+            </div>
+
+            <h3>学习建议</h3>
+            <div class="algorithm-content">
+                <ul>
+                    <li>理解用户-物品交互矩阵和稀疏性</li>
+                    <li>掌握相似度计算方法（余弦、皮尔逊）</li>
+                    <li>理解矩阵分解的数学原理和SGD优化</li>
+                    <li>学习评估指标：准确率、召回率、NDCG</li>
+                    <li>了解冷启动问题和解决方案</li>
+                    <li>实践：使用MovieLens数据集实现推荐系统</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

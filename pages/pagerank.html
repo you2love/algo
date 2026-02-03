@@ -194,6 +194,8 @@
             margin-bottom: 10px;
         }
     </style>
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 </head>
 <body>
     <nav class="navbar">
@@ -423,8 +425,7 @@
                         <button class="code-tab-btn" data-tab="pagerank-go">Go</button>
                     </div>
                     <div id="pagerank-js" class="code-tab-content active">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
 class PageRank {
     constructor(dampingFactor = 0.85, maxIterations = 100, minDelta = 0.0001) {
         this.d = dampingFactor;
@@ -568,12 +569,10 @@ Object.entries(ranks)
     .forEach(([node, rank]) => {
         console.log(`${node}: ${rank.toFixed(4)}`);
     });
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="pagerank-python" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-python">
 class PageRank:
     def __init__(self, damping_factor=0.85, max_iterations=100, min_delta=0.0001):
         self.d = damping_factor
@@ -673,12 +672,10 @@ if __name__ == "__main__":
     print('PageRank计算结果：')
     for node, rank in sorted(ranks.items(), key=lambda x: x[1], reverse=True):
         print(f'{node}: {rank:.4f}')
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                     <div id="pagerank-go" class="code-tab-content">
-                        <div class="code-block">
-                            <pre>
+                        <div class="code-block line-numbers"><pre><code class="language-go">
 package main
 
 import (
@@ -864,8 +861,7 @@ func main() {
         fmt.Printf("%s: %.4f\n", nr.node, nr.rank)
     }
 }
-                            </pre>
-                        </div>
+                            </code></pre></div>
                     </div>
                 </div>
             </div>
@@ -1039,5 +1035,9 @@ func main() {
     </section>
 
     <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>
