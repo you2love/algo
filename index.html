@@ -3,104 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据结构与算法</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>算法学习指南 2026 - 掌握编程核心技能</title>
+    <meta name="description" content="全面的算法学习平台，包含排序、搜索、动态规划、图算法、机器学习等核心算法教程，配备可视化交互演示和实战案例">
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- 样式表 -->
+    <link rel="stylesheet" href="css/modern-style.css">
     <link rel="stylesheet" href="lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="lib/prism/prism-line-numbers.min.css">
+    
+    <!-- Mermaid 图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">AlgoGuide 2026</a>
+            <ul class="nav-links">
+                <li><a href="#algorithms">算法分类</a></li>
+                <li><a href="#knowledge-map">知识图谱</a></li>
+                <li><a href="#resources">学习资源</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>探索算法之美<br>掌握编程核心</h1>
+            <p>2026 全新算法学习平台 · 可视化交互演示 · 实战案例驱动 · 从入门到精通</p>
+            <div class="hero-buttons">
+                <a href="#algorithms" class="btn btn-primary">
+                    <span>开始学习</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#knowledge-map" class="btn btn-secondary">
+                    <span>知识图谱</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 算法分类区域 -->
     <section id="algorithms" class="algorithms-section">
         <div class="container">
-            <h2>算法分类</h2>
+            <div class="section-header">
+                <h2>算法分类</h2>
+                <p>系统化学习路径，从基础到进阶，涵盖计算机科学核心算法</p>
+            </div>
+
             <div class="algorithm-grid">
-                <div class="algorithm-card" data-category="sorting">
-                    <h3>排序算法</h3>
-                    <p>学习各种排序方法：冒泡排序、快速排序、归并排序等</p>
-                    <a href="pages/sorting.html" class="btn btn-secondary">开始学习</a>
+                <!-- 基础算法 -->
+                <div class="algorithm-card" data-category="fundamental">
+                    <div class="algorithm-card-icon">📊</div>
+                    <h3>排序与搜索</h3>
+                    <p>掌握冒泡、快速、归并等排序算法，以及二分查找、DFS、BFS 等搜索技术</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-beginner">入门</span>
+                        <span class="tag">O(n log n)</span>
+                    </div>
+                    <a href="pages/sorting.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
-                <div class="algorithm-card" data-category="searching">
-                    <h3>搜索算法</h3>
-                    <p>掌握二分查找、广度优先搜索、深度优先搜索</p>
-                    <a href="pages/searching.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="text">
-                    <h3>文本算法</h3>
-                    <p>KMP、Trie、编辑距离、AC自动机等字符串处理算法</p>
-                    <a href="pages/text_algorithms.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="dynamic">
-                    <h3>动态规划</h3>
-                    <p>学习最优子结构问题的解决方法</p>
-                    <a href="pages/dynamic.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="unsupervised">
-                    <h3>无监督学习</h3>
-                    <p>K-Means、PCA、t-SNE、GMM等聚类与降维算法</p>
-                    <a href="pages/unsupervised_learning.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="graph">
-                    <h3>图算法</h3>
-                    <p>理解最短路径、最小生成树、最大流等图论问题</p>
-                    <a href="pages/graph.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="cache">
-                    <h3>缓存算法</h3>
-                    <p>LRU、LFU、FIFO、Clock等缓存置换策略详解</p>
-                    <a href="pages/cache_algorithms.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="recursion">
-                    <h3>递归与回溯</h3>
-                    <p>掌握递归思想和回溯策略</p>
-                    <a href="pages/recursion.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="data-structure">
+
+                <div class="algorithm-card" data-category="fundamental">
+                    <div class="algorithm-card-icon">🔗</div>
                     <h3>数据结构</h3>
-                    <p>深入理解数组、堆、链表、树等结构</p>
-                    <a href="pages/datastructure.html" class="btn btn-secondary">开始学习</a>
+                    <p>深入理解数组、链表、栈、队列、哈希表、堆、树等核心数据结构</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-beginner">入门</span>
+                        <span class="tag">基础</span>
+                    </div>
+                    <a href="pages/datastructure.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
-                <div class="algorithm-card" data-category="hyperloglog">
+
+                <!-- 进阶算法 -->
+                <div class="algorithm-card" data-category="advanced">
+                    <div class="algorithm-card-icon">🎯</div>
+                    <h3>动态规划</h3>
+                    <p>学习最优子结构问题的解决方法，掌握状态定义和状态转移方程</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">面试高频</span>
+                    </div>
+                    <a href="pages/dynamic.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="advanced">
+                    <div class="algorithm-card-icon">🗺️</div>
+                    <h3>图算法</h3>
+                    <p>理解最短路径、最小生成树、最大流等经典图论问题及其实际应用</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">Dijkstra</span>
+                    </div>
+                    <a href="pages/graph.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="advanced">
+                    <div class="algorithm-card-icon">🔤</div>
+                    <h3>字符串算法</h3>
+                    <p>KMP、Trie、AC 自动机、编辑距离等字符串处理算法详解</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">模式匹配</span>
+                    </div>
+                    <a href="pages/ac_automaton.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- 机器学习 -->
+                <div class="algorithm-card" data-category="ml">
+                    <div class="algorithm-card-icon">🧠</div>
+                    <h3>神经网络与 BP 算法</h3>
+                    <p>深度学习基础，反向传播算法推导，神经网络训练核心原理</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">深度学习</span>
+                    </div>
+                    <a href="pages/bp.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="ml">
+                    <div class="algorithm-card-icon">📈</div>
+                    <h3>监督学习</h3>
+                    <p>线性回归、逻辑回归、SVM、决策树、随机森林、XGBoost 等经典算法</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">机器学习</span>
+                    </div>
+                    <a href="pages/supervised_learning.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="ml">
+                    <div class="algorithm-card-icon">🔍</div>
+                    <h3>无监督学习</h3>
+                    <p>K-Means 聚类、PCA 降维、t-SNE、GMM、自编码器等算法</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">聚类</span>
+                    </div>
+                    <a href="pages/unsupervised_learning.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- 分布式系统 -->
+                <div class="algorithm-card" data-category="distributed">
+                    <div class="algorithm-card-icon">🔐</div>
+                    <h3>共识算法</h3>
+                    <p>Paxos、Raft、PBFT、PoW、PoS 等分布式一致性算法详解</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">区块链</span>
+                    </div>
+                    <a href="pages/consensus_algorithms.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="distributed">
+                    <div class="algorithm-card-icon">🔑</div>
+                    <h3>非对称加密</h3>
+                    <p>RSA、ECC、DH 密钥交换、数字签名等公钥密码学算法</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">安全</span>
+                    </div>
+                    <a href="pages/asymmetric_encryption.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card" data-category="distributed">
+                    <div class="algorithm-card-icon">💾</div>
+                    <h3>缓存算法</h3>
+                    <p>LRU、LFU、FIFO、Clock 等缓存置换策略与实现</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">系统设计</span>
+                    </div>
+                    <a href="pages/cache_algorithms.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- 信号处理 -->
+                <div class="algorithm-card" data-category="signal">
+                    <div class="algorithm-card-icon">📡</div>
+                    <h3>快速傅里叶变换</h3>
+                    <p>FFT 详解 - 时域频域转换、数字信号处理核心算法</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">信号处理</span>
+                    </div>
+                    <a href="pages/fft.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- 概率算法 -->
+                <div class="algorithm-card" data-category="probabilistic">
+                    <div class="algorithm-card-icon">🎲</div>
                     <h3>HyperLogLog</h3>
-                    <p>概率基数估计算法 - 12KB内存估计2^64个元素</p>
-                    <a href="pages/hyperloglog.html" class="btn btn-secondary">开始学习</a>
+                    <p>概率基数估计算法 - 12KB 内存估计 2^64 个元素</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-advanced">高级</span>
+                        <span class="tag">大数据</span>
+                    </div>
+                    <a href="pages/hyperloglog.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
-                <div class="algorithm-card" data-category="pagerank">
+
+                <div class="algorithm-card" data-category="probabilistic">
+                    <div class="algorithm-card-icon">📊</div>
                     <h3>PageRank</h3>
-                    <p>Google核心算法 - 网页重要性评估与链接分析</p>
-                    <a href="pages/pagerank.html" class="btn btn-secondary">开始学习</a>
+                    <p>Google 核心算法 - 网页重要性评估与链接分析</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">图计算</span>
+                    </div>
+                    <a href="pages/pagerank.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
-                <div class="algorithm-card" data-category="word2vec">
-                    <h3>Word2Vec</h3>
-                    <p>词向量表示 - 词语的分布式语义表示与向量运算</p>
-                    <a href="pages/word2vec.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="bp">
-                    <h3>BP算法</h3>
-                    <p>反向传播 - 神经网络训练的核心算法与梯度计算</p>
-                    <a href="pages/bp.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="fsa">
+
+                <!-- 自动机 -->
+                <div class="algorithm-card" data-category="automata">
+                    <div class="algorithm-card-icon">🤖</div>
                     <h3>有限状态自动机</h3>
-                    <p>DFA与NFA - 字符串模式匹配与正则表达式引擎</p>
-                    <a href="pages/fsa.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="pda">
-                    <h3>下推自动机</h3>
-                    <p>PDA - 上下文无关文法的识别与栈式计算</p>
-                    <a href="pages/pda.html" class="btn btn-secondary">开始学习</a>
-                </div>
-                <div class="algorithm-card" data-category="recommendation">
-                    <h3>推荐系统</h3>
-                    <p>协同过滤与矩阵分解 - 用户偏好预测与物品推荐</p>
-                    <a href="pages/recommendation.html" class="btn btn-secondary">开始学习</a>
+                    <p>DFA 与 NFA - 字符串模式匹配与正则表达式引擎</p>
+                    <div class="algorithm-card-tags">
+                        <span class="tag tag-intermediate">进阶</span>
+                        <span class="tag">编译原理</span>
+                    </div>
+                    <a href="pages/fsa.html" class="algorithm-card-link">
+                        <span>开始学习</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <script src="js/main.js"></script>
+    <!-- 知识图谱区域 -->
+    <section id="knowledge-map" class="knowledge-map">
+        <div class="container">
+            <div class="section-header">
+                <h2>算法知识图谱</h2>
+                <p>可视化展示算法之间的关联与学习路径</p>
+            </div>
+
+            <div class="knowledge-map-container">
+                <div class="mermaid">
+graph TD
+    subgraph 基础 ["📚 基础篇"]
+        A[数组] --> B[链表]
+        B --> C[栈与队列]
+        C --> D[哈希表]
+        A --> E[排序算法]
+        E --> F[搜索算法]
+    end
+
+    subgraph 进阶 ["🚀 进阶篇"]
+        F --> G[动态规划]
+        F --> H[贪心算法]
+        F --> I[分治算法]
+        D --> J[树结构]
+        J --> K[图算法]
+    end
+
+    subgraph 高级 ["🎓 高级篇"]
+        K --> L[最短路径]
+        K --> M[最小生成树]
+        K --> N[网络流]
+        G --> O[字符串算法]
+        O --> P[AC 自动机]
+    end
+
+    subgraph 应用 ["💼 应用篇"]
+        L --> Q[推荐系统]
+        M --> R[社交网络]
+        N --> S[任务调度]
+        P --> T[敏感词过滤]
+    end
+
+    style 基础 fill:#e6f3ff
+    style 进阶 fill:#fff3e6
+    style 高级 fill:#f3e6ff
+    style 应用 fill:#e6ffe6
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 学习资源区域 -->
+    <section id="resources" class="algorithms-section" style="background: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header">
+                <h2>学习资源</h2>
+                <p>精选学习资料，助你高效掌握算法精髓</p>
+            </div>
+
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <div class="algorithm-card-icon">📖</div>
+                    <h3>经典教材</h3>
+                    <p>《算法导论》《算法 4》《编程珠玑》等经典书籍推荐与阅读指南</p>
+                    <a href="#" class="algorithm-card-link">
+                        <span>查看书单</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card">
+                    <div class="algorithm-card-icon">💻</div>
+                    <h3>在线练习</h3>
+                    <p>LeetCode、Codeforces、AtCoder 等在线编程平台题目推荐</p>
+                    <a href="#" class="algorithm-card-link">
+                        <span>开始刷题</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="algorithm-card">
+                    <div class="algorithm-card-icon">🎬</div>
+                    <h3>视频教程</h3>
+                    <p>MIT 6.006、斯坦福算法专项、国内名校公开课资源</p>
+                    <a href="#" class="algorithm-card-link">
+                        <span>观看视频</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>AlgoGuide 2026</h4>
+                    <p>致力于提供高质量的算法学习资源，帮助开发者掌握编程核心技能</p>
+                </div>
+                <div class="footer-section">
+                    <h4>快速链接</h4>
+                    <ul>
+                        <li><a href="#algorithms">算法分类</a></li>
+                        <li><a href="#knowledge-map">知识图谱</a></li>
+                        <li><a href="#resources">学习资源</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>算法分类</h4>
+                    <ul>
+                        <li><a href="pages/sorting.html">排序与搜索</a></li>
+                        <li><a href="pages/dynamic.html">动态规划</a></li>
+                        <li><a href="pages/graph.html">图算法</a></li>
+                        <li><a href="pages/bp.html">机器学习</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>联系我们</h4>
+                    <ul>
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">问题反馈</a></li>
+                        <li><a href="#">贡献指南</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本 -->
+    <script src="js/components.js"></script>
     <script src="lib/prism/prism.min.js"></script>
     <script src="lib/prism/prism-python.min.js"></script>
     <script src="lib/prism/prism-go.min.js"></script>
+    <script src="lib/prism/prism-javascript.min.js"></script>
     <script src="lib/prism/prism-line-numbers.min.js"></script>
 </body>
 </html>

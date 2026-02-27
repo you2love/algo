@@ -3,1142 +3,853 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BP算法 - 算法学习指南</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>BP 算法 - 神经网络反向传播 2026</title>
+    <meta name="description" content="深入理解 BP 反向传播算法：神经网络训练核心，梯度计算与权重更新，配备可视化演示">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/modern-style.css">
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
-        .neural-diagram {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin: 30px 0;
-            padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-        }
-        
-        .layer-row {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-        }
-        
-        .neuron {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #2c3e50;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            position: relative;
-        }
-        
-        .neuron.input { background: #3498db; color: white; }
-        .neuron.hidden { background: #9b59b6; color: white; }
-        .neuron.output { background: #e74c3c; color: white; }
-        
-        .layer-label {
+        .neural-network-viz {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
             color: white;
-            font-size: 14px;
-            margin-bottom: 5px;
         }
-        
-        .connection {
-            position: absolute;
-            height: 2px;
-            background: rgba(255,255,255,0.5);
-            transform-origin: left center;
+
+        .network-canvas {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            min-height: 400px;
         }
-        
-        .forward-arrow {
-            font-size: 30px;
-            color: white;
-            margin: 0 10px;
-        }
-        
-        .gradient-flow {
+
+        .layer-indicator {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin: 30px 0;
-            padding: 30px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            border-radius: 15px;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
         }
-        
-        .gradient-step {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+
+        .layer-badge {
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
-        .gradient-step .step-num {
-            background: #11998e;
+
+        .layer-badge .count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .layer-badge .name {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .gradient-flow-viz {
+            background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
             color: white;
-            width: 30px;
-            height: 30px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .flow-step .step-num {
+            background: #10b981;
+            color: white;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px;
-            font-weight: bold;
+            font-weight: 700;
+            flex-shrink: 0;
         }
-        
-        .math-formula {
-            background: #f8f9fa;
-            border-left: 4px solid #3498db;
-            padding: 20px;
-            margin: 20px 0;
-            font-family: 'Times New Roman', serif;
-            font-size: 1.1em;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .concept-box {
-            background: #f8f9fa;
-            border-left: 4px solid #3498db;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .comparison-table th {
-            background: #3498db;
-            color: white;
-        }
-        
-        .comparison-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        .highlight-text {
-            background: #fff3cd;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        
-        .activation-visual {
+
+        .backprop-controls {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 20px 0;
+            gap: 12px;
             flex-wrap: wrap;
+            margin-top: 20px;
         }
-        
-        .activation-func {
-            background: #0d1117;
-            color: #c9d1d9;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #30363d;
-            min-width: 200px;
-        }
-        
-        .activation-func h4 {
-            color: #58a6ff;
-            margin-bottom: 10px;
-        }
-        
-        .activation-func .formula {
-            font-family: 'Times New Roman', serif;
-            font-size: 1.2em;
-            margin: 10px 0;
-        }
-        
-        .activation-func .graph {
-            height: 60px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 3px;
-            margin-top: 10px;
-        }
-        
-        .bar {
-            width: 8px;
-            background: linear-gradient(180deg, #58a6ff, #1f6feb);
-            border-radius: 2px;
-        }
-        
-        .loss-visual {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 10px;
-            height: 100px;
-            margin: 20px 0;
-            padding: 20px;
-            background: #f0f4f8;
-            border-radius: 10px;
-        }
-        
-        .loss-bar {
-            width: 30px;
-            background: linear-gradient(180deg, #e74c3c, #c0392b);
-            border-radius: 5px 5px 0 0;
-            transition: height 0.3s ease;
-        }
-        
-        .weight-matrix {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        .matrix {
-            display: inline-block;
-            background: #0d1117;
-            color: #c9d1d9;
-            padding: 15px;
+
+        .backprop-controls button {
+            padding: 10px 20px;
+            border: none;
             border-radius: 8px;
-            font-family: monospace;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
-        
-        .matrix-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+
+        .backprop-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
-        
-        .matrix-cell {
-            width: 50px;
+
+        .backprop-controls button.primary {
+            background: white;
+            color: #065f46;
+        }
+
+        .math-derivation {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 24px 0;
+            color: var(--code-text);
+            font-family: 'Times New Roman', serif;
+            overflow-x: auto;
+        }
+
+        .math-derivation .step {
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .activation-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .activation-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .activation-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        .activation-card .formula {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
             text-align: center;
-            padding: 5px;
-            border: 1px solid #30363d;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .training-status {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--code-text);
+        }
+
+        .training-status .epoch {
+            color: #667eea;
+        }
+
+        .training-status .loss {
+            color: #f56565;
+        }
+
+        .training-status .accuracy {
+            color: #48bb78;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo"></h1>
+            <a href="/" class="logo">AlgoGuide 2026</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
-                <li><a href="../index.html#practice">在线练习</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
             </ul>
         </div>
     </nav>
 
-    <section class="algorithm-detail">
+    <main class="algorithm-detail">
         <div class="container">
-            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
-            <h2>BP算法 - 反向传播</h2>
-            
-            <div class="algorithm-content">
-                <h3>什么是BP算法？</h3>
-                <p>
-                    <strong>BP (BackPropagation) 算法</strong> 是神经网络中用于训练多层前馈神经网络的核心算法，
-                    通过计算损失函数相对于网络参数的梯度来更新权重。
-                </p>
-                <p>
-                    BP 算法的核心思想是：<span class="highlight-text">将输出层的误差反向传播到隐藏层，
-                    逐层计算误差梯度，从而更新网络权重</span>。
-                </p>
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="../index.html#algorithms">算法分类</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>BP 算法</span>
             </div>
 
-            <div class="complexity">
-                <div class="complexity-item">
-                    <h4>时间复杂度</h4>
-                    <p>O(E × n × m)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>空间复杂度</h4>
-                    <p>O(n × m)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>收敛性</h4>
-                    <p>非凸优化</p>
-                </div>
-            </div>
+            <h1 class="page-title">BP 反向传播算法</h1>
+            <p class="page-description">神经网络训练的核心算法，通过链式法则计算梯度并更新权重</p>
 
-            <h2>核心原理：链式法则</h2>
-            
-            <div class="concept-box">
-                <h4>🎯 为什么叫"反向传播"？</h4>
-                <p>
-                    <strong>前向传播</strong>：输入 → 隐藏层 → 输出层（计算预测值）<br>
-                    <strong>反向传播</strong>：输出层 → 隐藏层 → 输入层（计算梯度）
-                </p>
-                <p>
-                    BP 算法利用 <span class="highlight-text">链式法则</span> 逐层计算偏导数，
-                    将损失函数的误差"分配"到每个权重上。
-                </p>
-            </div>
+            <div class="detail-layout">
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#intro">1. 算法简介</a></li>
+                        <li><a href="#network">2. 神经网络结构</a></li>
+                        <li><a href="#forward">3. 前向传播</a></li>
+                        <li><a href="#backward">4. 反向传播</a></li>
+                        <li><a href="#gradient">5. 梯度推导</a></li>
+                        <li><a href="#implementation">6. 代码实现</a></li>
+                        <li><a href="#optimization">7. 优化算法</a></li>
+                    </ul>
+                </aside>
 
-            <h2>网络结构</h2>
-            <div class="neural-diagram">
-                <div class="layer-row">
-                    <div>
-                        <div class="layer-label">输入层 (Input)</div>
-                        <div class="neuron input">x₁</div>
-                    </div>
-                    <div class="forward-arrow">→</div>
-                    <div>
-                        <div class="layer-label">隐藏层 (Hidden)</div>
-                        <div class="neuron hidden">h₁</div>
-                    </div>
-                    <div class="forward-arrow">→</div>
-                    <div>
-                        <div class="layer-label">输出层 (Output)</div>
-                        <div class="neuron output">ŷ</div>
-                    </div>
-                </div>
-                <p style="color: white; margin-top: 10px;">
-                    3层前馈神经网络结构示意
-                </p>
-            </div>
+                <div class="main-content">
+                    <section id="intro">
+                        <h2>算法简介</h2>
+                        <p>反向传播 (Backpropagation) 算法是训练神经网络的核心方法，由 Rumelhart、Hinton 和 Williams 在 1986 年重新发现并推广。它通过链式法则高效计算损失函数对每个权重的梯度，然后使用梯度下降法更新权重。</p>
 
-            <h3>网络参数</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li><strong>输入层</strong>：接收原始特征 x ∈ ℝⁿ</li>
-                    <li><strong>隐藏层</strong>：h = f(W₁x + b₁)，其中 W₁ 是输入到隐藏的权重</li>
-                    <li><strong>输出层</strong>：ŷ = g(W₂h + b₂)，其中 W₂ 是隐藏到输出的权重</li>
-                    <li><strong>激活函数</strong>：f 和 g 通常使用 ReLU、Sigmoid 或 Tanh</li>
-                </ul>
-            </div>
+                        <div class="info-card">
+                            <div class="info-card-title"><span>💡</span> 核心思想</div>
+                            <div class="info-card-content">
+                                <strong>前向传播计算输出 → 计算损失 → 反向传播梯度 → 更新权重</strong>
+                            </div>
+                        </div>
 
-            <h2>数学原理详解</h2>
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+sequenceDiagram
+    participant 输入层
+    participant 隐藏层
+    participant 输出层
+    participant 损失函数
+    participant 反向传播
 
-            <h3>1. 前向传播</h3>
-            <div class="algorithm-content">
-                <p>对于每个样本，计算网络的输出：</p>
-                <div class="math-formula">
-                    <p><strong>隐藏层</strong>：z₁ = W₁x + b₁，h = σ(z₁)</p>
-                    <p><strong>输出层</strong>：z₂ = W₂h + b₂，ŷ = softmax(z₂)</p>
-                    <br>
-                    <p>其中 σ 是激活函数，softmax 用于多分类：</p>
-                    <p>softmax(zᵢ) = exp(zᵢ) / Σⱼ exp(zⱼ)</p>
-                </div>
-            </div>
+    输入层->>隐藏层：前向传播
+    隐藏层->>输出层：前向传播
+    输出层->>损失函数：计算 Loss
+    损失函数->>反向传播：计算梯度
+    反向传播->>输出层：∂L/∂W₃
+    反向传播->>隐藏层：∂L/∂W₂
+    反向传播->>输入层：∂L/∂W₁
+    Note over 输入层，反向传播：一次迭代完成
+                            </div>
+                        </div>
+                    </section>
 
-            <h3>2. 损失函数</h3>
-            <div class="algorithm-content">
-                <p>对于分类问题，使用交叉熵损失：</p>
-                <div class="math-formula">
-                    <p><strong>L = -Σₖ yₖ log(ŷₖ)</strong></p>
-                    <br>
-                    <p>其中：</p>
-                    <p>• <strong>y</strong> = 真实标签（one-hot 编码）</p>
-                    <p>• <strong>ŷ</strong> = 预测概率分布</p>
-                    <p>• <strong>k</strong> = 类别索引</p>
-                </div>
-            </div>
+                    <section id="network">
+                        <h2>神经网络结构</h2>
+                        
+                        <div class="neural-network-viz">
+                            <div class="layer-indicator">
+                                <div class="layer-badge">
+                                    <div class="count">4</div>
+                                    <div class="name">输入层</div>
+                                </div>
+                                <div style="align-self: center; font-size: 1.5rem;">→</div>
+                                <div class="layer-badge">
+                                    <div class="count">6</div>
+                                    <div class="name">隐藏层 1</div>
+                                </div>
+                                <div style="align-self: center; font-size: 1.5rem;">→</div>
+                                <div class="layer-badge">
+                                    <div class="count">4</div>
+                                    <div class="name">隐藏层 2</div>
+                                </div>
+                                <div style="align-self: center; font-size: 1.5rem;">→</div>
+                                <div class="layer-badge">
+                                    <div class="count">3</div>
+                                    <div class="name">输出层</div>
+                                </div>
+                            </div>
 
-            <h3>3. 反向传播推导</h3>
-            <div class="algorithm-content">
-                <p>目标：计算 ∂L/∂W₂ 和 ∂L/∂W₁</p>
-                
-                <h4>Step 1: 输出层梯度</h4>
-                <div class="math-formula">
-                    <p><strong>δ₂ = ∂L/∂z₂ = ŷ - y</strong></p>
-                    <p>∂L/∂W₂ = h · δ₂ᵀ</p>
-                    <p>∂L/∂b₂ = δ₂</p>
-                </div>
+                            <div class="network-canvas">
+                                <svg id="network-svg" width="100%" height="350"></svg>
+                            </div>
 
-                <h4>Step 2: 隐藏层梯度</h4>
-                <div class="math-formula">
-                    <p><strong>δ₁ = (W₂ᵀ · δ₂) ⊙ σ'(z₁)</strong></p>
-                    <p>∂L/∂W₁ = x · δ₁ᵀ</p>
-                    <p>∂L/∂b₁ = δ₁</p>
-                    <br>
-                    <p>其中 ⊙ 表示逐元素乘法（Hadamard积）</p>
-                </div>
+                            <div class="backprop-controls">
+                                <button class="primary" onclick="animateForward()">前向传播演示</button>
+                                <button onclick="animateBackward()">反向传播演示</button>
+                                <button onclick="resetNetwork()">重置</button>
+                            </div>
+                        </div>
 
-                <h4>Step 3: 权重更新</h4>
-                <div class="math-formula">
-                    <p><strong>W ← W - η × ∂L/∂W</strong></p>
-                    <p><strong>b ← b - η × ∂L/∂b</strong></p>
-                    <br>
-                    <p>其中 <strong>η</strong> 是学习率</p>
-                </div>
-            </div>
+                        <h3>网络组成要素</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>组件</th>
+                                    <th>说明</th>
+                                    <th>数学表示</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>神经元</td>
+                                    <td>基本计算单元</td>
+                                    <td>z = Wx + b, a = σ(z)</td>
+                                </tr>
+                                <tr>
+                                    <td>权重</td>
+                                    <td>连接强度参数</td>
+                                    <td>W ∈ ℝ^(m×n)</td>
+                                </tr>
+                                <tr>
+                                    <td>偏置</td>
+                                    <td>激活阈值</td>
+                                    <td>b ∈ ℝ^n</td>
+                                </tr>
+                                <tr>
+                                    <td>激活函数</td>
+                                    <td>引入非线性</td>
+                                    <td>σ(z)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
 
-            <h2>激活函数对比</h2>
-            <div class="activation-visual">
-                <div class="activation-func">
-                    <h4>Sigmoid</h4>
-                    <div class="formula">σ(x) = 1/(1+e^(-x))</div>
-                    <p style="font-size: 0.9em; color: #8b949e;">输出范围 (0, 1)</p>
-                    <div class="graph">
-                        <div class="bar" style="height: 10px;"></div>
-                        <div class="bar" style="height: 20px;"></div>
-                        <div class="bar" style="height: 40px;"></div>
-                        <div class="bar" style="height: 55px;"></div>
-                    </div>
-                </div>
-                <div class="activation-func">
-                    <h4>ReLU</h4>
-                    <div class="formula">f(x) = max(0, x)</div>
-                    <p style="font-size: 0.9em; color: #8b949e;">输出范围 [0, +∞)</p>
-                    <div class="graph">
-                        <div class="bar" style="height: 0px;"></div>
-                        <div class="bar" style="height: 20px;"></div>
-                        <div class="bar" style="height: 40px;"></div>
-                        <div class="bar" style="height: 60px;"></div>
-                    </div>
-                </div>
-                <div class="activation-func">
-                    <h4>Tanh</h4>
-                    <div class="formula">tanh(x) = (e^x-e^(-x))/(e^x+e^(-x))</div>
-                    <p style="font-size: 0.9em; color: #8b949e;">输出范围 (-1, 1)</p>
-                    <div class="graph">
-                        <div class="bar" style="height: 10px;"></div>
-                        <div class="bar" style="height: 30px;"></div>
-                        <div class="bar" style="height: 50px;"></div>
-                        <div class="bar" style="height: 55px;"></div>
-                    </div>
-                </div>
-            </div>
+                    <section id="forward">
+                        <h2>前向传播 (Forward Propagation)</h2>
+                        <p>输入数据从输入层经过各隐藏层，最终到达输出层产生预测结果。</p>
 
-            <h2>训练过程</h2>
-            <div class="gradient-flow">
-                <div class="gradient-step">
-                    <div class="step-num">1</div>
-                    <h4>初始化</h4>
-                    <p>随机初始化权重</p>
-                </div>
-                <div class="gradient-step">
-                    <div class="step-num">2</div>
-                    <h4>前向传播</h4>
-                    <p>计算网络输出</p>
-                </div>
-                <div class="gradient-step">
-                    <div class="step-num">3</div>
-                    <h4>计算损失</h4>
-                    <p>L = -Σy·log(ŷ)</p>
-                </div>
-                <div class="gradient-step">
-                    <div class="step-num">4</div>
-                    <h4>反向传播</h4>
-                    <p>计算梯度 δ</p>
-                </div>
-                <div class="gradient-step">
-                    <div class="step-num">5</div>
-                    <h4>更新权重</h4>
-                    <p>W = W - η·∂L/∂W</p>
-                </div>
-                <div class="gradient-step">
-                    <div class="step-num">6</div>
-                    <h4>检查收敛</h4>
-                    <p>损失足够小？</p>
-                </div>
-            </div>
+                        <div class="formula-box">
+                            <div class="formula-title">前向传播公式</div>
+                            <div>
+                                z^[l] = W^[l] · a^[l-1] + b^[l]<br>
+                                a^[l] = σ(z^[l])<br>
+                                <span style="color: #a0aec0; font-size: 0.9rem;">
+                                    其中 l 表示层号，a^[0] = x 是输入
+                                </span>
+                            </div>
+                        </div>
 
-            <h2>完整实现</h2>
-            <div class="algorithm-content">
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="bp-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="bp-python">Python</button>
-                        <button class="code-tab-btn" data-tab="bp-go">Go</button>
-                    </div>
-                    <div id="bp-js" class="code-tab-content active">
-                        <div class="code-block line-numbers">
-                            <pre><code class="language-javascript">
+                        <div class="activation-comparison">
+                            <div class="activation-card">
+                                <h4>Sigmoid</h4>
+                                <div class="formula">σ(z) = 1 / (1 + e⁻ᶻ)</div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">输出范围 (0,1)，适合二分类</p>
+                            </div>
+                            <div class="activation-card">
+                                <h4>ReLU</h4>
+                                <div class="formula">σ(z) = max(0, z)</div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">最常用，计算简单，缓解梯度消失</p>
+                            </div>
+                            <div class="activation-card">
+                                <h4>Tanh</h4>
+                                <div class="formula">σ(z) = (eᶻ - e⁻ᶻ) / (eᶻ + e⁻ᶻ)</div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">输出范围 (-1,1)，零中心化</p>
+                            </div>
+                            <div class="activation-card">
+                                <h4>Softmax</h4>
+                                <div class="formula">σ(z)ᵢ = eᶻⁱ / Σⱼeᶻʲ</div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">多分类输出层</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="backward">
+                        <h2>反向传播 (Backpropagation)</h2>
+                        <p>从输出层开始，利用链式法则逐层计算损失函数对权重和偏置的梯度。</p>
+
+                        <div class="gradient-flow-viz">
+                            <h3 style="margin-bottom: 20px;">梯度计算流程</h3>
+                            
+                            <div class="flow-step">
+                                <div class="step-num">1</div>
+                                <div>
+                                    <strong>计算输出层误差</strong>
+                                    <div style="margin-top: 8px; opacity: 0.8;">δ^[L] = ∂L/∂z^[L] = a^[L] - y (交叉熵损失)</div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step">
+                                <div class="step-num">2</div>
+                                <div>
+                                    <strong>计算输出层梯度</strong>
+                                    <div style="margin-top: 8px; opacity: 0.8;">∂L/∂W^[L] = δ^[L] · (a^[L-1])ᵀ / m</div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step">
+                                <div class="step-num">3</div>
+                                <div>
+                                    <strong>反向传播误差</strong>
+                                    <div style="margin-top: 8px; opacity: 0.8;">δ^[l] = ((W^[l+1])ᵀ · δ^[l+1]) ⊙ σ'(z^[l])</div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step">
+                                <div class="step-num">4</div>
+                                <div>
+                                    <strong>计算隐藏层梯度</strong>
+                                    <div style="margin-top: 8px; opacity: 0.8;">∂L/∂W^[l] = δ^[l] · (a^[l-1])ᵀ / m</div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step">
+                                <div class="step-num">5</div>
+                                <div>
+                                    <strong>更新权重</strong>
+                                    <div style="margin-top: 8px; opacity: 0.8;">W^[l] = W^[l] - α · ∂L/∂W^[l]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="gradient">
+                        <h2>梯度推导详解</h2>
+                        
+                        <div class="math-derivation">
+                            <div class="step">
+                                <strong>损失函数 (交叉熵):</strong><br>
+                                L = -Σᵢ yᵢ log(aᵢ^[L])
+                            </div>
+
+                            <div class="step">
+                                <strong>输出层误差:</strong><br>
+                                δ^[L] = ∂L/∂z^[L] = ∂L/∂a^[L] · ∂a^[L]/∂z^[L]<br>
+                                = -y/a^[L] · a^[L](1-a^[L])<br>
+                                = a^[L] - y&nbsp;&nbsp;&nbsp;&nbsp;(简化后)
+                            </div>
+
+                            <div class="step">
+                                <strong>隐藏层误差 (链式法则):</strong><br>
+                                δ^[l] = ∂L/∂z^[l]<br>
+                                = (∂z^[l+1]/∂z^[l])ᵀ · ∂L/∂z^[l+1]<br>
+                                = ((W^[l+1])ᵀ · δ^[l+1]) ⊙ σ'(z^[l])
+                            </div>
+
+                            <div class="step">
+                                <strong>权重梯度:</strong><br>
+                                ∂L/∂W^[l] = δ^[l] · (a^[l-1])ᵀ / m
+                            </div>
+
+                            <div class="step">
+                                <strong>偏置梯度:</strong><br>
+                                ∂L/∂b^[l] = Σᵢ δᵢ^[l] / m
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="implementation">
+                        <h2>代码实现</h2>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="bp-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="bp-python">Python</button>
+                                <button class="code-tab-btn" data-tab="bp-pytorch">PyTorch</button>
+                            </div>
+                            <div id="bp-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// 简单的神经网络实现
 class NeuralNetwork {
-    constructor(inputSize, hiddenSize, outputSize, learningRate = 0.01) {
-        this.inputSize = inputSize;
-        this.hiddenSize = hiddenSize;
-        this.outputSize = outputSize;
-        this.learningRate = learningRate;
-        
-        // Xavier 初始化
-        this.W1 = this.randomMatrix(inputSize, hiddenSize);
-        this.b1 = new Array(hiddenSize).fill(0);
-        this.W2 = this.randomMatrix(hiddenSize, outputSize);
-        this.b2 = new Array(outputSize).fill(0);
+    constructor(layerSizes) {
+        this.layers = layerSizes.length - 1;
+        this.weights = [];
+        this.biases = [];
+
+        // 初始化权重和偏置
+        for (let i = 0; i < this.layers; i++) {
+            this.weights.push(
+                Array(layerSizes[i + 1]).fill(0).map(() =>
+                    Array(layerSizes[i]).fill(0).map(() => Math.random() * 0.1)
+                )
+            );
+            this.biases.push(
+                Array(layerSizes[i + 1]).fill(0).map(() => Math.random() * 0.1)
+            );
+        }
     }
-    
-    randomMatrix(rows, cols) {
-        const scale = Math.sqrt(2.0 / rows);
-        return Array.from({length: rows}, () => 
-            Array.from({length: cols}, () => (Math.random() * 2 - 1) * scale));
+
+    // ReLU 激活函数
+    relu(x) {
+        return Math.max(0, x);
     }
-    
-    sigmoid(x) {
-        return 1 / (1 + Math.exp(-Math.max(-500, Math.min(500, x))));
+
+    reluDerivative(x) {
+        return x > 0 ? 1 : 0;
     }
-    
-    sigmoidDerivative(x) {
-        const s = this.sigmoid(x);
-        return s * (1 - s);
-    }
-    
-    softmax(arr) {
-        const maxVal = Math.max(...arr);
-        const exps = arr.map(x => Math.exp(x - maxVal));
-        const sumExps = exps.reduce((a, b) => a + b, 0);
-        return exps.map(x => x / sumExps);
-    }
-    
+
     // 前向传播
-    forward(inputs) {
-        // 隐藏层
-        this.z1 = new Array(this.hiddenSize).fill(0);
-        for (let j = 0; j < this.hiddenSize; j++) {
-            for (let i = 0; i < this.inputSize; i++) {
-                this.z1[j] += inputs[i] * this.W1[i][j];
-            }
-            this.z1[j] += this.b1[j];
+    forward(input) {
+        this.activations = [input];
+        this.zValues = [];
+
+        let current = input;
+        for (let i = 0; i < this.layers; i++) {
+            const z = this.matmul(this.weights[i], current);
+            this.zValues.push(z);
+            
+            // 应用激活函数
+            current = z.map(v => this.relu(v));
+            this.activations.push(current);
         }
-        this.hidden = this.z1.map(x => this.sigmoid(x));
-        
-        // 输出层
-        this.z2 = new Array(this.outputSize).fill(0);
-        for (let k = 0; k < this.outputSize; k++) {
-            for (let j = 0; j < this.hiddenSize; j++) {
-                this.z2[k] += this.hidden[j] * this.W2[j][k];
-            }
-            this.z2[k] += this.b2[k];
-        }
-        this.output = this.softmax(this.z2);
-        
-        return this.output;
+
+        return current;
     }
-    
+
     // 反向传播
-    backward(inputs, target) {
-        const outputSize = this.outputSize;
-        const hiddenSize = this.hiddenSize;
-        const inputSize = this.inputSize;
-        
-        // 输出层误差
-        const delta2 = new Array(outputSize);
-        for (let k = 0; k < outputSize; k++) {
-            delta2[k] = this.output[k] - target[k];
-        }
-        
-        // 更新 W2 和 b2
-        for (let j = 0; j < hiddenSize; j++) {
-            for (let k = 0; k < outputSize; k++) {
-                const gradient = this.learningRate * delta2[k] * this.hidden[j];
-                this.W2[j][k] -= gradient;
+    backward(target, learningRate = 0.01) {
+        const m = target.length;
+        let delta = null;
+
+        // 从输出层开始反向传播
+        for (let i = this.layers - 1; i >= 0; i--) {
+            if (i === this.layers - 1) {
+                // 输出层误差
+                delta = this.activations[i + 1].map((a, j) => a - target[j]);
+            } else {
+                // 隐藏层误差
+                const newDelta = [];
+                for (let j = 0; j < this.zValues[i].length; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < delta.length; k++) {
+                        sum += this.weights[i + 1][k][j] * delta[k];
+                    }
+                    newDelta.push(sum * this.reluDerivative(this.zValues[i][j]));
+                }
+                delta = newDelta;
             }
-        }
-        for (let k = 0; k < outputSize; k++) {
-            this.b2[k] -= this.learningRate * delta2[k];
-        }
-        
-        // 隐藏层误差
-        const delta1 = new Array(hiddenSize);
-        for (let j = 0; j < hiddenSize; j++) {
-            let error = 0;
-            for (let k = 0; k < outputSize; k++) {
-                error += delta2[k] * this.W2[j][k];
+
+            // 更新权重和偏置
+            for (let j = 0; j < this.weights[i].length; j++) {
+                for (let k = 0; k < this.weights[i][j].length; k++) {
+                    this.weights[i][j][k] -= learningRate * delta[j] * this.activations[i][k] / m;
+                }
+                this.biases[i][j] -= learningRate * delta[j] / m;
             }
-            delta1[j] = error * this.sigmoidDerivative(this.z1[j]);
-        }
-        
-        // 更新 W1 和 b1
-        for (let i = 0; i < inputSize; i++) {
-            for (let j = 0; j < hiddenSize; j++) {
-                const gradient = this.learningRate * delta1[j] * inputs[i];
-                this.W1[i][j] -= gradient;
-            }
-        }
-        for (let j = 0; j < hiddenSize; j++) {
-            this.b1[j] -= this.learningRate * delta1[j];
         }
     }
-    
-    // 训练一个 epoch
-    train(X, y, epochs = 100) {
-        const losses = [];
+
+    matmul(matrix, vector) {
+        return matrix.map(row =>
+            row.reduce((sum, val, i) => sum + val * vector[i], 0)
+        );
+    }
+
+    // 训练
+    train(X, y, epochs = 1000, learningRate = 0.01) {
         for (let epoch = 0; epoch < epochs; epoch++) {
             let totalLoss = 0;
-            
+
             for (let i = 0; i < X.length; i++) {
                 const output = this.forward(X[i]);
-                this.backward(X[i], y[i]);
                 
                 // 计算交叉熵损失
-                const sampleLoss = -y[i].reduce((sum, yk, k) => {
-                    return sum + (yk > 0 ? yk * Math.log(output[k] + 1e-10) : 0);
-                }, 0);
-                totalLoss += sampleLoss;
+                for (let j = 0; j < y[i].length; j++) {
+                    if (y[i][j] > 0) {
+                        totalLoss -= y[i][j] * Math.log(Math.max(output[j], 1e-10));
+                    }
+                }
+
+                this.backward(y[i], learningRate);
             }
-            
-            const avgLoss = totalLoss / X.length;
-            losses.push(avgLoss);
-            
-            if (epoch % 10 === 0) {
-                console.log(`Epoch ${epoch}: Loss = ${avgLoss.toFixed(4)}`);
+
+            if (epoch % 100 === 0) {
+                console.log(`Epoch ${epoch}: Loss = ${(totalLoss / X.length).toFixed(4)}`);
             }
         }
-        
-        return losses;
-    }
-    
-    // 预测
-    predict(inputs) {
-        return this.forward(inputs);
-    }
-    
-    // 准确率
-    accuracy(X, y) {
-        let correct = 0;
-        for (let i = 0; i < X.length; i++) {
-            const output = this.predict(X[i]);
-            const predicted = output.indexOf(Math.max(...output));
-            const actual = y[i].indexOf(1);
-            if (predicted === actual) correct++;
-        }
-        return correct / X.length;
     }
 }
 
 // 使用示例
-const nn = new NeuralNetwork(2, 4, 2, 0.5);
-
-// 训练数据：XOR 问题
-const X = [
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1]
-];
-const y = [
-    [1, 0],  // 0 XOR 0 = 0
-    [0, 1],  // 0 XOR 1 = 1
-    [0, 1],  // 1 XOR 0 = 1
-    [1, 0]   // 1 XOR 1 = 0
-];
-
-console.log("Training XOR problem...");
-const losses = nn.train(X, y, 1000);
-
-console.log("\nTest results:");
-X.forEach((input, i) => {
-    const output = nn.predict(input);
-    const predicted = output.indexOf(Math.max(...output));
-    console.log(`${input[0]} XOR ${input[1]} = ${predicted}`);
-});
-
-console.log(`Accuracy: ${(nn.accuracy(X, y) * 100).toFixed(0)}%`);
-                            </code></pre>
-                        </div>
-                    </div>
-                    <div id="bp-python" class="code-tab-content">
-                        <div class="code-block line-numbers">
-                            <pre><code class="language-python">
-import numpy as np
+const nn = new NeuralNetwork([4, 6, 4, 3]);
+const X = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+const y = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]];
+nn.train(X, y, 1000, 0.1);</code></pre></div>
+                            </div>
+                            <div id="bp-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
 
 class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, output_size, learning_rate=0.01):
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.output_size = output_size
-        self.learning_rate = learning_rate
-        
-        # Xavier 初始化
-        scale = np.sqrt(2.0 / input_size)
-        self.W1 = np.random.randn(input_size, hidden_size) * scale
-        self.b1 = np.zeros(hidden_size)
-        self.W2 = np.random.randn(hidden_size, output_size) * scale
-        self.b2 = np.zeros(output_size)
-    
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
-    
-    def sigmoid_derivative(self, x):
-        s = self.sigmoid(x)
-        return s * (1 - s)
-    
-    def softmax(self, x):
-        exp_x = np.exp(x - np.max(x))
-        return exp_x / np.sum(exp_x)
-    
-    def forward(self, inputs):
-        # 隐藏层
-        self.z1 = np.dot(inputs, self.W1) + self.b1
-        self.hidden = self.sigmoid(self.z1)
-        
-        # 输出层
-        self.z2 = np.dot(self.hidden, self.W2) + self.b2
-        self.output = self.softmax(self.z2)
-        
-        return self.output
-    
-    def backward(self, inputs, target):
-        # 输出层误差
-        delta2 = self.output - target
-        
-        # 更新 W2 和 b2
-        self.W2 -= self.learning_rate * np.outer(self.hidden, delta2)
-        self.b2 -= self.learning_rate * delta2
-        
-        # 隐藏层误差
-        delta1 = np.dot(delta2, self.W2.T) * self.sigmoid_derivative(self.z1)
-        
-        # 更新 W1 和 b1
-        self.W1 -= self.learning_rate * np.outer(inputs, delta1)
-        self.b1 -= self.learning_rate * delta1
-    
-    def train(self, X, y, epochs=100):
-        losses = []
-        for epoch in range(epochs):
-            total_loss = 0
-            
-            for i in range(len(X)):
-                output = self.forward(X[i])
-                self.backward(X[i], y[i])
-                
-                # 交叉熵损失
-                sample_loss = -np.sum(y[i] * np.log(output + 1e-10))
-                total_loss += sample_loss
-            
-            avg_loss = total_loss / len(X)
-            losses.append(avg_loss)
-            
-            if epoch % 10 == 0:
-                print(f'Epoch {epoch}: Loss = {avg_loss:.4f}')
-        
-        return losses
-    
-    def predict(self, inputs):
-        return self.forward(inputs)
-    
-    def accuracy(self, X, y):
-        correct = 0
-        for i in range(len(X)):
-            output = self.predict(X[i])
-            predicted = np.argmax(output)
-            actual = np.argmax(y[i])
-            if predicted == actual:
-                correct += 1
-        return correct / len(X)
+    def __init__(self, layer_sizes):
+        self.layers = len(layer_sizes) - 1
+        self.weights = []
+        self.biases = []
 
+        # 初始化权重和偏置
+        for i in range(self.layers):
+            w = np.random.randn(layer_sizes[i + 1], layer_sizes[i]) * 0.1
+            b = np.random.randn(layer_sizes[i + 1], 1) * 0.1
+            self.weights.append(w)
+            self.biases.append(b)
+
+    def relu(self, x):
+        return np.maximum(0, x)
+
+    def relu_derivative(self, x):
+        return (x > 0).astype(float)
+
+    def forward(self, X):
+        self.activations = [X]
+        self.z_values = []
+
+        current = X
+        for i in range(self.layers):
+            z = np.dot(self.weights[i], current) + self.biases[i]
+            self.z_values.append(z)
+            current = self.relu(z)
+            self.activations.append(current)
+
+        return current
+
+    def backward(self, Y, learning_rate=0.01):
+        m = Y.shape[1]
+        delta = None
+
+        for i in range(self.layers - 1, -1, -1):
+            if i == self.layers - 1:
+                # 输出层误差 (交叉熵损失)
+                delta = self.activations[i + 1] - Y
+            else:
+                # 隐藏层误差
+                delta = np.dot(self.weights[i + 1].T, delta) * self.relu_derivative(self.z_values[i])
+
+            # 计算梯度
+            dW = np.dot(delta, self.activations[i].T) / m
+            db = np.sum(delta, axis=1, keepdims=True) / m
+
+            # 更新权重和偏置
+            self.weights[i] -= learning_rate * dW
+            self.biases[i] -= learning_rate * db
+
+    def train(self, X, Y, epochs=1000, learning_rate=0.01):
+        for epoch in range(epochs):
+            output = self.forward(X)
+            self.backward(Y, learning_rate)
+
+            if epoch % 100 == 0:
+                # 计算交叉熵损失
+                loss = -np.sum(Y * np.log(output + 1e-10)) / m
+                print(f"Epoch {epoch}: Loss = {loss:.4f}")
 
 # 使用示例
-if __name__ == "__main__":
-    nn = NeuralNetwork(input_size=2, hidden_size=4, output_size=2, learning_rate=0.5)
-    
-    # 训练数据：XOR 问题
-    X = np.array([
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, 1]
-    ])
-    y = np.array([
-        [1, 0],  # 0 XOR 0 = 0
-        [0, 1],  # 0 XOR 1 = 1
-        [0, 1],  # 1 XOR 0 = 1
-        [1, 0]   # 1 XOR 1 = 0
-    ])
-    
-    print("Training XOR problem...")
-    losses = nn.train(X, y, epochs=1000)
-    
-    print("\nTest results:")
-    for input_row in X:
-        output = nn.predict(input_row)
-        predicted = np.argmax(output)
-        print(f"{input_row[0]} XOR {input_row[1]} = {predicted}")
-    
-    print(f"Accuracy: {nn.accuracy(X, y) * 100:.0f}%")
-                            </code></pre>
-                        </div>
-                    </div>
-                    <div id="bp-go" class="code-tab-content">
-                        <div class="code-block line-numbers">
-                            <pre><code class="language-go">
-package main
+nn = NeuralNetwork([4, 6, 4, 3])
+X = np.array([[1, 0, 0, 0],
+              [0, 1, 0, 0],
+              [0, 0, 1, 0],
+              [0, 0, 0, 1]]).T
+Y = np.array([[1, 0, 0, 1],
+              [0, 1, 0, 0],
+              [0, 0, 1, 0]]).T
+nn.train(X, Y, epochs=1000, learning_rate=0.1)</code></pre></div>
+                            </div>
+                            <div id="bp-pytorch" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">import torch
+import torch.nn as nn
+import torch.optim as optim
 
-import (
-    "fmt"
-    "math"
-    "math/rand"
-)
-
-type NeuralNetwork struct {
-    inputSize    int
-    hiddenSize   int
-    outputSize   int
-    learningRate float64
-    W1           [][]float64
-    b1           []float64
-    W2           [][]float64
-    b2           []float64
-}
-
-func NewNeuralNetwork(inputSize, hiddenSize, outputSize int, learningRate float64) *NeuralNetwork {
-    nn := &NeuralNetwork{
-        inputSize:    inputSize,
-        hiddenSize:   hiddenSize,
-        outputSize:   outputSize,
-        learningRate: learningRate,
-    }
-    
-    // Xavier 初始化
-    scale := math.Sqrt(2.0 / float64(inputSize))
-    nn.W1 = make([][]float64, inputSize)
-    nn.b1 = make([]float64, hiddenSize)
-    nn.W2 = make([][]float64, hiddenSize)
-    nn.b2 = make([]float64, outputSize)
-    
-    for i := range nn.W1 {
-        nn.W1[i] = make([]float64, hiddenSize)
-        for j := range nn.W1[i] {
-            nn.W1[i][j] = (rand.Float64()*2 - 1) * scale
-        }
-    }
-    
-    for j := range nn.W2 {
-        nn.W2[j] = make([]float64, outputSize)
-        for k := range nn.W2[j] {
-            nn.W2[j][k] = (rand.Float64()*2 - 1) * scale
-        }
-    }
-    
-    return nn
-}
-
-func (nn *NeuralNetwork) sigmoid(x float64) float64 {
-    if x > 500 {
-        return 1.0
-    }
-    if x < -500 {
-        return 0.0
-    }
-    return 1 / (1 + math.Exp(-x))
-}
-
-func (nn *NeuralNetwork) sigmoidDerivative(x float64) float64 {
-    s := nn.sigmoid(x)
-    return s * (1 - s)
-}
-
-func (nn *NeuralNetwork) softmax(z []float64) []float64 {
-    maxVal := z[0]
-    for _, v := range z {
-        if v > maxVal {
-            maxVal = v
-        }
-    }
-    
-    expZ := make([]float64, len(z))
-    sumExp := 0.0
-    for i, v := range z {
-        expZ[i] = math.Exp(v - maxVal)
-        sumExp += expZ[i]
-    }
-    
-    for i := range expZ {
-        expZ[i] /= sumExp
-    }
-    
-    return expZ
-}
-
-func (nn *NeuralNetwork) Forward(inputs []float64) []float64 {
-    // 隐藏层
-    z1 := make([]float64, nn.hiddenSize)
-    for j := 0; j < nn.hiddenSize; j++ {
-        sum := 0.0
-        for i := 0; i < nn.inputSize; i++ {
-            sum += inputs[i] * nn.W1[i][j]
-        }
-        z1[j] = sum + nn.b1[j]
-    }
-    
-    hidden := make([]float64, nn.hiddenSize)
-    for j := 0; j < nn.hiddenSize; j++ {
-        hidden[j] = nn.sigmoid(z1[j])
-    }
-    
-    // 输出层
-    z2 := make([]float64, nn.outputSize)
-    for k := 0; k < nn.outputSize; k++ {
-        sum := 0.0
-        for j := 0; j < nn.hiddenSize; j++ {
-            sum += hidden[j] * nn.W2[j][k]
-        }
-        z2[k] = sum + nn.b2[k]
-    }
-    
-    output := nn.softmax(z2)
-    
-    return output
-}
-
-func (nn *NeuralNetwork) Backward(inputs, target []float64) {
-    // 输出层误差
-    output := nn.Forward(inputs)
-    delta2 := make([]float64, nn.outputSize)
-    for k := 0; k < nn.outputSize; k++ {
-        delta2[k] = output[k] - target[k]
-    }
-    
-    // 隐藏层输出
-    z1 := make([]float64, nn.hiddenSize)
-    hidden := make([]float64, nn.hiddenSize)
-    for j := 0; j < nn.hiddenSize; j++ {
-        sum := 0.0
-        for i := 0; i < nn.inputSize; i++ {
-            sum += inputs[i] * nn.W1[i][j]
-        }
-        z1[j] = sum + nn.b1[j]
-        hidden[j] = nn.sigmoid(z1[j])
-    }
-    
-    // 更新 W2 和 b2
-    for j := 0; j < nn.hiddenSize; j++ {
-        for k := 0; k < nn.outputSize; k++ {
-            gradient := nn.learningRate * delta2[k] * hidden[j]
-            nn.W2[j][k] -= gradient
-        }
-    }
-    for k := 0; k < nn.outputSize; k++ {
-        nn.b2[k] -= nn.learningRate * delta2[k]
-    }
-    
-    // 隐藏层误差
-    delta1 := make([]float64, nn.hiddenSize)
-    for j := 0; j < nn.hiddenSize; j++ {
-        error := 0.0
-        for k := 0; k < nn.outputSize; k++ {
-            error += delta2[k] * nn.W2[j][k]
-        }
-        delta1[j] = error * nn.sigmoidDerivative(z1[j])
-    }
-    
-    // 更新 W1 和 b1
-    for i := 0; i < nn.inputSize; i++ {
-        for j := 0; j < nn.hiddenSize; j++ {
-            gradient := nn.learningRate * delta1[j] * inputs[i]
-            nn.W1[i][j] -= gradient
-        }
-    }
-    for j := 0; j < nn.hiddenSize; j++ {
-        nn.b1[j] -= nn.learningRate * delta1[j]
-    }
-}
-
-func (nn *NeuralNetwork) Train(X [][]float64, y [][]float64, epochs int) {
-    for epoch := 0; epoch < epochs; epoch++ {
-        for i := range X {
-            nn.Backward(X[i], y[i])
-        }
+# 使用 PyTorch 实现
+class NeuralNetwork(nn.Module):
+    def __init__(self, layer_sizes):
+        super().__init__()
+        self.layers = nn.ModuleList()
         
-        if epoch%10 == 0 {
-            loss := 0.0
-            for i := range X {
-                output := nn.Forward(X[i])
-                for k := range output {
-                    if y[i][k] > 0 {
-                        loss -= y[i][k] * math.Log(output[k]+1e-10)
-                    }
-                }
-            }
-            fmt.Printf("Epoch %d: Loss = %.4f\n", epoch, loss/float64(len(X)))
-        }
-    }
-}
+        for i in range(len(layer_sizes) - 1):
+            self.layers.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
+            if i < len(layer_sizes) - 2:  # 隐藏层添加 ReLU
+                self.layers.append(nn.ReLU())
 
-func (nn *NeuralNetwork) Predict(inputs []float64) []float64 {
-    return nn.Forward(inputs)
-}
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
-func main() {
-    nn := NewNeuralNetwork(2, 4, 2, 0.5)
-    
-    // XOR 问题
-    X := [][]float64{
-        {0, 0},
-        {0, 1},
-        {1, 0},
-        {1, 1},
-    }
-    y := [][]float64{
-        {1, 0}, // 0 XOR 0 = 0
-        {0, 1}, // 0 XOR 1 = 1
-        {0, 1}, // 1 XOR 0 = 1
-        {1, 0}, // 1 XOR 1 = 0
-    }
-    
-    fmt.Println("Training XOR problem...")
-    nn.Train(X, y, 1000)
-    
-    fmt.Println("\nTest results:")
-    for _, input := range X {
-        output := nn.Predict(input)
-        predicted := 0
-        for k, v := range output {
-            if v > output[predicted] {
-                predicted = k
-            }
-        }
-        fmt.Printf("%.0f XOR %.0f = %d\n", input[0], input[1], predicted)
-    }
-}
-                            </code></pre>
+# 创建模型
+model = NeuralNetwork([4, 6, 4, 3])
+
+# 定义损失函数和优化器
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# 训练数据
+X = torch.tensor([[1., 0., 0., 0.],
+                  [0., 1., 0., 0.],
+                  [0., 0., 1., 0.],
+                  [0., 0., 0., 1.]])
+y = torch.tensor([0, 1, 2, 0])  # 类别标签
+
+# 训练循环
+for epoch in range(1000):
+    # 前向传播
+    output = model(X)
+    loss = criterion(output, y)
+
+    # 反向传播
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 100 == 0:
+        print(f"Epoch {epoch}: Loss = {loss.item():.4f}")</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="optimization">
+                        <h2>优化算法</h2>
+                        <p>改进的优化算法可以加速训练并提高模型性能。</p>
+
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>优化器</th>
+                                    <th>特点</th>
+                                    <th>学习率</th>
+                                    <th>适用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>SGD</td>
+                                    <td>基础梯度下降</td>
+                                    <td>固定/衰减</td>
+                                    <td>简单问题</td>
+                                </tr>
+                                <tr>
+                                    <td>Momentum</td>
+                                    <td>加入动量项</td>
+                                    <td>固定</td>
+                                    <td>加速收敛</td>
+                                </tr>
+                                <tr>
+                                    <td>Adam</td>
+                                    <td>自适应学习率</td>
+                                    <td>自适应</td>
+                                    <td>默认选择</td>
+                                </tr>
+                                <tr>
+                                    <td>RMSprop</td>
+                                    <td>解决学习率消失</td>
+                                    <td>自适应</td>
+                                    <td>RNN/LSTM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <div class="info-card success mt-4">
+                        <div class="info-card-title"><span>✅</span> 学习建议</div>
+                        <div class="info-card-content">
+                            <ul style="margin: 16px 0 0 20px; line-height: 2;">
+                                <li>理解链式法则和梯度计算的数学原理</li>
+                                <li>掌握常见激活函数的特点和适用场景</li>
+                                <li>了解不同优化算法的优缺点</li>
+                                <li>通过实践框架 (PyTorch/TensorFlow) 加深理解</li>
+                                <li>注意梯度消失和梯度爆炸问题</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <h2>优化技巧</h2>
-            <div class="algorithm-content">
-                <table class="comparison-table">
-                    <tr>
-                        <th>技巧</th>
-                        <th>作用</th>
-                        <th>说明</th>
-                    </tr>
-                    <tr>
-                        <td>Mini-batch</td>
-                        <td>加速训练、稳定收敛</td>
-                        <td>每次使用多个样本计算梯度</td>
-                    </tr>
-                    <tr>
-                        <td>Momentum</td>
-                        <td>加速收敛、减少震荡</td>
-                        <td>引入历史梯度信息</td>
-                    </tr>
-                    <tr>
-                        <td>Learning Rate Decay</td>
-                        <td>精细调优</td>
-                        <td>随训练逐渐减小学习率</td>
-                    </tr>
-                    <tr>
-                        <td>Dropout</td>
-                        <td>防止过拟合</td>
-                        <td>随机丢弃部分神经元</td>
-                    </tr>
-                    <tr>
-                        <td>Batch Normalization</td>
-                        <td>加速训练、稳定分布</td>
-                        <td>标准化每层输入</td>
-                    </tr>
-                </table>
-            </div>
-
-            <h2>常见问题与解决方案</h2>
-            <div class="algorithm-content">
-                <h3>1. 梯度消失 (Vanishing Gradient)</h3>
-                <div class="concept-box">
-                    <p><strong>问题</strong>：深层网络中，梯度逐层指数衰减</p>
-                    <p><strong>解决</strong>：使用 ReLU 激活函数、残差连接、批归一化</p>
-                </div>
-                
-                <h3>2. 梯度爆炸 (Exploding Gradient)</h3>
-                <div class="concept-box">
-                    <p><strong>问题</strong>：梯度逐层指数增长，权重更新过大</p>
-                    <p><strong>解决</strong>：梯度裁剪 (Gradient Clipping)、权重正则化</p>
-                </div>
-                
-                <h3>3. 过拟合 (Overfitting)</h3>
-                <div class="concept-box">
-                    <p><strong>问题</strong>：训练集表现好，测试集表现差</p>
-                    <p><strong>解决</strong>：Dropout、L2正则化、早停、数据增强</p>
-                </div>
-            </div>
-
-            <h2>BP算法 vs 其他优化方法</h2>
-            <div class="algorithm-content">
-                <table class="comparison-table">
-                    <tr>
-                        <th>方法</th>
-                        <th>复杂度</th>
-                        <th>适用场景</th>
-                    </tr>
-                    <tr>
-                        <td>SGD</td>
-                        <td>O(1) 每样本</td>
-                        <td>大规模数据</td>
-                    </tr>
-                    <tr>
-                        <td>Momentum</td>
-                        <td>O(1) 每样本</td>
-                        <td>峡谷地形</td>
-                    </tr>
-                    <tr>
-                        <td>Adam</td>
-                        <td>O(1) 每样本</td>
-                        <td>大多数场景</td>
-                    </tr>
-                    <tr>
-                        <td>L-BFGS</td>
-                        <td>O(m) 内存</td>
-                        <td>小规模数据</td>
-                    </tr>
-                </table>
-            </div>
-
-            <h2>应用场景</h2>
-            <div class="algorithm-content">
-                <h3>1. 图像识别</h3>
-                <p>卷积神经网络 (CNN) 使用 BP 算法训练，用于 MNIST、CIFAR、ImageNet 等图像分类任务。</p>
-                
-                <h3>2. 自然语言处理</h3>
-                <p>循环神经网络 (RNN) 和 Transformer 使用 BP 算法训练，用于机器翻译、文本分类、命名实体识别等。</p>
-                
-                <h3>3. 语音识别</h3>
-                <p>深度神经网络用于声学模型训练，将声学特征转换为文本。</p>
-                
-                <h3>4. 推荐系统</h3>
-                <p>深度学习模型学习用户和物品的表示，用于个性化推荐。</p>
-                
-                <h3>5. 游戏AI</h3>
-                <p>AlphaGo 使用深度神经网络和强化学习，其中策略网络使用 BP 算法训练。</p>
-            </div>
-
-            <h2>总结：BP算法的核心洞察</h2>
-            <div class="concept-box">
-                <h4>关键创新</h4>
-                <ol>
-                    <li><strong>链式法则</strong>：高效计算复合函数的梯度</li>
-                    <li><strong>反向传播</strong>：将误差从输出层传递到输入层</li>
-                    <li><strong>梯度下降</strong>：通过迭代优化找到最优权重</li>
-                    <li><strong>自动微分</strong>：无需手动求导，由计算图自动完成</li>
-                </ol>
-            </div>
-
-            <h3>学习建议</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li>掌握微积分的链式法则和偏导数概念</li>
-                    <li>手动推导 2-3 层网络的 BP 公式</li>
-                    <li>使用 NumPy 从零实现 BP 算法</li>
-                    <li>学习梯度消失/爆炸的原因和解决方法</li>
-                    <li>了解现代优化器：Momentum、Adam、RMSprop</li>
-                    <li>学习 PyTorch 或 TensorFlow 的自动求导机制</li>
-                </ul>
             </div>
         </div>
-    </section>
+    </main>
 
-    <script src="../js/main.js"></script>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
-    <script src="../lib/prism/prism-go.min.js"></script>
     <script src="../lib/prism/prism-line-numbers.min.js"></script>
+
+    <script>
+        // 绘制神经网络
+        function drawNetwork() {
+            const svg = document.getElementById('network-svg');
+            if (!svg) return;
+            
+            svg.innerHTML = '';
+            
+            const layerSizes = [4, 6, 4, 3];
+            const width = svg.clientWidth || 800;
+            const height = 350;
+            const layerGap = width / (layerSizes.length);
+
+            const nodes = [];
+
+            // 计算节点位置
+            layerSizes.forEach((size, layerIdx) => {
+                const x = layerGap * (layerIdx + 0.5);
+                const nodeGap = height / (size + 1);
+                
+                for (let i = 0; i < size; i++) {
+                    nodes.push({
+                        layer: layerIdx,
+                        index: i,
+                        x: x,
+                        y: nodeGap * (i + 1)
+                    });
+                }
+            });
+
+            // 绘制连接
+            nodes.forEach(node => {
+                if (node.layer < layerSizes.length - 1) {
+                    const nextLayerNodes = nodes.filter(n => n.layer === node.layer + 1);
+                    nextLayerNodes.forEach(next => {
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', node.x);
+                        line.setAttribute('y1', node.y);
+                        line.setAttribute('x2', next.x);
+                        line.setAttribute('y2', next.y);
+                        line.setAttribute('stroke', 'rgba(102, 126, 234, 0.3)');
+                        line.setAttribute('stroke-width', '1');
+                        svg.appendChild(line);
+                    });
+                }
+            });
+
+            // 绘制节点
+            nodes.forEach(node => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', node.x);
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', 15);
+                circle.setAttribute('fill', node.layer === 0 ? '#3498db' : 
+                                   node.layer === layerSizes.length - 1 ? '#e74c3c' : '#9b59b6');
+                circle.setAttribute('stroke', 'white');
+                circle.setAttribute('stroke-width', '2');
+                svg.appendChild(circle);
+            });
+        }
+
+        function animateForward() {
+            alert('前向传播：数据从输入层流向输出层，每层应用权重和激活函数');
+        }
+
+        function animateBackward() {
+            alert('反向传播：梯度从输出层反向传播到输入层，用于更新权重');
+        }
+
+        function resetNetwork() {
+            drawNetwork();
+        }
+
+        window.addEventListener('load', drawNetwork);
+        window.addEventListener('resize', drawNetwork);
+    </script>
 </body>
 </html>

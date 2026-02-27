@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非对称加密 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .algo-section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .algo-section:last-child {
+            border-bottom: none;
+        }
+        .formula {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Consolas', monospace;
+            color: #f8f8f2;
+            overflow-x: auto;
+        }
+        .security-level {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .low { background: #e74c3c; color: white; }
+        .medium { background: #f39c12; color: white; }
+        .high { background: #27ae60; color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>非对称加密算法</h2>
+            
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li>1. <a href="#intro">非对称加密概述</a></li>
+                    <li>2. <a href="#rsa">RSA算法</a></li>
+                    <li>3. <a href="#dh">Diffie-Hellman密钥交换</a></li>
+                    <li>4. <a href="#ecc">椭圆曲线加密 (ECC)</a></li>
+                    <li>5. <a href="#dsa">数字签名算法</a></li>
+                    <li>6. <a href="#applications">常见应用场景</a></li>
+                </ul>
+            </div>
+
+            <div class="algo-section" id="intro">
+                <h2>非对称加密概述</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是非对称加密？</h3>
+                    <p>非对称加密（Asymmetric Encryption）使用一对密钥：公钥（Public Key）和私钥（Private Key）。公钥可以公开分发，用于加密；私钥必须严格保密，用于解密。这种设计解决了对称加密中密钥分发的难题。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>与对称加密的对比：</strong></p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">特性</th>
+                            <th style="padding: 12px;">对称加密</th>
+                            <th style="padding: 12px;">非对称加密</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">密钥数量</td>
+                            <td style="padding: 12px;">1个</td>
+                            <td style="padding: 12px;">2个（公钥+私钥）</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">密钥分发</td>
+                            <td style="padding: 12px;">困难</td>
+                            <td style="padding: 12px;">简单</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">计算速度</td>
+                            <td style="padding: 12px;">快</td>
+                            <td style="padding: 12px;">慢（100-1000倍）</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">适用场景</td>
+                            <td style="padding: 12px;">大量数据加密</td>
+                            <td style="padding: 12px;">密钥交换、数字签名</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>安全基础</h4>
+                        <p>大数分解/离散对数/椭圆曲线</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>密钥长度</h4>
+                        <p>RSA: 2048-4096位</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>安全级别</h4>
+                        <p>与密钥长度相关</p>
+                    </div>
+                </div>
+
+                <h3>非对称加密的两大应用</h3>
+                <div class="algorithm-content">
+                    <p><strong>1. 加密通信</strong></p>
+                    <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2;">
+                        <p>Alice ─── 公钥 ───→ Bob</p>
+                        <p>Bob 用公钥加密消息</p>
+                        <p>Alice ─── 私钥 ───→ Bob</p>
+                        <p>Alice 用私钥解密消息</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>2. 数字签名</strong></p>
+                    <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2;">
+                        <p>Alice ─── 私钥签名 ───→ Bob</p>
+                        <p>Alice 计算消息哈希，用私钥加密</p>
+                        <p>Bob ─── 公钥验证 ───→ Alice</p>
+                        <p>Bob 用公钥解密签名，对比哈希</p>
+                    </div>
+                </div>
+
+                <h3>数学基础：模运算</h3>
+                <div class="algorithm-content">
+                    <p>非对称加密的核心是模运算：</p>
+                    <div class="formula">
+                        <p>a ≡ b (mod m)</p>
+                        <p>表示 a - b 能被 m 整除，或 a 和 b 除以 m 的余数相同</p>
+                        <p>例如：17 ≡ 5 (mod 12) 因为 17 ÷ 12 = 1 ... 5</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>模逆元：</strong></p>
+                    <p>a 在模 m 下的逆元 a⁻¹ 满足：a × a⁻¹ ≡ 1 (mod m)</p>
+                    <p>只有当 a 和 m 互质时，逆元才存在</p>
+                </div>
+            </div>
+
+            <div class="algo-section" id="rsa">
+                <h2>RSA算法</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>RSA以三位发明者Rivest、Shamir、Adleman的名字命名，其安全性基于大整数分解的困难性：已知 n = p × q 很难分解出 p 和 q。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>密钥生成步骤：</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li>选择两个大素数 p 和 q</li>
+                        <li>计算 n = p × q（模数）</li>
+                        <li>计算 φ(n) = (p-1) × (q-1)（欧拉函数）</li>
+                        <li>选择公钥指数 e，满足 1 < e < φ(n) 且 gcd(e, φ(n)) = 1</li>
+                        <li>计算私钥指数 d，满足 e × d ≡ 1 (mod φ(n))</li>
+                    </ol>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>密钥生成</h4>
+                        <p>O(√n) 素性检测</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>加密/解密</h4>
+                        <p>O(log³ n) 模幂运算</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>安全基础</h4>
+                        <p>大数分解困难性</p>
+                    </div>
+                </div>
+
+                <h3>RSA数学原理</h3>
+                <div class="algorithm-content">
+                    <p><strong>加密过程：</strong></p>
+                    <div class="formula">
+                        <p>C = Mᵉ mod n</p>
+                        <p>其中：C是密文，M是明文，e是公钥，n是模数</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>解密过程：</strong></p>
+                    <div class="formula">
+                        <p>M = Cᵈ mod n</p>
+                        <p>其中：d是私钥</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>为什么正确？</strong></p>
+                    <div class="formula">
+                        <p>M = Cᵈ mod n = (Mᵉ)ᵈ mod n = M^(e×d) mod n</p>
+                        <p>因为 e×d ≡ 1 (mod φ(n))，所以 e×d = k×φ(n) + 1</p>
+                        <p>M^(k×φ(n)+1) ≡ M × (M^φ(n))^k ≡ M × 1^k ≡ M (mod n)</p>
+                        <p>根据欧拉定理：M^φ(n) ≡ 1 (mod n)（当M与n互质时）</p>
+                    </div>
+                </div>
+
+                <h3>Python实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="rsa-python">Python</button>
+                        <button class="code-tab-btn" data-tab="rsa-js">JavaScript</button>
+                    </div>
+                    <div id="rsa-python" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import random
+import math
+from extended_euclid import extended_gcd
+
+class RSA:
+    def __init__(self, key_size=2048):
+        self.key_size = key_size
+        self.public_key = None  # (e, n)
+        self.private_key = None  # (d, n)
+        self._generate_keys()
+    
+    def _is_prime(self, n, k=10):
+        """Miller-Rabin素性检测"""
+        if n < 2:
+            return False
+        for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]:
+            if n % p == 0:
+                return n == p
+        
+        # 写入 n-1 = d × 2^s
+        d = n - 1
+        s = 0
+        while d % 2 == 0:
+            d //= 2
+            s += 1
+        
+        for _ in range(k):
+            a = random.randint(2, n - 2)
+            x = pow(a, d, n)
+            if x == 1 or x == n - 1:
+                continue
+            for _ in range(s - 1):
+                x = pow(x, 2, n)
+                if x == n - 1:
+                    break
+            else:
+                return False
+        return True
+    
+    def _generate_prime(self, bits):
+        """生成指定位数的素数"""
+        while True:
+            num = random.getrandbits(bits)
+            num |= (1 << (bits - 1)) | 1  # 确保最高位和最低位为1
+            if self._is_prime(num):
+                return num
+    
+    def _extended_gcd(self, a, b):
+        """扩展欧几里得算法"""
+        if b == 0:
+            return (a, 1, 0)
+        else:
+            g, x1, y1 = self._extended_gcd(b, a % b)
+            x = y1
+            y = x1 - (a // b) * y1
+            return (g, x, y)
+    
+    def _mod_inverse(self, a, m):
+        """计算模逆元"""
+        g, x, y = self._extended_gcd(a, m)
+        if g != 1:
+            return None  # 逆元不存在
+        return x % m
+    
+    def _generate_keys(self):
+        """生成RSA密钥对"""
+        # 生成两个大素数
+        p = self._generate_prime(self.key_size // 2)
+        q = self._generate_prime(self.key_size // 2)
+        
+        # 计算n和φ(n)
+        n = p * q
+        phi = (p - 1) * (q - 1)
+        
+        # 选择公钥指数e
+        e = 65537  # 常用选择
+        while math.gcd(e, phi) != 1:
+            e = random.randint(3, phi - 1)
+        
+        # 计算私钥指数d
+        d = self._mod_inverse(e, phi)
+        
+        self.public_key = (e, n)
+        self.private_key = (d, n)
+    
+    def encrypt(self, message):
+        """加密消息（返回整数或字节）"""
+        e, n = self.public_key
+        if isinstance(message, str):
+            message = message.encode()
+        
+        # 将消息转换为整数
+        m = int.from_bytes(message, 'big')
+        if m >= n:
+            raise ValueError("消息太长")
+        
+        # 加密
+        c = pow(m, e, n)
+        return c
+    
+    def decrypt(self, ciphertext):
+        """解密切文"""
+        d, n = self.private_key
+        # 解密
+        m = pow(ciphertext, d, n)
+        # 将整数转换回字节
+        byte_length = (n.bit_length() + 7) // 8
+        return m.to_bytes(byte_length, 'big').lstrip(b'\x00')
+    
+    def encrypt_with_oaep(self, message, label=""):
+        """OAEP填充加密（更安全）"""
+        from hashlib import sha256
+        e, n = self.public_key
+        k = (n.bit_length() + 7) // 8
+        h_len = 256 // 8  # SHA-256
+        
+        # OAEP填充
+        m_len = len(message)
+        l_hash = sha256(label.encode()).digest()
+        
+        # 生成随机种子
+        seed = random.getrandbits(8 * h_len)
+        seed_bytes = seed.to_bytes(h_len, 'big')
+        
+        # 计算DB
+        db = l_hash + b'\x00' * (k - h_len - 1 - m_len) + b'\x01' + message
+        
+        # mask = MGF(seed, k - h_len)
+        mask = self._mgf1(seed_bytes, k - h_len, sha256)
+        masked_db = bytes(a ^ b for a, b in zip(db, mask))
+        
+        # seed_mask = MGF(masked_db, h_len)
+        seed_mask = self._mgf1(masked_db, h_len, sha256)
+        masked_seed = bytes(a ^ b for a, b in zip(seed_bytes, seed_mask))
+        
+        # 组合
+        em = masked_seed + masked_db
+        
+        # 加密
+        m = int.from_bytes(em, 'big')
+        c = pow(m, e, n)
+        
+        return c
+    
+    def _mgf1(self, seed, length, hash_func):
+        """MGF1掩码生成函数"""
+        t = b''
+        counter = 0
+        while len(t) < length:
+            counter_bytes = counter.to_bytes(4, 'big')
+            t += hash_func(seed + counter_bytes).digest()
+            counter += 1
+        return t[:length]
+    
+    def sign(self, message):
+        """RSA签名"""
+        from hashlib import sha256
+        d, n = self.private_key
+        h = sha256(message).digest()
+        
+        # PKCS#1 v1.5签名
+        em = b'\x00\x01' + b'\xff' * (n.bit_length() // 8 - 2 - len(h) - 2 * 32) + b'\x00' + h
+        m = int.from_bytes(em, 'big')
+        s = pow(m, d, n)
+        return s
+    
+    def verify(self, message, signature):
+        """验证RSA签名"""
+        e, n = self.public_key
+        h = sha256(message).digest()
+        
+        # 验证签名
+        m = pow(signature, e, n)
+        em = m.to_bytes(n.bit_length() // 8, 'big')
+        
+        # 检查填充格式
+        if em[0:2] != b'\x00\x01':
+            return False
+        
+        # 查找0x00分隔符
+        pos = em.find(b'\x00', 2)
+        if pos == -1:
+            return False
+        
+        return em[pos+1:pos+1+32] == h
+
+# 使用示例
+if __name__ == "__main__":
+    # 生成RSA密钥对（使用小位数便于演示）
+    rsa = RSA(key_size=512)
+    
+    # 加密
+    message = "Hello, RSA加密!"
+    ciphertext = rsa.encrypt(message)
+    print(f"密文: {ciphertext}")
+    
+    # 解密
+    plaintext = rsa.decrypt(ciphertext)
+    print(f"明文: {plaintext.decode()}")
+    
+    # 签名
+    signature = rsa.sign(b"测试消息")
+    print(f"签名: {signature}")
+    
+    # 验证
+    is_valid = rsa.verify(b"测试消息", signature)
+    print(f"签名验证: {is_valid}")
+                        </code></pre></div>
+                    </div>
+                    <div id="rsa-js" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+const crypto = require('crypto');
+
+class RSA {
+    constructor(keySize = 2048) {
+        this.keySize = keySize;
+        this.keyPair = crypto.generateKeyPairSync('rsa', {
+            modulusLength: keySize,
+            publicExponent: 0x10001,
+            privateKeyEncoding: { type: 'pkcs1', format: 'pem' },
+            publicKeyEncoding: { type: 'pkcs1', format: 'pem' }
+        });
+    }
+
+    encrypt(message) {
+        const encrypted = crypto.publicEncrypt(
+            { key: this.keyPair.publicKey, padding: crypto.constants.RSA_PKCS1_OAEP_PADDING },
+            Buffer.from(message)
+        );
+        return encrypted.toString('base64');
+    }
+
+    decrypt(encryptedMessage) {
+        const decrypted = crypto.privateDecrypt(
+            { key: this.keyPair.privateKey, padding: crypto.constants.RSA_PKCS1_OAEP_PADDING },
+            Buffer.from(encryptedMessage, 'base64')
+        );
+        return decrypted.toString('utf8');
+    }
+
+    sign(message) {
+        const sign = crypto.createSign('SHA256');
+        sign.update(message);
+        sign.end();
+        return sign.sign(this.keyPair.privateKey).toString('base64');
+    }
+
+    verify(message, signature) {
+        const verify = crypto.createVerify('SHA256');
+        verify.update(message);
+        verify.end();
+        return verify.verify(this.keyPair.publicKey, Buffer.from(signature, 'base64'));
+    }
+}
+
+// 使用示例
+const rsa = new RSA(2048);
+
+const message = "Hello, RSA!";
+const encrypted = rsa.encrypt(message);
+console.log("加密:", encrypted.substring(0, 50) + "...");
+
+const decrypted = rsa.decrypt(encrypted);
+console.log("解密:", decrypted);
+
+const signature = rsa.sign(message);
+console.log("签名:", signature.substring(0, 50) + "...");
+
+const isValid = rsa.verify(message, signature);
+console.log("签名验证:", isValid);
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>RSA密钥长度与安全级别</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">密钥长度</th>
+                            <th style="padding: 12px;">安全级别</th>
+                            <th style="padding: 12px;">预计安全年限</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">1024位</td>
+                            <td style="padding: 12px;"><span class="security-level low">低</span></td>
+                            <td style="padding: 12px;">已不安全</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">2048位</td>
+                            <td style="padding: 12px;"><span class="security-level high">高</span></td>
+                            <td style="padding: 12px;">2030年</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">3072位</td>
+                            <td style="padding: 12px;"><span class="security-level high">高</span></td>
+                            <td style="padding: 12px;">2035年</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">4096位</td>
+                            <td style="padding: 12px;"><span class="security-level high">高</span></td>
+                            <td style="padding: 12px;">2040年后</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="algo-section" id="dh">
+                <h2>Diffie-Hellman密钥交换</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>Diffie-Hellman（DH）算法由Whitfield Diffie和Martin Hellman于1976年提出，允许双方在不安全信道上协商出一个共享密钥，用于后续的对称加密通信。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>数学原理：</strong></p>
+                    <div class="formula">
+                        <p>gᵃ mod p 和 gᵇ mod p 可以计算出 g^(a×b) mod p</p>
+                        <p>但已知 gᵃ mod p 和 gᵇ mod p 很难计算出 g^(a×b) mod p</p>
+                        <p>这就是离散对数问题的困难性</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>密钥交换</h4>
+                        <p>O(log³ n)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>安全基础</h4>
+                        <p>离散对数困难性</p>
+                    </div>
+                </div>
+
+                <h3>密钥交换过程</h3>
+                <div class="algorithm-content">
+                    <div class="formula">
+                        <p>【公共参数】素数 p，本原根 g</p>
+                        <p>【Alice】选择私钥 a，计算 A = gᵃ mod p</p>
+                        <p>【Bob】选择私钥 b，计算 B = gᵇ mod p</p>
+                        <p>【Alice】计算 K = Bᵃ mod p = (gᵇ)ᵃ mod p = g^(a×b) mod p</p>
+                        <p>【Bob】计算 K = Aᵇ mod p = (gᵃ)ᵇ mod p = g^(a×b) mod p</p>
+                        <p>【结果】双方得到相同的共享密钥 K</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>安全性：</strong>即使Eve截获了A、B、g、p，也无法计算出K，因为需要解决离散对数问题。</p>
+                </div>
+
+                <h3>Python实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="dh-python">Python</button>
+                    </div>
+                    <div id="dh-python" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import random
+import hashlib
+
+class DiffieHellman:
+    def __init__(self, p=None, g=None):
+        # 使用标准DH参数组（RFC 3526）
+        self.params = {
+            # 2048位组
+            2048: {
+                'p': int("0xFFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
+                       "29024E088A67CC74020BBEA63B139B22514A08798E3404DD"
+                       "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245"
+                       "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED"
+                       "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC"
+                       "2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F"
+                       "83655D23DCA3AD961C62F356208552BB9ED529077096966D"
+                       "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B"
+                       "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9"
+                       "DE2BCBF6955817183995497CEA956AE515D2261898DA051"
+                       "401FF8C0EA537A73E045B2A7D2C6F0E1FF8D2BAB5D0A"
+                       "7B9E8E7E0A6D9E4E7B4A7D5C6B8E0A2F3A7E0D5A9E1E9"
+                       "D6E4E7E8E9E0D5E0A3D5A7B9E9E9A3D5A9E1D6C5A9E1"),
+                'g': 2
+            },
+            3072: {
+                'p': int("0xFFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
+                       "29024E088A67CC74020BBEA63B139B22514A08798E3404DD"
+                       "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245"
+                       "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED"
+                       "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC"
+                       "2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F"
+                       "83655D23DCA3AD961C62F356208552BB9ED529077096966D"
+                       "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B"
+                       "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9"
+                       "DE2BCBF6955817183995497CEA956AE515D2261898DA051"
+                       "401FF8C0EA537A73E045B2A7D2C6F0E1FF8D2BAB5D0A"),
+                'g': 2
+            }
+        }
+        
+        # 选择参数组
+        if p is None or g is None:
+            self.p = self.params[2048]['p']
+            self.g = self.params[2048]['g']
+        else:
+            self.p = p
+            self.g = g
+        
+        # 私钥
+        self.private_key = random.randint(2, self.p - 2)
+        
+        # 公钥
+        self.public_key = pow(self.g, self.private_key, self.p)
+    
+    def get_public_key(self):
+        """获取公钥"""
+        return self.public_key
+    
+    def compute_shared_secret(self, other_public_key):
+        """计算共享密钥"""
+        shared = pow(other_public_key, self.private_key, self.p)
+        # 转换为哈希值作为对称密钥
+        shared_bytes = shared.to_bytes((self.p.bit_length() + 7) // 8, 'big')
+        return hashlib.sha256(shared_bytes).digest()
+
+
+# 示例：Alice和Bob进行密钥交换
+class Party:
+    def __init__(self, name):
+        self.name = name
+        self.dh = DiffieHellman()
+    
+    def get_public_key(self):
+        return self.dh.get_public_key()
+    
+    def compute_key(self, other_public_key):
+        return self.dh.compute_shared_secret(other_public_key)
+
+# Alice和Bob协商密钥
+alice = Party("Alice")
+bob = Party("Bob")
+
+# 交换公钥
+alice_public = alice.get_public_key()
+bob_public = bob.get_public_key()
+
+# 计算共享密钥
+alice_key = alice.compute_key(bob_public)
+bob_key = bob.compute_key(alice_public)
+
+print(f"Alice的共享密钥: {alice_key.hex()}")
+print(f"Bob的共享密钥:   {bob_key.hex()}")
+print(f"密钥是否相同: {alice_key == bob_key}")
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>DH变体</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>ECDH（椭圆曲线DH）：</strong>使用椭圆曲线密码学，更短密钥等价安全</li>
+                        <li><strong>ECDH+AES：</strong>协商出密钥后使用AES加密通信</li>
+                        <li><strong>基于身份的DH（IBDH）：</strong>使用身份作为公钥</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="ecc">
+                <h2>椭圆曲线加密 (ECC)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>椭圆曲线密码学（Elliptic Curve Cryptography）使用椭圆曲线上的点运算来构建公钥密码系统。相比RSA，ECC可以用更短的密钥提供相同的安全性。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>椭圆曲线方程：</strong></p>
+                    <div class="formula">
+                        <p>y² = x³ + ax + b (mod p)</p>
+                        <p>其中：p是素数，4a³ + 27b² ≠ 0（保证曲线非奇异）</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>曲线上的点运算：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>加法：</strong>P + Q = R（两点相加）</li>
+                        <li><strong>倍点：</strong>nP = P + P + ... + P（n个P相加）</li>
+                    </ul>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>RSA 2048位 ≈ ECC 224位</h4>
+                        <p>密钥长度比约 1:10</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>计算速度</h4>
+                        <p>ECC比RSA快约10倍</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>存储需求</h4>
+                        <p>ECC约为RSA的1/4</p>
+                    </div>
+                </div>
+
+                <h3>椭圆曲线Diffie-Hellman (ECDH)</h3>
+                <div class="algorithm-content">
+                    <p><strong>密钥生成：</strong></p>
+                    <div class="formula">
+                        <p>Alice选择私钥 dₐ，随机数 [1, n-1]</p>
+                        <p>Alice计算公钥 Qₐ = dₐ × G</p>
+                        <p>Bob选择私钥 dᵦ，随机数 [1, n-1]</p>
+                        <p>Bob计算公钥 Qᵦ = dᵦ × G</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>密钥协商：</strong></p>
+                    <div class="formula">
+                        <p>Alice计算 K = dₐ × Qᵦ = dₐ × (dᵦ × G)</p>
+                        <p>Bob计算 K = dᵦ × Qₐ = dᵦ × (dₐ × G)</p>
+                        <p>两者结果相同：K = dₐ × dᵦ × G</p>
+                    </div>
+                </div>
+
+                <h3>常用曲线标准</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">曲线名称</th>
+                            <th style="padding: 12px;">位长</th>
+                            <th style="padding: 12px;">应用</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">P-256/secp256k1</td>
+                            <td style="padding: 12px;">256位</td>
+                            <td style="padding: 12px;">比特币、以太坊</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">P-384</td>
+                            <td style="padding: 12px;">384位</td>
+                            <td style="padding: 12px;">美国政府标准</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">Curve25519</td>
+                            <td style="padding: 12px;">255位</td>
+                            <td style="padding: 12px;">Signal, TLS 1.3</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">Ed25519</td>
+                            <td style="padding: 12px;">255位</td>
+                            <td style="padding: 12px;">数字签名</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>Python实现（简化版ECDH）</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="ecc-python">Python</button>
+                    </div>
+                    <div id="ecc-python" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import random
+import hashlib
+
+class ECC:
+    # secp256k1 曲线参数（比特币使用）
+    p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+    n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+    a = 0
+    b = 7
+    G = (
+        0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
+        0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
+    )
+    
+    def __init__(self):
+        self.private_key = random.randint(1, self.n - 1)
+        self.public_key = self.multiply_point(self.G, self.private_key)
+    
+    def add_points(self, P, Q):
+        """椭圆曲线点加法"""
+        if P is None:
+            return Q
+        if Q is None:
+            return P
+        
+        x1, y1 = P
+        x2, y2 = Q
+        
+        if x1 == x2 and y1 != y2:
+            return None
+        
+        if x1 == x2:
+            # 倍点
+            lam = (3 * x1 * x1 + self.a) * pow(2 * y1, self.p - 2, self.p) % self.p
+        else:
+            lam = (y2 - y1) * pow(x2 - x1, self.p - 2, self.p) % self.p
+        
+        x3 = (lam * lam - x1 - x2) % self.p
+        y3 = (lam * (x1 - x3) - y1) % self.p
+        
+        return (x3, y3)
+    
+    def multiply_point(self, P, n):
+        """椭圆曲线标量乘法（滑动窗口法）"""
+        result = None
+        base = P
+        
+        while n > 0:
+            if n & 1:
+                result = self.add_points(result, base)
+            base = self.add_points(base, base)
+            n >>= 1
+        
+        return result
+    
+    def ecdh(self, other_public_key):
+        """ECDH密钥协商"""
+        shared = self.multiply_point(other_public_key, self.private_key)
+        if shared is None:
+            return None
+        
+        # 使用共享点的x坐标生成密钥
+        shared_bytes = shared[0].to_bytes(32, 'big')
+        return hashlib.sha256(shared_bytes).digest()
+
+
+class ECDHParty:
+    def __init__(self, name):
+        self.name = name
+        self.ecc = ECC()
+    
+    def get_public_key(self):
+        return self.ecc.public_key
+    
+    def compute_shared_key(self, other_public_key):
+        return self.ecc.ecdh(other_public_key)
+
+
+# 示例
+alice = ECDHParty("Alice")
+bob = ECDHParty("Bob")
+
+# 交换公钥
+alice_pub = alice.get_public_key()
+bob_pub = bob.get_public_key()
+
+# 计算共享密钥
+alice_key = alice.compute_shared_key(bob_pub)
+bob_key = bob.compute_shared_key(alice_pub)
+
+print(f"Alice的共享密钥: {alice_key.hex()}")
+print(f"Bob的共享密钥:   {bob_key.hex()}")
+print(f"密钥相同: {alice_key == bob_key}")
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algo-section" id="dsa">
+                <h2>数字签名算法</h2>
+                
+                <div class="algorithm-content">
+                    <h3>数字签名原理</h3>
+                    <p>数字签名用于验证消息的完整性和发送者身份，使用发送者的私钥签名，任何人都可以用公钥验证。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>签名过程：</strong></p>
+                    <div class="formula">
+                        <p>1. 计算消息哈希：h = H(M)</p>
+                        <p>2. 计算签名：S = Sign(h, private_key)</p>
+                        <p>3. 发送：(M, S)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>验证过程：</strong></p>
+                    <div class="formula">
+                        <p>1. 计算消息哈希：h' = H(M)</p>
+                        <p>2. 验证签名：Verify(h', S, public_key)</p>
+                        <p>3. 如果验证通过，说明消息确实来自私钥持有者</p>
+                    </div>
+                </div>
+
+                <h3>常见数字签名算法</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">算法</th>
+                            <th style="padding: 12px;">特点</th>
+                            <th style="padding: 12px;">应用</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">RSA签名</td>
+                            <td style="padding: 12px;">基于大数分解</td>
+                            <td style="padding: 12px;">SSL/TLS, 代码签名</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">DSA</td>
+                            <td style="padding: 12px;">美国国家标准</td>
+                            <td style="padding: 12px;">政府机构</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">ECDSA</td>
+                            <td style="padding: 12px;">椭圆曲线DSA</td>
+                            <td style="padding: 12px;">比特币, 以太坊</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">EdDSA</td>
+                            <td style="padding: 12px;">Ed25519签名</td>
+                            <td style="padding: 12px;">Signal, TLS 1.3</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>ECDSA签名算法</h3>
+                <div class="algorithm-content">
+                    <p><strong>签名生成：</strong></p>
+                    <div class="formula">
+                        <p>1. 选择随机数 k (1 ≤ k ≤ n-1)</p>
+                        <p>2. 计算 R = k × G</p>
+                        <p>3. 计算 r = R.x mod n</p>
+                        <p>4. 计算 s = k⁻¹ × (h + d × r) mod n</p>
+                        <p>5. 签名 = (r, s)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>签名验证：</strong></p>
+                    <div class="formula">
+                        <p>1. 计算 w = s⁻¹ mod n</p>
+                        <p>2. 计算 u₁ = h × w mod n</p>
+                        <p>3. 计算 u₂ = r × w mod n</p>
+                        <p>4. 计算 P = u₁ × G + u₂ × Q</p>
+                        <p>5. 如果 P.x ≡ r (mod n)，签名有效</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algo-section" id="applications">
+                <h2>常见应用场景</h2>
+                
+                <h3>应用场景总结</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">场景</th>
+                            <th style="padding: 12px;">使用算法</th>
+                            <th style="padding: 12px;">作用</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">HTTPS/TLS</td>
+                            <td style="padding: 12px;">RSA/ECDHE</td>
+                            <td style="padding: 12px;">服务器认证、密钥协商</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">SSH</td>
+                            <td style="padding: 12px;">RSA/ECDSA/Ed25519</td>
+                            <td style="padding: 12px;">用户认证</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">PGP/GPG</td>
+                            <td style="padding: 12px;">RSA/ECC</td>
+                            <td style="padding: 12px;">邮件加密和签名</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">区块链</td>
+                            <td style="padding: 12px;">ECDSA/Ed25519</td>
+                            <td style="padding: 12px;">交易签名</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">代码签名</td>
+                            <td style="padding: 12px;">RSA/ECC</td>
+                            <td style="padding: 12px;">软件完整性验证</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">数字证书</td>
+                            <td style="padding: 12px;">RSA/ECC</td>
+                            <td style="padding: 12px;">身份认证</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">S/MIME</td>
+                            <td style="padding: 12px;">RSA</td>
+                            <td style="padding: 12px;">安全邮件</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>TLS/SSL握手流程</h3>
+                <div class="algorithm-content">
+                    <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
+                        <p>ClientHello ──────────→ 服务器支持的非对称算法</p>
+                        <p>ServerHello  ─────────→ 选择的算法、服务器证书</p>
+                        <p>Certificate  ────────→ 服务器公钥（证书中）</p>
+                        <p>ServerKeyExchange ────→ 临时DH参数（可选）</p>
+                        <p>CertificateRequest ───→ 请求客户端证书（可选）</p>
+                        <p>ServerHelloDone ──────→ 结束</p>
+                        <p>ClientKeyExchange ────→ 预主密钥（用服务器公钥加密）</p>
+                        <p>Finished ────────────→ 握手完成哈希</p>
+                        <p>Encrypted Handshake ─→ 使用协商的密钥加密</p>
+                    </div>
+                </div>
+
+                <h3>数字证书与PKI</h3>
+                <div class="algorithm-content">
+                    <p><strong>证书结构：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>版本号、序列号</li>
+                        <li>签名算法（如SHA256withRSA）</li>
+                        <li>签发者信息</li>
+                        <li>有效期</li>
+                        <li>主体信息（公钥）</li>
+                        <li>扩展信息</li>
+                        <li>CA数字签名</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>证书链：</strong></p>
+                    <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2;">
+                        <p>根CA证书（自签名）→ 中间CA证书 → 终端实体证书</p>
+                        <p>浏览器/系统内置根CA信任链</p>
+                    </div>
+                </div>
+
+                <h3>算法对比总结</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">算法</th>
+                            <th style="padding: 12px;">安全基础</th>
+                            <th style="padding: 12px;">密钥长度</th>
+                            <th style="padding: 12px;">适用场景</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">RSA</td>
+                            <td style="padding: 12px;">大数分解</td>
+                            <td style="padding: 12px;">2048-4096位</td>
+                            <td style="padding: 12px;">通用加密、数字签名</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">DSA</td>
+                            <td style="padding: 12px;">离散对数</td>
+                            <td style="padding: 12px;">2048-3072位</td>
+                            <td style="padding: 12px;">数字签名</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">DH/ECDH</td>
+                            <td style="padding: 12px;">离散对数</td>
+                            <td style="padding: 12px;">2048-4096位</td>
+                            <td style="padding: 12px;">密钥协商</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">ECDSA</td>
+                            <td style="padding: 12px;">椭圆曲线离散对数</td>
+                            <td style="padding: 12px;">256-384位</td>
+                            <td style="padding: 12px;">区块链、移动设备</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">EdDSA</td>
+                            <td style="padding: 12px;">Ed25519曲线</td>
+                            <td style="padding: 12px;">256位</td>
+                            <td style="padding: 12px;">高性能签名</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

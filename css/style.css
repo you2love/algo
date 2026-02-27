@@ -469,3 +469,216 @@ body {
 .back-link:hover {
     text-decoration: underline;
 }
+
+/* 左侧导航栏样式 */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    width: 260px;
+    height: calc(100vh - 60px);
+    background: #f8f9fa;
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid #e0e0e0;
+    z-index: 100;
+}
+
+.sidebar h2 {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 5px 0;
+}
+
+.sidebar > ul > li > a {
+    display: block;
+    padding: 10px 15px;
+    color: var(--dark-text);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.sidebar > ul > li > a:hover {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.sidebar > ul > li > ul {
+    margin-left: 15px;
+    margin-top: 5px;
+}
+
+.sidebar > ul > li > ul > li > a {
+    display: block;
+    padding: 8px 15px;
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar > ul > li > ul > li > a:hover {
+    background: #e8f4fc;
+    color: var(--secondary-color);
+}
+
+/* 主内容区右侧偏移 */
+.content {
+    margin-left: 260px;
+    padding: 80px 40px 40px;
+    max-width: calc(100% - 260px);
+}
+
+.content h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.content section {
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.content section:last-child {
+    border-bottom: none;
+}
+
+.content h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin: 30px 0 20px;
+}
+
+.content h3 {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    margin: 25px 0 15px;
+}
+
+.content h4 {
+    color: var(--dark-text);
+    font-size: 1.1rem;
+    margin: 20px 0 10px;
+}
+
+/* 公式样式 */
+.formula {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-family: 'Times New Roman', serif;
+    font-size: 1.1rem;
+    text-align: center;
+    border-left: 4px solid var(--secondary-color);
+}
+
+/* 表格样式 */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.comparison-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.comparison-table tr:hover {
+    background: #f8f9fa;
+}
+
+.comparison-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 代码块样式 */
+.code-header {
+    background: #21262d;
+    color: #8b949e;
+    padding: 8px 15px;
+    font-size: 12px;
+    font-weight: 500;
+    border-bottom: 1px solid #30363d;
+    border-radius: 6px 6px 0 0;
+}
+
+.code-block {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 0;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 15px 0;
+    border: 1px solid #30363d;
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 20px;
+}
+
+.code-block pre code {
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .content {
+        margin-left: 220px;
+        max-width: calc(100% - 220px);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .content {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 80px 20px 20px;
+    }
+}

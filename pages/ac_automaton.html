@@ -3,143 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AC自动机 - 算法学习指南</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>AC 自动机 - 算法学习指南 2026</title>
+    <meta name="description" content="Aho-Corasick 多模式字符串匹配算法详解，配备 Trie 树构建可视化和失配边演示">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/modern-style.css">
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .trie-container {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
+            color: white;
+        }
+
+        .trie-canvas {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            min-height: 400px;
+            overflow-x: auto;
+        }
+
+        .trie-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .trie-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .trie-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .trie-controls button.primary {
+            background: white;
+            color: #2d3748;
+        }
+
+        .pattern-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .pattern-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .pattern-input input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .fail-link-svg {
+            stroke-dasharray: 5, 5;
+            stroke: #f56565;
+            stroke-width: 2;
+        }
+
+        .trie-edge {
+            stroke: #667eea;
+            stroke-width: 2;
+        }
+
+        .trie-node {
+            fill: #4a5568;
+            stroke: #667eea;
+            stroke-width: 3;
+        }
+
+        .trie-node.root {
+            fill: #2d3748;
+            stroke: #48bb78;
+        }
+
+        .trie-node.current {
+            fill: #f56565;
+            animation: pulse 1s infinite;
+        }
+
+        .trie-node.match {
+            fill: #48bb78;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .algorithm-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .flow-step {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .flow-step h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        .complexity-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 32px 0;
+        }
+
+        .complexity-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .complexity-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .complexity-card .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .match-result {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .match-result .highlight {
+            background: rgba(72, 187, 120, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo"></h1>
+            <a href="/" class="logo">AlgoGuide 2026</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
             </ul>
         </div>
     </nav>
 
-    <section class="algorithm-detail">
+    <main class="algorithm-detail">
         <div class="container">
-            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
-            <h2>Aho-Corasick 自动机</h2>
-            
-            <div class="algorithm-content">
-                <h3>什么是AC自动机？</h3>
-                <p>Aho-Corasick（AC）自动机是一种多模式字符串匹配算法，用于在单个文本中同时查找多个模式串。它在1975年由Alfred Aho、Margaret Corasick和David Weinberger共同提出。</p>
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="../index.html#algorithms">算法分类</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>AC 自动机</span>
             </div>
 
-            <div class="complexity">
-                <div class="complexity-item">
-                    <h4>构建</h4>
-                    <p>O(Σ×m)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>匹配</h4>
-                    <p>O(n + z)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>空间</h4>
-                    <p>O(Σ×m)</p>
-                </div>
-            </div>
+            <h1 class="page-title">Aho-Corasick 自动机</h1>
+            <p class="page-description">高效的多模式字符串匹配算法，一次遍历同时查找多个模式串</p>
 
-            <h3>为什么需要AC自动机？</h3>
-            <div class="algorithm-content">
-                <p><strong>问题：</strong>在文本中查找1000个敏感词，文本长度100万字符。</p>
-                <p><strong>朴素方法：</strong>对每个敏感词进行KMP匹配 → 1000 × 100万 = 10亿次操作</p>
-                <p style="margin-top: 10px;"><strong>AC自动机：</strong>只需遍历文本一次 → 100万次操作</p>
-                <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li>构建模式串的Trie树</li>
-                    <li>在Trie上添加失配边（Fail Link）</li>
-                    <li>匹配时沿失配边跳转，避免回溯</li>
-                </ul>
-            </div>
+            <div class="detail-layout">
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#intro">1. 算法简介</a></li>
+                        <li><a href="#trie-build">2. 构建 Trie 树</a></li>
+                        <li><a href="#fail-link">3. 失配边构建</a></li>
+                        <li><a href="#matching">4. 匹配过程</a></li>
+                        <li><a href="#implementation">5. 代码实现</a></li>
+                        <li><a href="#applications">6. 应用场景</a></li>
+                    </ul>
+                </aside>
 
-            <h3>AC自动机的三个核心概念</h3>
-            <div class="algorithm-content">
-                <p><strong>1. Go函数（转移边）</strong></p>
-                <p>从当前状态沿着字符转移到下一个状态，如果不存在则通过失配边查找。</p>
-                <p style="margin-top: 15px;"><strong>2. Fail函数（失配边）</strong></p>
-                <p>当当前状态无法继续匹配时，跳转到哪个状态继续匹配。这是AC自动机的核心。</p>
-                <p style="margin-top: 15px;"><strong>3. Output函数（输出边）</strong></p>
-                <p>记录当前状态对应的所有模式串。</p>
-            </div>
+                <div class="main-content">
+                    <section id="intro">
+                        <h2>算法简介</h2>
+                        <p>Aho-Corasick 算法是一种多模式字符串匹配算法，由 Alfred Aho 和 Margaret Corasick 于 1975 年提出。它能够在一次遍历中同时查找多个模式串，效率远高于对每个模式串单独进行 KMP 匹配。</p>
 
-            <h3>构建失配边（Fail Link）</h3>
-            <div class="algorithm-content">
-                <p><strong>BFS层次遍历构建：</strong></p>
-                <ol style="margin-left: 20px; margin-top: 10px;">
-                    <li>根节点的所有直接子节点的失配边指向根节点</li>
-                    <li>对于每个节点，通过其父节点的失配边找到最长后缀匹配</li>
-                    <li>如果不存在这样的后缀，则失配边指向根节点</li>
-                </ol>
-                <p style="margin-top: 15px;"><strong>示例：</strong></p>
-                <p>模式串：{"he", "she", "his", "hers"}</p>
-                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
-根节点 → 失配边 → 根节点
-h → 失配边 → 根节点
-  → e → 失配边 → 根节点 (结束：输出"he")
-  → i → 失配边 → 根节点 (结束：输出"his")
-  → e → s → 失配边 → h→e (结束：输出"she", "he")
-              → r → 失配边 → h→e→r (结束：输出"hers", "he")
-                </div>
-            </div>
+                        <div class="info-card">
+                            <div class="info-card-title"><span>💡</span> 核心思想</div>
+                            <div class="info-card-content">
+                                将多个模式串构建成 Trie 树，然后添加失配边 (Fail Link)，使得匹配失败时能够快速跳转到下一个可能的匹配位置。
+                            </div>
+                        </div>
 
-            <h3>算法实现</h3>
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="ac-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="ac-python">Python</button>
-                </div>
-                <div id="ac-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
-class AhoCorasick {
+                        <div class="complexity-comparison">
+                            <div class="complexity-card">
+                                <div class="value">O(Σ×m)</div>
+                                <div class="label">构建时间复杂度</div>
+                            </div>
+                            <div class="complexity-card">
+                                <div class="value">O(n + z)</div>
+                                <div class="label">匹配时间复杂度</div>
+                            </div>
+                            <div class="complexity-card">
+                                <div class="value">O(Σ×m)</div>
+                                <div class="label">空间复杂度</div>
+                            </div>
+                        </div>
+
+                        <p>其中：Σ 是字符集大小，m 是模式串总长度，n 是文本长度，z 是匹配次数</p>
+                    </section>
+
+                    <section id="trie-build">
+                        <h2>构建 Trie 树</h2>
+                        <p>Trie 树（字典树）是 AC 自动机的基础结构，将所有模式串组织成一棵树形结构。</p>
+
+                        <div class="trie-container">
+                            <h3 style="margin-bottom: 16px;">Trie 树构建可视化</h3>
+                            <div class="pattern-input">
+                                <input type="text" id="patterns" value="he,she,his,hers" placeholder="输入模式串，用逗号分隔">
+                            </div>
+                            <div id="trie-canvas" class="trie-canvas">
+                                <svg id="trie-svg" width="100%" height="400"></svg>
+                            </div>
+                            <div class="trie-controls">
+                                <button class="primary" onclick="buildTrie()">构建 Trie</button>
+                                <button onclick="showFailLinks()">显示失配边</button>
+                                <button onclick="resetTrie()">重置</button>
+                            </div>
+                        </div>
+
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+graph TD
+    A[开始] --> B[创建根节点]
+    B --> C[遍历每个模式串]
+    C --> D[逐字符插入 Trie]
+    D --> E{字符存在？}
+    E -->|是 | F[移动到子节点]
+    E -->|否 | G[创建新节点]
+    G --> F
+    F --> H{还有字符？}
+    H -->|是 | D
+    H -->|否 | I[标记结束节点]
+    I --> J{还有模式串？}
+    J -->|是 | C
+    J -->|否 | K[Trie 构建完成]
+
+    style A fill:#48bb78,color:#fff
+    style K fill:#48bb78,color:#fff
+    style E fill:#ed8936,color:#fff
+    style I fill:#667eea,color:#fff
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="fail-link">
+                        <h2>失配边 (Fail Link) 构建</h2>
+                        <p>失配边是 AC 自动机的核心，当当前字符无法匹配时，通过失配边跳转到下一个可能的匹配位置。</p>
+
+                        <div class="algorithm-flow">
+                            <div class="flow-step">
+                                <h4>步骤 1: 根节点子节点</h4>
+                                <p>根节点的所有直接子节点的失配边指向根节点</p>
+                            </div>
+                            <div class="flow-step">
+                                <h4>步骤 2: BFS 层次遍历</h4>
+                                <p>使用 BFS 按层次遍历 Trie 树</p>
+                            </div>
+                            <div class="flow-step">
+                                <h4>步骤 3: 计算失配边</h4>
+                                <p>通过父节点的失配边找到最长后缀匹配</p>
+                            </div>
+                            <div class="flow-step">
+                                <h4>步骤 4: 优化输出</h4>
+                                <p>将输出边指向最近的结束节点</p>
+                            </div>
+                        </div>
+
+                        <div class="formula-box">
+                            <div class="formula-title">失配边计算规则</div>
+                            <div>
+                                fail[child] = go(fail[parent], char)<br>
+                                <span style="color: #a0aec0; font-size: 0.9rem;">
+                                    其中 go(state, char) 返回从 state 状态经过字符 char 能到达的状态
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="matching">
+                        <h2>匹配过程</h2>
+                        <p>使用构建好的 AC 自动机在文本中查找所有模式串的出现位置。</p>
+
+                        <div class="match-result">
+                            <div style="margin-bottom: 12px; color: #a0aec0;">文本：<span id="text-display">ushers</span></div>
+                            <div id="match-output">
+                                <div class="step highlight">开始匹配...</div>
+                            </div>
+                        </div>
+
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+sequenceDiagram
+    participant T as 文本指针
+    participant S as 当前状态
+    participant F as 失配边
+    participant O as 输出
+
+    T->>S: 读取字符 c
+    S->>S: 尝试转移 go(s, c)
+    S->>F: 失败？沿 fail 跳转
+    F->>S: 找到可转移状态
+    S->>O: 到达结束节点？输出匹配
+    O->>T: 继续下一个字符
+    Note over T,O: 只需遍历文本一次
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="implementation">
+                        <h2>代码实现</h2>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="ac-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="ac-python">Python</button>
+                                <button class="code-tab-btn" data-tab="ac-go">Go</button>
+                            </div>
+                            <div id="ac-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">class AhoCorasick {
     constructor() {
-        this.root = { children: {}, fail: 0, output: [] };
+        this.root = { children: {}, fail: null, output: [], depth: 0 };
     }
 
+    // 插入模式串
     insert(word) {
         let node = this.root;
         for (const char of word) {
             if (!node.children[char]) {
-                node.children[char] = { children: {}, fail: 0, output: [] };
+                node.children[char] = { children: {}, fail: null, output: [], depth: node.depth + 1 };
             }
             node = node.children[char];
         }
         node.output.push(word);
     }
 
+    // 构建失配边
     build() {
         const queue = [];
-        // 初始化第一层节点的fail指向根节点
+        
+        // 根节点的子节点失配边指向根
         for (const char in this.root.children) {
-            this.root.children[char].fail = 0;
+            this.root.children[char].fail = this.root;
             queue.push(this.root.children[char]);
         }
 
-        // BFS构建失配边
+        // BFS 构建失配边
         while (queue.length > 0) {
-            const current = queue.shift();
-
-            for (const char in current.children) {
-                const child = current.children[char];
+            const curr = queue.shift();
+            
+            for (const char in curr.children) {
+                const child = curr.children[char];
                 queue.push(child);
 
-                // 设置子节点的fail
-                let failNode = current.fail;
-                while (failNode && !failNode.children[char]) {
-                    failNode = failNode.fail;
+                // 通过父节点的失配边找到最长后缀
+                let fail = curr.fail;
+                while (fail && !fail.children[char]) {
+                    fail = fail.fail;
                 }
-                child.fail = failNode ? failNode.children[char] : 0;
+                child.fail = fail ? fail.children[char] : this.root;
 
-                // 合并output
+                // 合并输出
                 child.output = [...child.output, ...child.fail.output];
             }
         }
     }
 
+    // 搜索文本
     search(text) {
         const results = [];
         let node = this.root;
@@ -147,14 +420,22 @@ class AhoCorasick {
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
 
+            // 沿失配边查找
             while (node && !node.children[char]) {
                 node = node.fail;
             }
-            node = node ? node.children[char] : this.root;
 
-            // 输出所有匹配的模式串
-            for (const pattern of node.output) {
-                results.push({ pattern, index: i - pattern.length + 1 });
+            if (node) {
+                node = node.children[char];
+                
+                // 记录所有匹配
+                for (const pattern of node.output) {
+                    results.push({
+                        pattern,
+                        endPos: i,
+                        startPos: i - pattern.length + 1
+                    });
+                }
             }
         }
 
@@ -162,7 +443,7 @@ class AhoCorasick {
     }
 }
 
-// 测试
+// 使用示例
 const ac = new AhoCorasick();
 ac.insert("he");
 ac.insert("she");
@@ -170,125 +451,375 @@ ac.insert("his");
 ac.insert("hers");
 ac.build();
 
-const text = "ahishers";
-const results = ac.search(text);
-console.log("匹配结果：");
-results.forEach(r => console.log(`"${r.pattern}" 在位置 ${r.index} 匹配`));
-                    </code></pre></div>
-                </div>
-                <div id="ac-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import deque
+const results = ac.search("ushers");
+console.log(results);
+// [{pattern: "she", startPos: 1, endPos: 3}, 
+//  {pattern: "he", startPos: 2, endPos: 3},
+//  {pattern: "hers", startPos: 2, endPos: 5}]</code></pre></div>
+                            </div>
+                            <div id="ac-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">from collections import deque, defaultdict
 
 class AhoCorasick:
     def __init__(self):
-        self.root = {'children': {}, 'fail': 0, 'output': []}
+        self.root = {'children': {}, 'fail': None, 'output': [], 'depth': 0}
 
-    def insert(self, word):
+    def insert(self, word: str) -> None:
         node = self.root
         for char in word:
             if char not in node['children']:
-                node['children'][char] = {'children': {}, 'fail': 0, 'output': []}
+                node['children'][char] = {
+                    'children': {}, 
+                    'fail': None, 
+                    'output': [], 
+                    'depth': node['depth'] + 1
+                }
             node = node['children'][char]
         node['output'].append(word)
 
-    def build(self):
+    def build(self) -> None:
         queue = deque()
-        # 初始化第一层节点的fail指向根节点
-        for char in self.root['children']:
-            self.root['children'][char]['fail'] = 0
-            queue.append(self.root['children'][char])
+        
+        # 根节点的子节点失配边指向根
+        for char, child in self.root['children'].items():
+            child['fail'] = self.root
+            queue.append(child)
 
-        # BFS构建失配边
+        # BFS 构建失配边
         while queue:
-            current = queue.popleft()
-
-            for char in current['children']:
-                child = current['children'][char]
+            curr = queue.popleft()
+            
+            for char, child in curr['children'].items():
                 queue.append(child)
 
-                # 设置子节点的fail
-                fail_node = current['fail']
-                while fail_node and char not in fail_node['children']:
-                    fail_node = fail_node['fail']
-                child['fail'] = fail_node['children'][char] if fail_node else 0
-
-                # 合并output
+                # 通过父节点的失配边找到最长后缀
+                fail = curr['fail']
+                while fail and char not in fail['children']:
+                    fail = fail['fail']
+                
+                child['fail'] = fail['children'][char] if fail else self.root
+                
+                # 合并输出
                 child['output'].extend(child['fail']['output'])
 
-    def search(self, text):
+    def search(self, text: str) -> list:
         results = []
         node = self.root
 
         for i, char in enumerate(text):
+            # 沿失配边查找
             while node and char not in node['children']:
                 node = node['fail']
-            node = node['children'][char] if node else self.root
 
-            # 输出所有匹配的模式串
-            for pattern in node['output']:
-                results.append({'pattern': pattern, 'index': i - len(pattern) + 1})
+            if node and char in node['children']:
+                node = node['children'][char]
+                
+                # 记录所有匹配
+                for pattern in node['output']:
+                    results.append({
+                        'pattern': pattern,
+                        'startPos': i - len(pattern) + 1,
+                        'endPos': i
+                    })
 
         return results
 
-# 测试
+# 使用示例
 ac = AhoCorasick()
-ac.insert("he")
-ac.insert("she")
-ac.insert("his")
-ac.insert("hers")
+for word in ["he", "she", "his", "hers"]:
+    ac.insert(word)
 ac.build()
 
-text = "ahishers"
-results = ac.search(text)
-print("匹配结果：")
-for r in results:
-    print(f'"{r["pattern"]}" 在位置 {r["index"]} 匹配')
-                    </code></pre></div>
+results = ac.search("ushers")
+print(results)</code></pre></div>
+                            </div>
+                            <div id="ac-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type Node struct {
+    children map[rune]*Node
+    fail     *Node
+    output   []string
+    depth    int
+}
+
+func newNode(depth int) *Node {
+    return &Node{
+        children: make(map[rune]*Node),
+        output:   []string{},
+        depth:    depth,
+    }
+}
+
+type AhoCorasick struct {
+    root *Node
+}
+
+func NewAhoCorasick() *AhoCorasick {
+    return &AhoCorasick{root: newNode(0)}
+}
+
+func (ac *AhoCorasick) Insert(word string) {
+    node := ac.root
+    for _, char := range word {
+        if _, ok := node.children[char]; !ok {
+            node.children[char] = newNode(node.depth + 1)
+        }
+        node = node.children[char]
+    }
+    node.output = append(node.output, word)
+}
+
+func (ac *AhoCorasick) Build() {
+    queue := []*Node{}
+
+    // 根节点的子节点失配边指向根
+    for _, child := range ac.root.children {
+        child.fail = ac.root
+        queue = append(queue, child)
+    }
+
+    // BFS 构建失配边
+    for len(queue) > 0 {
+        curr := queue[0]
+        queue = queue[1:]
+
+        for char, child := range curr.children {
+            queue = append(queue, child)
+
+            // 通过父节点的失配边找到最长后缀
+            fail := curr.fail
+            for fail != nil {
+                if _, ok := fail.children[char]; ok {
+                    break
+                }
+                fail = fail.fail
+            }
+            if fail != nil {
+                child.fail = fail.children[char]
+            } else {
+                child.fail = ac.root
+            }
+
+            // 合并输出
+            child.output = append(child.output, child.fail.output...)
+        }
+    }
+}
+
+func (ac *AhoCorasick) Search(text string) []map[string]interface{} {
+    results := []map[string]interface{}{}
+    node := ac.root
+
+    for i, char := range text {
+        // 沿失配边查找
+        for node != nil {
+            if _, ok := node.children[char]; ok {
+                break
+            }
+            node = node.fail
+        }
+
+        if node != nil {
+            node = node.children[char]
+            
+            // 记录所有匹配
+            for _, pattern := range node.output {
+                results = append(results, map[string]interface{}{
+                    "pattern":  pattern,
+                    "startPos": i - len(pattern) + 1,
+                    "endPos":   i,
+                })
+            }
+        }
+    }
+
+    return results
+}
+
+func main() {
+    ac := NewAhoCorasick()
+    for _, word := range []string{"he", "she", "his", "hers"} {
+        ac.Insert(word)
+    }
+    ac.Build()
+
+    results := ac.Search("ushers")
+    fmt.Println(results)
+}</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="applications">
+                        <h2>应用场景</h2>
+                        <div class="comparison-grid">
+                            <div class="approach-card">
+                                <h4>🔒 敏感词过滤</h4>
+                                <p style="color: var(--text-secondary);">内容审核系统一次性查找多个敏感词</p>
+                            </div>
+                            <div class="approach-card">
+                                <h4>🦠 病毒特征匹配</h4>
+                                <p style="color: var(--text-secondary);">杀毒软件检测病毒特征码</p>
+                            </div>
+                            <div class="approach-card">
+                                <h4>🔍 搜索引擎</h4>
+                                <p style="color: var(--text-secondary);">高亮显示多个关键词</p>
+                            </div>
+                            <div class="approach-card">
+                                <h4>📊 生物信息学</h4>
+                                <p style="color: var(--text-secondary);">DNA 序列模式匹配</p>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </div>
-
-            <h3>匹配过程示例</h3>
-            <div class="algorithm-content">
-                <p>文本: "ahishers"，模式: {"he", "she", "his", "hers"}</p>
-                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: 'Consolas', monospace; color: #f8f8f2; overflow-x: auto;">
-位置 1: 'a' → 无匹配
-位置 2: 'h' → 进入h节点
-位置 3: 'i' → 进入hi节点，输出"his"
-位置 4: 's' → 失配边跳转 → 进入s节点 → 进入sh节点 → 进入she节点，输出"she", "he"
-位置 5: 'h' → 失配边跳转 → 进入h节点
-位置 6: 'e' → 进入he节点，输出"he"
-位置 7: 'r' → 进入her节点 → 进入hers节点，输出"hers", "he"
-                </div>
-            </div>
-
-            <h3>AC自动机的优化</h3>
-            <div class="algorithm-content">
-                <p><strong>1. 字典树优化（fail链压缩）</strong></p>
-                <p>将空的子节点指针直接指向fail节点对应的子节点，避免循环查找。</p>
-                <p style="margin-top: 15px;"><strong>2. 输出边优化</strong></p>
-                <p>使用链表存储output，避免每次都遍历fail链。</p>
-                <p style="margin-top: 15px;"><strong>3. 双数组Trie树</strong></p>
-                <p>减少内存占用，适用于超大规模模式集。</p>
-            </div>
-
-            <h3>应用场景</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li><strong>敏感词过滤：</strong>内容审核系统</li>
-                    <li><strong>病毒特征检测：</strong>杀毒软件</li>
-                    <li><strong>关键词提取：</strong>文本分析</li>
-                    <li><strong>DNA序列匹配：</strong>生物信息学</li>
-                    <li><strong>日志分析：</strong>异常模式检测</li>
-                </ul>
             </div>
         </div>
-    </section>
+    </main>
 
-    <script src="../js/main.js"></script>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
     <script src="../lib/prism/prism-go.min.js"></script>
     <script src="../lib/prism/prism-line-numbers.min.js"></script>
+
+    <script>
+        let trieData = null;
+
+        function parsePatterns(input) {
+            return input.split(',').map(s => s.trim()).filter(s => s);
+        }
+
+        function buildTrie() {
+            const input = document.getElementById('patterns').value;
+            const patterns = parsePatterns(input);
+            
+            // 构建 Trie
+            const root = { char: '', children: {}, output: false, depth: 0 };
+            
+            patterns.forEach(pattern => {
+                let node = root;
+                for (const char of pattern) {
+                    if (!node.children[char]) {
+                        node.children[char] = { char, children: {}, output: false, depth: node.depth + 1 };
+                    }
+                    node = node.children[char];
+                }
+                node.output = true;
+            });
+
+            trieData = root;
+            drawTrie(root, patterns);
+        }
+
+        function drawTrie(root, patterns) {
+            const svg = document.getElementById('trie-svg');
+            svg.innerHTML = '';
+            
+            const nodes = [];
+            const edges = [];
+            let nodeId = 0;
+
+            // 遍历 Trie 收集节点和边
+            function traverse(node, x, y, parentX, parentY, char) {
+                const id = nodeId++;
+                nodes.push({ id, x, y, char: node.char, output: node.output, depth: node.depth });
+
+                if (parentX !== null) {
+                    edges.push({ from: { x: parentX, y: parentY }, to: { x, y }, char });
+                }
+
+                const keys = Object.keys(node.children);
+                const spread = keys.length > 1 ? 80 : 0;
+                const startX = x - (keys.length - 1) * spread / 2;
+
+                keys.forEach((key, i) => {
+                    traverse(node.children[key], startX + i * spread, y + 80, x, y, key);
+                });
+            }
+
+            traverse(root, 400, 40, null, null, '');
+
+            // 绘制边
+            edges.forEach(edge => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', edge.from.x);
+                line.setAttribute('y1', edge.from.y + 30);
+                line.setAttribute('x2', edge.to.x);
+                line.setAttribute('y2', edge.to.y - 30);
+                line.setAttribute('class', 'trie-edge');
+                svg.appendChild(line);
+
+                // 绘制字符标签
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', (edge.from.x + edge.to.x) / 2 + 10);
+                text.setAttribute('y', (edge.from.y + edge.to.y) / 2);
+                text.setAttribute('fill', '#667eea');
+                text.setAttribute('font-size', '14');
+                text.textContent = edge.char;
+                svg.appendChild(text);
+            });
+
+            // 绘制节点
+            nodes.forEach(node => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', node.x);
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', 30);
+                circle.setAttribute('class', `trie-node ${node.depth === 0 ? 'root' : ''}`);
+                g.appendChild(circle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', node.x);
+                text.setAttribute('y', node.y);
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-size', node.depth === 0 ? '14' : '16');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.textContent = node.depth === 0 ? 'root' : node.char;
+                g.appendChild(text);
+
+                if (node.output) {
+                    const outputText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    outputText.setAttribute('x', node.x);
+                    outputText.setAttribute('y', node.y + 50);
+                    outputText.setAttribute('fill', '#48bb78');
+                    outputText.setAttribute('font-size', '12');
+                    outputText.setAttribute('text-anchor', 'middle');
+                    outputText.textContent = '*';
+                    g.appendChild(outputText);
+                }
+
+                svg.appendChild(g);
+            });
+        }
+
+        function showFailLinks() {
+            alert('失配边功能：红色虚线表示 fail 指针，指向最长后缀匹配节点');
+        }
+
+        function resetTrie() {
+            trieData = null;
+            document.getElementById('trie-svg').innerHTML = '';
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            buildTrie();
+        });
+    </script>
 </body>
 </html>

@@ -3,88 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图算法 - 算法学习指南</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>图算法 - 算法学习指南 2026</title>
+    <meta name="description" content="全面掌握图算法：Dijkstra 最短路径、最小生成树、拓扑排序、最大流，配备可视化交互演示">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/modern-style.css">
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        /* 图算法专属样式 */
+        .graph-visualization {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
+            color: white;
+        }
+
+        .graph-canvas-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+        }
+
+        .graph-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .graph-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .graph-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .graph-controls button.primary {
+            background: white;
+            color: #1a365d;
+        }
+
+        .graph-controls button.active {
+            background: #48bb78;
+            color: white;
+        }
+
+        .algorithm-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .algo-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .algo-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .algo-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .algo-card .complexity {
+            margin: 16px 0;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .algo-card .complexity-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .algo-card .complexity-label {
+            color: var(--text-muted);
+        }
+
+        .algo-card .complexity-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .graph-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .graph-type-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .graph-type-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+        }
+
+        .graph-type-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .graph-type-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .graph-type-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .path-finding-status {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--code-text);
+        }
+
+        .path-finding-status .step {
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .path-finding-status .step.highlight {
+            background: rgba(102, 126, 234, 0.3);
+            border-left: 3px solid #667eea;
+        }
+
+        .path-finding-status .step.complete {
+            background: rgba(72, 187, 120, 0.2);
+            border-left: 3px solid #48bb78;
+        }
+
+        .distance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .distance-table th,
+        .distance-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .distance-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+
+        .distance-table td.current {
+            background: rgba(102, 126, 234, 0.2);
+            font-weight: 600;
+        }
+
+        .distance-table td.final {
+            background: rgba(72, 187, 120, 0.2);
+        }
+    </style>
 </head>
 <body>
+    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo"></h1>
+            <a href="/" class="logo">AlgoGuide 2026</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
-                <li><a href="../index.html#practice">在线练习</a></li>
+                <li><a href="../index.html#resources">学习资源</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
             </ul>
         </div>
     </nav>
 
-    <section class="algorithm-detail">
+    <!-- 主内容区 -->
+    <main class="algorithm-detail">
         <div class="container">
-            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
-            <h2>图算法</h2>
-            
-            <div class="algorithm-content">
-                <h3>什么是图算法？</h3>
-                <p>图算法用于处理图结构数据，解决最短路径、最小生成树、拓扑排序等经典问题。</p>
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="../index.html#algorithms">算法分类</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>图算法</span>
             </div>
 
-            <div class="complexity">
-                <div class="complexity-item">
-                    <h4>Dijkstra</h4>
-                    <p>O((V+E)logV)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>Floyd-Warshall</h4>
-                    <p>O(V³)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>Kruskal/Prim</h4>
-                    <p>O(ElogV)</p>
-                </div>
-            </div>
+            <!-- 页面标题 -->
+            <h1 class="page-title">图算法 (Graph Algorithms)</h1>
+            <p class="page-description">研究图结构数据的算法，解决最短路径、最小生成树、网络流等经典问题</p>
 
-            <h3>Dijkstra 最短路径算法</h3>
-            <div class="algorithm-content">
-                <p>在带权图中找到从起点到所有其他节点的最短路径，适用于权值为非负数的情况。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="dijkstra-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="dijkstra-python">Python</button>
-                        <button class="code-tab-btn" data-tab="dijkstra-go">Go</button>
-                    </div>
-                    <div id="dijkstra-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+            <!-- 内容布局 -->
+            <div class="detail-layout">
+                <!-- 侧边目录 -->
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#intro">1. 图的基础知识</a></li>
+                        <li><a href="#dijkstra">2. Dijkstra 算法</a></li>
+                        <li><a href="#floyd">3. Floyd-Warshall</a></li>
+                        <li><a href="#mst">4. 最小生成树</a></li>
+                        <li><a href="#topo">5. 拓扑排序</a></li>
+                        <li><a href="#maxflow">6. 最大流</a></li>
+                        <li><a href="#applications">7. 实际应用</a></li>
+                    </ul>
+                </aside>
+
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 图的基础知识 -->
+                    <section id="intro">
+                        <h2>图的基础知识</h2>
+                        <p>图 (Graph) 是由顶点 (Vertex) 和边 (Edge) 组成的数据结构，用于表示对象之间的关系。</p>
+
+                        <!-- 图的类型 -->
+                        <h3>图的分类</h3>
+                        <div class="graph-type-grid">
+                            <div class="graph-type-card">
+                                <div class="graph-type-icon">↔️</div>
+                                <div class="graph-type-name">无向图</div>
+                                <div class="graph-type-desc">边没有方向，关系是双向的</div>
+                            </div>
+                            <div class="graph-type-card">
+                                <div class="graph-type-icon">➡️</div>
+                                <div class="graph-type-name">有向图</div>
+                                <div class="graph-type-desc">边有方向，关系是单向的</div>
+                            </div>
+                            <div class="graph-type-card">
+                                <div class="graph-type-icon">🔢</div>
+                                <div class="graph-type-name">加权图</div>
+                                <div class="graph-type-desc">边带有权重/代价数值</div>
+                            </div>
+                            <div class="graph-type-card">
+                                <div class="graph-type-icon">🔄</div>
+                                <div class="graph-type-name">有环图</div>
+                                <div class="graph-type-desc">存在从某点回到自身的路径</div>
+                            </div>
+                        </div>
+
+                        <!-- 图的存储方式 -->
+                        <h3 class="mt-4">图的存储方式</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>存储方式</th>
+                                    <th>空间复杂度</th>
+                                    <th>查询边</th>
+                                    <th>遍历邻居</th>
+                                    <th>适用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>邻接矩阵</td>
+                                    <td>O(V²)</td>
+                                    <td>O(1)</td>
+                                    <td>O(V)</td>
+                                    <td>稠密图</td>
+                                </tr>
+                                <tr>
+                                    <td>邻接表</td>
+                                    <td>O(V+E)</td>
+                                    <td>O(degree)</td>
+                                    <td>O(degree)</td>
+                                    <td>稀疏图</td>
+                                </tr>
+                                <tr>
+                                    <td>边列表</td>
+                                    <td>O(E)</td>
+                                    <td>O(E)</td>
+                                    <td>O(E)</td>
+                                    <td>Kruskal 等算法</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- 图算法分类流程图 -->
+                        <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
+                            <div class="mermaid">
+graph TD
+    A[图算法] --> B[遍历算法]
+    A --> C[最短路径]
+    A --> D[最小生成树]
+    A --> E[网络流]
+    A --> F[拓扑排序]
+    
+    B --> B1[DFS 深度优先]
+    B --> B2[BFS 广度优先]
+    
+    C --> C1[Dijkstra]
+    C --> C2[Bellman-Ford]
+    C --> C3[Floyd-Warshall]
+    C --> C4[A*搜索]
+    
+    D --> D1[Prim]
+    D --> D2[Kruskal]
+    
+    E --> E1[Ford-Fulkerson]
+    E --> E2[Edmonds-Karp]
+    E --> E3[Dinic]
+    
+    style A fill:#2c5282,color:#fff
+    style B fill:#4299e1,color:#fff
+    style C fill:#48bb78,color:#fff
+    style D fill:#ed8936,color:#fff
+    style E fill:#f56565,color:#fff
+    style F fill:#9f7aea,color:#fff
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Dijkstra 算法 -->
+                    <section id="dijkstra">
+                        <h2>Dijkstra 算法 - 单源最短路径</h2>
+                        <p>Dijkstra 算法用于在带权图中找到从起点到所有其他节点的最短路径，适用于权值为非负数的情况。</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <span>💡</span> 核心思想
+                            </div>
+                            <div class="info-card-content">
+                                <strong>贪心策略</strong> —— 每次选择距离起点最近且未访问的节点，更新其邻居的距离。
+                            </div>
+                        </div>
+
+                        <!-- 交互可视化 -->
+                        <div class="graph-visualization">
+                            <h3 style="text-align: center; margin-bottom: 20px;">Dijkstra 算法可视化</h3>
+                            <div class="graph-canvas-container">
+                                <canvas id="graph-canvas"></canvas>
+                            </div>
+                            <div class="path-finding-status" id="dijkstra-status">
+                                <div class="step highlight">准备开始 Dijkstra 算法演示</div>
+                            </div>
+                            <div class="graph-controls">
+                                <button class="primary" onclick="startDijkstra()">开始演示</button>
+                                <button onclick="resetDijkstra()">重置</button>
+                                <button onclick="setRandomGraph()">随机图</button>
+                            </div>
+                        </div>
+
+                        <!-- 复杂度 -->
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <div class="complexity-label">时间复杂度</div>
+                                <div class="complexity-value">O((V+E) log V)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">空间复杂度</div>
+                                <div class="complexity-value">O(V)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">适用条件</div>
+                                <div class="complexity-value">非负权边</div>
+                            </div>
+                        </div>
+
+                        <!-- 算法对比 -->
+                        <div class="algorithm-comparison">
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🎯</span> Dijkstra
+                                </h4>
+                                <p>单源最短路径，贪心策略</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O((V+E) log V)</span>
+                                    </div>
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">空间:</span>
+                                        <span class="complexity-value">O(V)</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">适用于非负权图，使用优先队列优化</p>
+                            </div>
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🔄</span> Bellman-Ford
+                                </h4>
+                                <p>单源最短路径，可处理负权</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(VE)</span>
+                                    </div>
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">空间:</span>
+                                        <span class="complexity-value">O(V)</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">可检测负权环，适用于有负权边的图</p>
+                            </div>
+                            <div class="algo-card">
+                                <h4>
+                                    <span>📊</span> Floyd-Warshall
+                                </h4>
+                                <p>多源最短路径，动态规划</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(V³)</span>
+                                    </div>
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">空间:</span>
+                                        <span class="complexity-value">O(V²)</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">计算所有点对之间的最短路径</p>
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="dijkstra-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="dijkstra-python">Python</button>
+                                <button class="code-tab-btn" data-tab="dijkstra-go">Go</button>
+                            </div>
+                            <div id="dijkstra-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Dijkstra 算法实现
 function dijkstra(graph, start) {
-    const distances = {};
-    const visited = new Set();
-    const pq = new PriorityQueue();
+    const n = graph.length;
+    const dist = Array(n).fill(Infinity);
+    const visited = Array(n).fill(false);
+    const prev = Array(n).fill(-1);
     
-    // 初始化
-    for (const node in graph) {
-        distances[node] = Infinity;
-    }
-    distances[start] = 0;
-    pq.enqueue(start, 0);
+    dist[start] = 0;
     
-    while (!pq.isEmpty()) {
-        const { element: current } = pq.dequeue();
+    for (let i = 0; i < n; i++) {
+        // 找到未访问的最小距离节点
+        let u = -1;
+        for (let v = 0; v < n; v++) {
+            if (!visited[v] && (u === -1 || dist[v] < dist[u])) {
+                u = v;
+            }
+        }
         
-        if (visited.has(current)) continue;
-        visited.add(current);
+        if (dist[u] === Infinity) break;
+        visited[u] = true;
         
-        for (const neighbor in graph[current]) {
-            const distance = distances[current] + graph[current][neighbor];
-            
-            if (distance < distances[neighbor]) {
-                distances[neighbor] = distance;
-                pq.enqueue(neighbor, distance);
+        // 更新邻居节点
+        for (const [v, weight] of graph[u]) {
+            if (!visited[v] && dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                prev[v] = u;
             }
         }
     }
     
-    return distances;
+    return { dist, prev };
+}
+
+// 使用优先队列优化的版本
+function dijkstraPQ(graph, start) {
+    const n = graph.length;
+    const dist = Array(n).fill(Infinity);
+    const prev = Array(n).fill(-1);
+    const pq = new PriorityQueue();
+    
+    dist[start] = 0;
+    pq.push(start, 0);
+    
+    while (!pq.isEmpty()) {
+        const u = pq.pop();
+        
+        for (const [v, weight] of graph[u]) {
+            if (dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                prev[v] = u;
+                pq.push(v, dist[v]);
+            }
+        }
+    }
+    
+    return { dist, prev };
 }
 
 // 简单优先队列实现
@@ -93,13 +540,13 @@ class PriorityQueue {
         this.items = [];
     }
     
-    enqueue(element, priority) {
+    push(element, priority) {
         this.items.push({ element, priority });
         this.items.sort((a, b) => a.priority - b.priority);
     }
     
-    dequeue() {
-        return this.items.shift();
+    pop() {
+        return this.items.shift().element;
     }
     
     isEmpty() {
@@ -108,52 +555,60 @@ class PriorityQueue {
 }
 
 // 测试
-const graph = {
-    A: { B: 4, C: 2 },
-    B: { A: 4, C: 5, D: 10 },
-    C: { A: 2, B: 5, D: 3 },
-    D: { B: 10, C: 3 }
-};
-console.log(dijkstra(graph, 'A'));
-// { A: 0, B: 4, C: 2, D: 5 }
-                            </code></pre></div>
-                    </div>
-                    <div id="dijkstra-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-import heapq
+const graph = [
+    [[1, 4], [2, 2]],      // 节点 0
+    [[0, 4], [2, 5], [3, 10]],  // 节点 1
+    [[0, 2], [1, 5], [3, 3]],   // 节点 2
+    [[1, 10], [2, 3]]      // 节点 3
+];
+console.log(dijkstra(graph, 0));
+// dist: [0, 4, 2, 5]</code></pre></div>
+                            </div>
+                            <div id="dijkstra-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">import heapq
 
 def dijkstra(graph, start):
-    distances = {node: float('inf') for node in graph}
-    distances[start] = 0
+    """
+    Dijkstra 算法 - 优先队列优化版本
+    graph: 邻接表，graph[u] = [(v, weight), ...]
+    """
+    n = len(graph)
+    dist = [float('inf')] * n
+    prev = [-1] * n
+    dist[start] = 0
+    
+    # 优先队列：(distance, node)
     pq = [(0, start)]
     
     while pq:
-        current_dist, current = heapq.heapp        
-        if currentop(pq)
-_dist > distances[current]:
-            continue
+        d, u = heapq.heappop(pq)
         
-        for neighbor, weight in graph[current].items():
-            distance = current_dist + weight
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-                heapq.heappush(pq, (distance, neighbor))
+        if d > dist[u]:
+            continue
+            
+        for v, weight in graph[u]:
+            new_dist = dist[u] + weight
+            if new_dist < dist[v]:
+                dist[v] = new_dist
+                prev[v] = u
+                heapq.heappush(pq, (new_dist, v))
     
-    return distances
+    return dist, prev
 
 # 测试
-graph = {
-    'A': {'B': 4, 'C': 2},
-    'B': {'A': 4, 'C': 5, 'D': 10},
-    'C': {'A': 2, 'B': 5, 'D': 3},
-    'D': {'B': 10, 'C': 3}
-}
-print(dijkstra(graph, 'A'))  # {'A': 0, 'B': 4, 'C': 2, 'D': 5}
-                            </code></pre></div>
-                    </div>
-                    <div id="dijkstra-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
+graph = [
+    [(1, 4), (2, 2)],           # 节点 0
+    [(0, 4), (2, 5), (3, 10)],  # 节点 1
+    [(0, 2), (1, 5), (3, 3)],   # 节点 2
+    [(1, 10), (2, 3)]           # 节点 3
+]
+
+dist, prev = dijkstra(graph, 0)
+print(f"最短距离：{dist}")  # [0, 4, 2, 5]
+print(f"前驱节点：{prev}")  # [-1, 0, 0, 2]</code></pre></div>
+                            </div>
+                            <div id="dijkstra-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
 
 import (
     "container/heap"
@@ -161,7 +616,7 @@ import (
 )
 
 type Item struct {
-    node     string
+    node     int
     distance int
     index    int
 }
@@ -190,96 +645,92 @@ func (pq *PriorityQueue) Pop() interface{} {
     old := *pq
     n := len(old)
     item := old[n-1]
-    old[n-1] = nil
-    item.index = -1
     *pq = old[0 : n-1]
     return item
 }
 
-func (pq *PriorityQueue) update(item *Item, node string, distance int) {
-    item.node = node
-    item.distance = distance
-    heap.Fix(pq, item.index)
-}
-
-func dijkstra(graph map[string]map[string]int, start string) map[string]int {
-    distances := make(map[string]int)
-    visited := make(map[string]bool)
-    
-    for node := range graph {
-        distances[node] = 1 << 30
+func dijkstra(graph [][][2]int, start int) []int {
+    n := len(graph)
+    dist := make([]int, n)
+    for i := range dist {
+        dist[i] = 1e9
     }
-    distances[start] = 0
-    
+    dist[start] = 0
+
     pq := &PriorityQueue{}
     heap.Init(pq)
     heap.Push(pq, &Item{node: start, distance: 0})
-    
+
     for pq.Len() > 0 {
         item := heap.Pop(pq).(*Item)
-        current := item.node
-        currentDist := item.distance
-        
-        if visited[current] {
+        u := item.node
+        d := item.distance
+
+        if d > dist[u] {
             continue
         }
-        visited[current] = true
-        
-        for neighbor, weight := range graph[current] {
-            if visited[neighbor] {
-                continue
-            }
-            newDist := currentDist + weight
-            if newDist < distances[neighbor] {
-                distances[neighbor] = newDist
-                heap.Push(pq, &Item{node: neighbor, distance: newDist})
+
+        for _, edge := range graph[u] {
+            v, weight := edge[0], edge[1]
+            if dist[u]+weight < dist[v] {
+                dist[v] = dist[u] + weight
+                heap.Push(pq, &Item{node: v, distance: dist[v]})
             }
         }
     }
-    
-    return distances
+
+    return dist
 }
 
 func main() {
-    graph := map[string]map[string]int{
-        "A": {"B": 4, "C": 2},
-        "B": {"A": 4, "C": 5, "D": 10},
-        "C": {"A": 2, "B": 5, "D": 3},
-        "D": {"B": 10, "C": 3},
+    graph := [][][2]int{
+        {{1, 4}, {2, 2}},
+        {{0, 4}, {2, 5}, {3, 10}},
+        {{0, 2}, {1, 5}, {3, 3}},
+        {{1, 10}, {2, 3}},
     }
-    fmt.Println(dijkstra(graph, "A"))  // map[A:0 B:4 C:2 D:5]
-}
-                            </code></pre></div>
-                    </div>
-                </div>
-            </div>
+    fmt.Println(dijkstra(graph, 0)) // [0 4 2 5]
+}</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
 
-            <h3>Floyd-Warshall 算法</h3>
-            <div class="algorithm-content">
-                <p>计算图中所有节点对之间的最短路径，适合解决多源最短路径问题。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="floyd-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="floyd-python">Python</button>
-                        <button class="code-tab-btn" data-tab="floyd-go">Go</button>
-                    </div>
-                    <div id="floyd-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-function floydWarshall(graph) {
+                    <!-- Floyd-Warshall 算法 -->
+                    <section id="floyd">
+                        <h2>Floyd-Warshall 算法 - 多源最短路径</h2>
+                        <p>Floyd-Warshall 算法用于计算图中所有节点对之间的最短路径，采用动态规划思想。</p>
+
+                        <div class="formula-box">
+                            <div class="formula-title">状态转移方程</div>
+                            <div>dist[k][i][j] = min(dist[k-1][i][j], dist[k-1][i][k] + dist[k-1][k][j])</div>
+                            <div style="margin-top: 12px; color: #a0aec0; font-size: 0.9rem;">
+                                空间优化后：dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="floyd-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="floyd-python">Python</button>
+                            </div>
+                            <div id="floyd-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">function floydWarshall(graph) {
     const n = graph.length;
     const dist = Array(n).fill(null).map(() => Array(n).fill(Infinity));
-    
+
     // 初始化
     for (let i = 0; i < n; i++) {
         dist[i][i] = 0;
     }
-    
+
     // 填充直接边权重
-    for (const [u, v, w] of graph) {
-        dist[u][v] = w;
+    for (let u = 0; u < n; u++) {
+        for (const [v, w] of graph[u]) {
+            dist[u][v] = w;
+        }
     }
-    
-    // Floyd-Warshall核心
+
+    // Floyd-Warshall 核心
     for (let k = 0; k < n; k++) {
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
@@ -289,970 +740,106 @@ function floydWarshall(graph) {
             }
         }
     }
-    
+
     return dist;
 }
 
-// 测试 (节点0,1,2,3)
+// 测试
 const graph = [
-    [0, 3, Infinity, 7],
-    [8, 0, 2, Infinity],
-    [5, Infinity, 0, 1],
-    [2, Infinity, Infinity, 0]
+    [[1, 3], [3, 7]],
+    [[2, 2]],
+    [[3, 1]],
+    [[0, 2]]
 ];
-console.log(floydWarshall(graph));
-                            </code></pre></div>
-                    </div>
-                    <div id="floyd-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-def floyd_warshall(graph):
+console.log(floydWarshall(graph));</code></pre></div>
+                            </div>
+                            <div id="floyd-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">def floyd_warshall(graph):
+    """
+    Floyd-Warshall 算法
+    graph: 邻接矩阵，graph[i][j] 表示 i 到 j 的距离
+    """
     n = len(graph)
-    dist = [[float('inf')] * n for _ in range(n)]
-    
+    dist = [row[:] for row in graph]  # 深拷贝
+
+    # 对角线为 0
     for i in range(n):
         dist[i][i] = 0
-    
-    for u, v, w in graph:
-        dist[u][v] = w
-    
+
+    # 核心算法
     for k in range(n):
         for i in range(n):
             for j in range(n):
                 if dist[i][k] + dist[k][j] < dist[i][j]:
                     dist[i][j] = dist[i][k] + dist[k][j]
-    
+
     return dist
 
-# 测试 (节点0,1,2,3)
+# 测试
+INF = float('inf')
 graph = [
-    [0, 3, float('inf'), 7],
-    [8, 0, 2, float('inf')],
-    [5, float('inf'), 0, 1],
-    [2, float('inf'), float('inf'), 0]
+    [0, 3, INF, 7],
+    [INF, 0, 2, INF],
+    [INF, INF, 0, 1],
+    [2, INF, INF, 0]
 ]
-print(floyd_warshall(graph))
-                            </code></pre></div>
-                    </div>
-                    <div id="floyd-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
 
-import (
-    "fmt"
-    "math"
-)
-
-func floydWarshall(graph [][]int) [][]int {
-    n := len(graph)
-    dist := make([][]int, n)
-    const INF = 1 << 30
-    
-    for i := 0; i < n; i++ {
-        dist[i] = make([]int, n)
-        for j := 0; j < n; j++ {
-            if i == j {
-                dist[i][j] = 0
-            } else {
-                dist[i][j] = INF
-            }
-        }
-    }
-    
-    for _, edge := range graph {
-        u, v, w := edge[0], edge[1], edge[2]
-        dist[u][v] = w
-    }
-    
-    for k := 0; k < n; k++ {
-        for i := 0; i < n; i++ {
-            for j := 0; j < n; j++ {
-                if dist[i][k]+dist[k][j] < dist[i][j] {
-                    dist[i][j] = dist[i][k] + dist[k][j]
-                }
-            }
-        }
-    }
-    
-    return dist
-}
-
-func main() {
-    graph := [][]int{
-        {0, 3, 0, 7},
-        {8, 0, 2, 0},
-        {5, 0, 0, 1},
-        {2, 0, 0, 0},
-    }
-    result := floydWarshall(graph)
-    fmt.Println(result)
-}
-                            </code></pre></div>
-                    </div>
-                </div>
-            </div>
-
-            <h3>最小生成树 (Prim算法)</h3>
-            <div class="algorithm-content">
-                <p>在一个带权连通图中找到一棵包含所有顶点的树，且树中所有边的权重之和最小。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="prim-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="prim-python">Python</button>
-                        <button class="code-tab-btn" data-tab="prim-go">Go</button>
-                    </div>
-                    <div id="prim-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-function prim(graph) {
-    const n = graph.length;
-    const key = Array(n).fill(Infinity);
-    const parent = Array(n).fill(-1);
-    const mst = new Set();
-    
-    key[0] = 0;
-    
-    for (let i = 0; i < n - 1; i++) {
-        // 找到key值最小的顶点
-        let u = -1;
-        for (let v = 0; v < n; v++) {
-            if (!mst.has(v) && (u === -1 || key[v] < key[u])) {
-                u = v;
-            }
-        }
-        
-        mst.add(u);
-        
-        // 更新相邻顶点的key值
-        for (let v = 0; v < n; v++) {
-            if (graph[u][v] && !mst.has(v) && graph[u][v] < key[v]) {
-                parent[v] = u;
-                key[v] = graph[u][v];
-            }
-        }
-    }
-    
-    return parent;
-}
-
-// 测试
-const graph = [
-    [0, 2, 0, 6, 0],
-    [2, 0, 3, 8, 5],
-    [0, 3, 0, 0, 7],
-    [6, 8, 0, 0, 9],
-    [0, 5, 7, 9, 0]
-];
-const mst = prim(graph);
-console.log("最小生成树的边：");
-for (let i = 1; i < mst.length; i++) {
-    console.log(`${mst[i]} - ${i}`);
-}
-                            </code></pre></div>
-                    </div>
-                    <div id="prim-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-def prim(graph):
-    n = len(graph)
-    key = [float('inf')] * n
-    parent = [-1] * n
-    mst = set()
-    
-    key[0] = 0
-    
-    for _ in range(n - 1):
-        u = -1
-        for v in range(n):
-            if v not in mst and (u == -1 or key[v] < key[u]):
-                u = v
-        
-        mst.add(u)
-        
-        for v in range(n):
-            if graph[u][v] and v not in mst and graph[u][v] < key[v]:
-                parent[v] = u
-                key[v] = graph[u][v]
-    
-    return parent
-
-# 测试
-graph = [
-    [0, 2, 0, 6, 0],
-    [2, 0, 3, 8, 5],
-    [0, 3, 0, 0, 7],
-    [6, 8, 0, 0, 9],
-    [0, 5, 7, 9, 0]
-]
-mst = prim(graph)
-print("最小生成树的边：")
-for i in range(1, len(mst)):
-    print(f"{mst[i]} - {i}")
-                            </code></pre></div>
-                    </div>
-                    <div id="prim-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
-
-import (
-    "fmt"
-    "math"
-)
-
-func prim(graph [][]int) []int {
-    n := len(graph)
-    key := make([]int, n)
-    parent := make([]int, n)
-    mst := make([]bool, n)
-    const INF = 1 << 30
-    
-    for i := 0; i < n; i++ {
-        key[i] = INF
-        parent[i] = -1
-    }
-    
-    key[0] = 0
-    
-    for i := 0; i < n-1; i++ {
-        u := -1
-        for v := 0; v < n; v++ {
-            if !mst[v] && (u == -1 || key[v] < key[u]) {
-                u = v
-            }
-        }
-        
-        mst[u] = true
-        
-        for v := 0; v < n; v++ {
-            if graph[u][v] != 0 && !mst[v] && graph[u][v] < key[v] {
-                parent[v] = u
-                key[v] = graph[u][v]
-            }
-        }
-    }
-    
-    return parent
-}
-
-func main() {
-    graph := [][]int{
-        {0, 2, 0, 6, 0},
-        {2, 0, 3, 8, 5},
-        {0, 3, 0, 0, 7},
-        {6, 8, 0, 0, 9},
-        {0, 5, 7, 9, 0},
-    }
-    mst := prim(graph)
-    fmt.Println("最小生成树的边：")
-    for i := 1; i < len(mst); i++ {
-        fmt.Printf("%d - %d\n", mst[i], i)
-    }
-}
-                            </code></pre></div>
-                    </div>
-                </div>
-            </div>
-
-            <h3>拓扑排序</h3>
-            <div class="algorithm-content">
-                <p>对有向无环图(DAG)的顶点进行排序，使得对于每一条有向边(u, v)，u都在v之前。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="topo-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="topo-python">Python</button>
-                        <button class="code-tab-btn" data-tab="topo-go">Go</button>
-                    </div>
-                    <div id="topo-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-function topologicalSort(graph) {
-    const inDegree = {};
-    const queue = [];
-    const result = [];
-    
-    // 初始化入度
-    for (const node in graph) {
-        inDegree[node] = 0;
-    }
-    for (const node in graph) {
-        for (const neighbor of graph[node]) {
-            inDegree[neighbor]++;
-        }
-    }
-    
-    // 将入度为0的节点加入队列
-    for (const node in inDegree) {
-        if (inDegree[node] === 0) {
-            queue.push(node);
-        }
-    }
-    
-    // BFS处理
-    while (queue.length > 0) {
-        const node = queue.shift();
-        result.push(node);
-        
-        for (const neighbor of graph[node]) {
-            inDegree[neighbor]--;
-            if (inDegree[neighbor] === 0) {
-                queue.push(neighbor);
-            }
-        }
-    }
-    
-    return result.length === Object.keys(graph).length ? result : [];
-}
-
-// 测试
-const courseGraph = {
-    'A': ['C'],
-    'B': ['C', 'D'],
-    'C': ['E'],
-    'D': ['F'],
-    'E': ['F'],
-    'F': []
-};
-console.log(topologicalSort(courseGraph)); // ['B', 'A', 'D', 'C', 'E', 'F']
-                            </code></pre></div>
-                    </div>
-                    <div id="topo-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import deque
-
-def topological_sort(graph):
-    in_degree = {node: 0 for node in graph}
-    
-    for node in graph:
-        for neighbor in graph[node]:
-            in_degree[neighbor] += 1
-    
-    queue = deque([node for node in in_degree if in_degree[node] == 0])
-    result = []
-    
-    while queue:
-        node = queue.popleft()
-        result.append(node)
-        
-        for neighbor in graph[node]:
-            in_degree[neighbor] -= 1
-            if in_degree[neighbor] == 0:
-                queue.append(neighbor)
-    
-    return result if len(result) == len(graph) else []
-
-# 测试
-course_graph = {
-    'A': ['C'],
-    'B': ['C', 'D'],
-    'C': ['E'],
-    'D': ['F'],
-    'E': ['F'],
-    'F': []
-}
-print(topological_sort(course_graph))  # ['B', 'A', 'D', 'C', 'E', 'F']
-                            </code></pre></div>
-                    </div>
-                    <div id="topo-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
-
-import (
-    "fmt"
-)
-
-func topologicalSort(graph map[string][]string) []string {
-    inDegree := make(map[string]int)
-    
-    for node := range graph {
-        inDegree[node] = 0
-    }
-    
-    for node, neighbors := range graph {
-        for _, neighbor := range neighbors {
-            inDegree[neighbor]++
-        }
-    }
-    
-    var queue []string
-    for node, degree := range inDegree {
-        if degree == 0 {
-            queue = append(queue, node)
-        }
-    }
-    
-    var result []string
-    for len(queue) > 0 {
-        node := queue[0]
-        queue = queue[1:]
-        result = append(result, node)
-        
-        for _, neighbor := range graph[node] {
-            inDegree[neighbor]--
-            if inDegree[neighbor] == 0 {
-                queue = append(queue, neighbor)
-            }
-        }
-    }
-    
-    if len(result) == len(graph) {
-        return result
-    }
-    return nil
-}
-
-func main() {
-    courseGraph := map[string][]string{
-        "A": {"C"},
-        "B": {"C", "D"},
-        "C": {"E"},
-        "D": {"F"},
-        "E": {"F"},
-        "F": {},
-    }
-    fmt.Println(topologicalSort(courseGraph))  // [B A D C E F]
-}
-                            </code></pre></div>
-                    </div>
-                </div>
-            </div>
-
-            <h3>最大流算法 (Max Flow)</h3>
-            <div class="algorithm-content">
-                <h3>什么是最大流问题？</h3>
-                <p>最大流问题旨在找出从源点(source)到汇点(sink)的最大流量，使得每条边的流量不超过其容量，且满足流量守恒定律。</p>
-                
-                <p style="margin-top: 15px;"><strong>基本概念：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>容量(Capacity)：</strong>边的最大允许流量</li>
-                    <li><strong>流量(Flow)：</strong>实际通过边的流量</li>
-                    <li><strong>残量网络(Residual Network)：</strong>表示剩余可用容量的网络</li>
-                    <li><strong>增广路径(Augmenting Path)：</strong>残量网络中从源点到汇点的路径</li>
-                </ul>
-
-                <p style="margin-top: 15px;"><strong>Ford-Fulkerson方法：</strong></p>
-                <ol style="margin-left: 20px;">
-                    <li>初始化流为0</li>
-                    <li>在残量网络中寻找增广路径</li>
-                    <li>沿增广路径增加流量</li>
-                    <li>重复直到没有增广路径</li>
-                </ol>
-            </div>
-
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="ford-fulkerson-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="ford-fulkerson-python">Python</button>
-                </div>
-                <div id="ford-fulkerson-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
-class MaxFlow {
-    constructor(n) {
-        this.n = n;
-        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
-    }
-
-    addEdge(u, v, capacity) {
-        this.graph[u][v] = capacity;
-    }
-
-    bfs(s, t, parent) {
-        const visited = new Array(this.n).fill(false);
-        const queue = [s];
-        visited[s] = true;
-        parent[s] = -1;
-
-        while (queue.length > 0) {
-            const u = queue.shift();
-
-            for (let v = 0; v < this.n; v++) {
-                if (!visited[v] && this.graph[u][v] > 0) {
-                    visited[v] = true;
-                    parent[v] = u;
-                    queue.push(v);
-                    if (v === t) return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    fordFulkerson(s, t) {
-        const parent = new Array(this.n).fill(-1);
-        let maxFlow = 0;
-
-        while (this.bfs(s, t, parent)) {
-            let pathFlow = Infinity;
-            for (let v = t; v !== s; v = parent[v]) {
-                const u = parent[v];
-                pathFlow = Math.min(pathFlow, this.graph[u][v]);
-            }
-
-            for (let v = t; v !== s; v = parent[v]) {
-                const u = parent[v];
-                this.graph[u][v] -= pathFlow;
-                this.graph[v][u] += pathFlow;
-            }
-
-            maxFlow += pathFlow;
-        }
-        return maxFlow;
-    }
-}
-
-// 测试：经典的"最大流最小割"示例
-const maxFlow = new MaxFlow(6);
-maxFlow.addEdge(0, 1, 16);
-maxFlow.addEdge(0, 2, 13);
-maxFlow.addEdge(1, 2, 10);
-maxFlow.addEdge(1, 3, 12);
-maxFlow.addEdge(2, 1, 4);
-maxFlow.addEdge(2, 4, 14);
-maxFlow.addEdge(3, 2, 9);
-maxFlow.addEdge(3, 5, 20);
-maxFlow.addEdge(4, 3, 7);
-maxFlow.addEdge(4, 5, 4);
-
-console.log("最大流量:", maxFlow.fordFulkerson(0, 5)); // 23
-                    </code></pre></div>
-                </div>
-                <div id="ford-fulkerson-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-class MaxFlow:
-    def __init__(self, n):
-        self.n = n
-        self.graph = [[0] * n for _ in range(n)]
-
-    def add_edge(self, u, v, capacity):
-        self.graph[u][v] = capacity
-
-    def bfs(self, s, t, parent):
-        visited = [False] * self.n
-        queue = [s]
-        visited[s] = True
-        parent[s] = -1
-
-        while queue:
-            u = queue.pop(0)
-            for v in range(self.n):
-                if not visited[v] and self.graph[u][v] > 0:
-                    visited[v] = True
-                    parent[v] = u
-                    queue.append(v)
-                    if v == t:
-                        return True
-        return False
-
-    def ford_fulkerson(self, s, t):
-        parent = [-1] * self.n
-        max_flow = 0
-
-        while self.bfs(s, t, parent):
-            path_flow = float('inf')
-            v = t
-            while v != s:
-                u = parent[v]
-                path_flow = min(path_flow, self.graph[u][v])
-                v = u
-
-            v = t
-            while v != s:
-                u = parent[v]
-                self.graph[u][v] -= path_flow
-                self.graph[v][u] += path_flow
-                v = u
-
-            max_flow += path_flow
-
-        return max_flow
-
-# 测试
-max_flow = MaxFlow(6)
-max_flow.add_edge(0, 1, 16)
-max_flow.add_edge(0, 2, 13)
-max_flow.add_edge(1, 2, 10)
-max_flow.add_edge(1, 3, 12)
-max_flow.add_edge(2, 1, 4)
-max_flow.add_edge(2, 4, 14)
-max_flow.add_edge(3, 2, 9)
-max_flow.add_edge(3, 5, 20)
-max_flow.add_edge(4, 3, 7)
-max_flow.add_edge(4, 5, 4)
-
-print("最大流量:", max_flow.ford_fulkerson(0, 5))  # 23
-                    </code></pre></div>
-                </div>
-            </div>
-
-            <h3>Dinic算法（更高效的最大流）</h3>
-            <div class="algorithm-content">
-                <p>Dinic算法通过构建分层图和使用DFS寻找阻塞流，在稀疏图上时间复杂度为O(V²E)。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="dinic-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="dinic-python">Python</button>
-                    </div>
-                    <div id="dinic-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class Dinic {
-    constructor(n) {
-        this.n = n;
-        this.adj = Array(n).fill(null).map(() => []);
-    }
-
-    addEdge(u, v, capacity) {
-        this.adj[u].push({ to: v, cap: capacity, rev: this.adj[v].length });
-        this.adj[v].push({ to: u, cap: 0, rev: this.adj[u].length - 1 });
-    }
-
-    bfs(s, t, level) {
-        level.fill(-1);
-        level[s] = 0;
-        const queue = [s];
-
-        while (queue.length > 0) {
-            const u = queue.shift();
-            for (const edge of this.adj[u]) {
-                if (edge.cap > 0 && level[edge.to] < 0) {
-                    level[edge.to] = level[u] + 1;
-                    queue.push(edge.to);
-                }
-            }
-        }
-        return level[t] >= 0;
-    }
-
-    dfs(u, t, f, level, it) {
-        if (u === t) return f;
-
-        for (let i = it[u]; i < this.adj[u].length; i++) {
-            const edge = this.adj[u][i];
-            if (edge.cap > 0 && level[u] + 1 === level[edge.to]) {
-                const ret = this.dfs(edge.to, t, Math.min(f, edge.cap), level, it);
-                if (ret > 0) {
-                    edge.cap -= ret;
-                    this.adj[edge.to][edge.rev].cap += ret;
-                    return ret;
-                }
-            }
-            it[u]++;
-        }
-        return 0;
-    }
-
-    maxFlow(s, t) {
-        const level = new Array(this.n).fill(-1);
-        let flow = 0;
-        const INF = 1 << 30;
-
-        while (this.bfs(s, t, level)) {
-            const it = new Array(this.n).fill(0);
-            while (true) {
-                const f = this.dfs(s, t, INF, level, it);
-                if (f === 0) break;
-                flow += f;
-            }
-        }
-        return flow;
-    }
-}
-
-// 测试
-const dinic = new Dinic(6);
-dinic.addEdge(0, 1, 16);
-dinic.addEdge(0, 2, 13);
-dinic.addEdge(1, 2, 10);
-dinic.addEdge(1, 3, 12);
-dinic.addEdge(2, 1, 4);
-dinic.addEdge(2, 4, 14);
-dinic.addEdge(3, 2, 9);
-dinic.addEdge(3, 5, 20);
-dinic.addEdge(4, 3, 7);
-dinic.addEdge(4, 5, 4);
-
-console.log("Dinic最大流量:", dinic.maxFlow(0, 5)); // 23
-                    </code></pre></div>
-                    </div>
-                    <div id="dinic-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import deque
-
-class Dinic:
-    def __init__(self, n):
-        self.n = n
-        self.adj = [[] for _ in range(n)]
-
-    def add_edge(self, u, v, capacity):
-        self.adj[u].append([v, capacity, len(self.adj[v])])
-        self.adj[v].append([u, 0, len(self.adj[u]) - 1])
-
-    def bfs(self, s, t, level):
-        level[:] = [-1] * self.n
-        level[s] = 0
-        queue = deque([s])
-
-        while queue:
-            u = queue.popleft()
-            for v, cap, _ in self.adj[u]:
-                if cap > 0 and level[v] < 0:
-                    level[v] = level[u] + 1
-                    queue.append(v)
-        return level[t] >= 0
-
-    def dfs(self, u, t, f, level, it):
-        if u == t:
-            return f
-        for i in range(it[u], len(self.adj[u])):
-            it[u] = i
-            v, cap, rev = self.adj[u][i]
-            if cap > 0 and level[u] + 1 == level[v]:
-                ret = self.dfs(v, t, min(f, cap), level, it)
-                if ret:
-                    self.adj[u][i][1] -= ret
-                    self.adj[v][rev][1] += ret
-                    return ret
-        return 0
-
-    def max_flow(self, s, t):
-        level = [-1] * self.n
-        flow = 0
-        INF = 10 ** 18
-
-        while self.bfs(s, t, level):
-            it = [0] * self.n
-            while True:
-                f = self.dfs(s, t, INF, level, it)
-                if not f:
-                    break
-                flow += f
-        return flow
-
-# 测试
-dinic = Dinic(6)
-dinic.add_edge(0, 1, 16)
-dinic.add_edge(0, 2, 13)
-dinic.add_edge(1, 2, 10)
-dinic.add_edge(1, 3, 12)
-dinic.add_edge(2, 1, 4)
-dinic.add_edge(2, 4, 14)
-dinic.add_edge(3, 2, 9)
-dinic.add_edge(3, 5, 20)
-dinic.add_edge(4, 3, 7)
-dinic.add_edge(4, 5, 4)
-
-print("Dinic最大流量:", dinic.max_flow(0, 5))  # 23
-                    </code></pre></div>
-                    </div>
-                </div>
-            </div>
-
-            <h3>最小割 (Min Cut)</h3>
-            <div class="algorithm-content">
-                <h3>最大流最小割定理</h3>
-                <p><strong>定理：</strong>在任何网络中，最大流的值等于最小割的容量。</p>
-                <p style="margin-top: 15px;"><strong>最小割定义：</strong></p>
-                <p>将网络中的顶点分成两个不相交的集合S和T，使得源点在S中，汇点在T中，且跨越S和T的边容量之和最小。</p>
-                <p style="margin-top: 15px;"><strong>求最小割方法：</strong></p>
-                <ol style="margin-left: 20px;">
-                    <li>运行最大流算法</li>
-                    <li>在最终残量网络中，从源点出发沿残量边可达的顶点构成集合S</li>
-                    <li>跨越S和T的边即为最小割</li>
-                </ol>
-            </div>
-
-            <h3>Stoer-Wagner全局最小割算法</h3>
-            <div class="algorithm-content">
-                <p>求无向图中任意两点之间的最小割，时间复杂度O(V³)。</p>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="stoer-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="stoer-python">Python</button>
-                    </div>
-                    <div id="stoer-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class StoerWagner {
-    constructor(n) {
-        this.n = n;
-        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
-    }
-
-    addEdge(u, v, weight) {
-        this.graph[u][v] += weight;
-        this.graph[v][u] += weight;
-    }
-
-    minCut() {
-        const vertices = Array.from({ length: this.n }, (_, i) => i);
-        let minCut = Infinity;
-
-        while (vertices.length > 1) {
-            const weights = new Array(this.n).fill(0);
-            const added = new Array(this.n).fill(false);
-            let prev = -1;
-
-            // 最大权重搜索（类似Prim）
-            for (let i = 0; i < vertices.length; i++) {
-                let maxWeight = -1;
-                let maxIdx = -1;
-
-                for (const v of vertices) {
-                    if (!added[v] && weights[v] > maxWeight) {
-                        maxWeight = weights[v];
-                        maxIdx = v;
-                    }
-                }
-
-                added[maxIdx] = true;
-
-                if (i === vertices.length - 1) {
-                    // 最后加入的顶点s和t
-                    const s = prev;
-                    const t = maxIdx;
-                    minCut = Math.min(minCut, maxWeight);
-
-                    // 合并s和t
-                    for (let v = 0; v < this.n; v++) {
-                        this.graph[s][v] += this.graph[t][v];
-                        this.graph[v][s] += this.graph[t][v];
-                    }
-
-                    vertices.splice(vertices.indexOf(t), 1);
-                    break;
-                }
-
-                prev = maxIdx;
-
-                for (const v of vertices) {
-                    if (!added[v]) {
-                        weights[v] += this.graph[maxIdx][v];
-                    }
-                }
-            }
-        }
-
-        return minCut;
-    }
-}
-
-// 测试：求图的全局最小割
-const sw = new StoerWagner(4);
-sw.addEdge(0, 1, 6);
-sw.addEdge(0, 2, 5);
-sw.addEdge(0, 3, 4);
-sw.addEdge(1, 2, 3);
-sw.addEdge(1, 3, 2);
-sw.addEdge(2, 3, 3);
-
-console.log("全局最小割:", sw.minCut());
-                    </code></pre></div>
-                    <div id="stoer-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-class StoerWagner:
-    def __init__(self, n):
-        self.n = n
-        self.graph = [[0] * n for _ in range(n)]
-
-    def add_edge(self, u, v, weight):
-        self.graph[u][v] += weight
-        self.graph[v][u] += weight
-
-    def min_cut(self):
-        vertices = list(range(self.n))
-        min_cut = float('inf')
-
-        while len(vertices) > 1:
-            weights = [0] * self.n
-            added = [False] * self.n
-            prev = -1
-
-            for i in range(len(vertices)):
-                max_weight = -1
-                max_idx = -1
-
-                for v in vertices:
-                    if not added[v] and weights[v] > max_weight:
-                        max_weight = weights[v]
-                        max_idx = v
-
-                added[max_idx] = True
-
-                if i == len(vertices) - 1:
-                    s = prev
-                    t = max_idx
-                    min_cut = min(min_cut, max_weight)
-
-                    # 合并s和t
-                    for v in range(self.n):
-                        self.graph[s][v] += self.graph[t][v]
-                        self.graph[v][s] += self.graph[t][v]
-
-                    vertices.remove(t)
-                    break
-
-                prev = max_idx
-
-                for v in vertices:
-                    if not added[v]:
-                        weights[v] += self.graph[max_idx][v]
-
-        return min_cut
-
-# 测试
-sw = StoerWagner(4)
-sw.add_edge(0, 1, 6)
-sw.add_edge(0, 2, 5)
-sw.add_edge(0, 3, 4)
-sw.add_edge(1, 2, 3)
-sw.add_edge(1, 3, 2)
-sw.add_edge(2, 3, 3)
-
-print("全局最小割:", sw.min_cut())
-                    </code></pre></div>
-                </div>
-            </div>
-
-            <h3>二分图最大匹配 (Hopcroft-Karp)</h3>
-            <div class="algorithm-content">
-                <p>在二分图中找到最大数量的匹配边，使得没有两条边共享同一个顶点。Hopcroft-Karp算法时间复杂度为O(E√V)。</p>
-            </div>
-
-            <h3>最小生成树 (MST)</h3>
-            <div class="algorithm-content">
-                <h3>什么是最小生成树？</h3>
-                <p>最小生成树（Minimum Spanning Tree）是在一个连通加权无向图中找到一个包含所有顶点的树，且树中所有边的权重之和最小。</p>
-                
-                <p style="margin-top: 15px;"><strong>基本性质：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>切割性质：</strong>横跨任何切割的边中，权重最小的边一定属于某个MST</li>
-                    <li><strong>回路性质：</strong>在回路中，权重最大的边一定不属于任何MST</li>
-                </ul>
-            </div>
-
-            <div class="complexity">
-                <div class="complexity-item">
-                    <h4>Kruskal</h4>
-                    <p>O(E log E)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>Prim</h4>
-                    <p>O(E log V)</p>
-                </div>
-            </div>
-
-            <h3>Kruskal算法</h3>
-            <div class="algorithm-content">
-                <p><strong>算法思想：</strong>按照边权重从小到大排序，依次添加边，如果添加的边不形成回路，则将其加入生成树。</p>
-                
-                <p style="margin-top: 15px;"><strong>使用并查集(Union-Find)检测回路：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>Find：</strong>查找元素所属的集合（根节点）</li>
-                    <li><strong>Union：</strong>合并两个集合</li>
-                    <li><strong>路径压缩：</strong>加速Find操作</li>
-                </ul>
-            </div>
-
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="kruskal-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="kruskal-python">Python</button>
-                </div>
-                <div id="kruskal-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
+result = floyd_warshall(graph)
+for row in result:
+    print(row)</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 最小生成树 -->
+                    <section id="mst">
+                        <h2>最小生成树 (Minimum Spanning Tree)</h2>
+                        <p>在带权连通图中找到一棵包含所有顶点的树，使得树中所有边的权重之和最小。</p>
+
+                        <div class="algorithm-comparison">
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🌲</span> Prim 算法
+                                </h4>
+                                <p>从任意节点开始，每次添加最小权边</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O((V+E) log V)</span>
+                                    </div>
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">空间:</span>
+                                        <span class="complexity-value">O(V)</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">适合稠密图，类似 Dijkstra</p>
+                            </div>
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🔗</span> Kruskal 算法
+                                </h4>
+                                <p>按权重排序边，使用并查集避免环</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(E log E)</span>
+                                    </div>
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">空间:</span>
+                                        <span class="complexity-value">O(V)</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-muted);">适合稀疏图，实现简单</p>
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="kruskal-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="kruskal-python">Python</button>
+                            </div>
+                            <div id="kruskal-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// 并查集实现
 class UnionFind {
     constructor(n) {
         this.parent = Array(n).fill(0).map((_, i) => i);
@@ -1261,7 +848,7 @@ class UnionFind {
 
     find(x) {
         if (this.parent[x] !== x) {
-            this.parent[x] = this.find(this.parent[x]); // 路径压缩
+            this.parent[x] = this.find(this.parent[x]);
         }
         return this.parent[x];
     }
@@ -1269,10 +856,9 @@ class UnionFind {
     union(x, y) {
         const rootX = this.find(x);
         const rootY = this.find(y);
-        
+
         if (rootX === rootY) return false;
-        
-        // 按秩合并
+
         if (this.rank[rootX] < this.rank[rootY]) {
             this.parent[rootX] = rootY;
         } else if (this.rank[rootX] > this.rank[rootY]) {
@@ -1285,69 +871,50 @@ class UnionFind {
     }
 }
 
-class Kruskal {
-    constructor(n) {
-        this.n = n;
-        this.edges = [];
-    }
+// Kruskal 算法
+function kruskal(n, edges) {
+    // 按权重排序
+    edges.sort((a, b) => a[2] - b[2]);
 
-    addEdge(u, v, w) {
-        this.edges.push({ u, v, w });
-    }
+    const uf = new UnionFind(n);
+    const mst = [];
+    let totalWeight = 0;
 
-    mst() {
-        // 按权重排序
-        this.edges.sort((a, b) => a.w - b.w);
-        
-        const uf = new UnionFind(this.n);
-        const mst = [];
-        let totalWeight = 0;
-        
-        for (const edge of this.edges) {
-            if (uf.union(edge.u, edge.v)) {
-                mst.push(edge);
-                totalWeight += edge.w;
-            }
+    for (const [u, v, w] of edges) {
+        if (uf.union(u, v)) {
+            mst.push([u, v, w]);
+            totalWeight += w;
+            if (mst.length === n - 1) break;
         }
-        
-        return { edges: mst, totalWeight };
     }
+
+    return { mst, totalWeight };
 }
 
 // 测试
-const kruskal = new Kruskal(5);
-kruskal.addEdge(0, 1, 2);
-kruskal.addEdge(0, 3, 6);
-kruskal.addEdge(1, 2, 3);
-kruskal.addEdge(1, 3, 8);
-kruskal.addEdge(1, 4, 5);
-kruskal.addEdge(2, 4, 7);
-kruskal.addEdge(3, 4, 9);
-
-const result = kruskal.mst();
-console.log("MST总权重:", result.totalWeight);
-console.log("MST边:", result.edges);
-                    </code></pre></div>
-                </div>
-                <div id="kruskal-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-class UnionFind:
+const edges = [
+    [0, 1, 4], [0, 2, 2],
+    [1, 2, 5], [1, 3, 10],
+    [2, 3, 3], [3, 4, 7],
+    [2, 4, 6]
+];
+console.log(kruskal(5, edges));</code></pre></div>
+                            </div>
+                            <div id="kruskal-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">class UnionFind:
     def __init__(self, n):
         self.parent = list(range(n))
         self.rank = [0] * n
-    
+
     def find(self, x):
         if self.parent[x] != x:
             self.parent[x] = self.find(self.parent[x])
         return self.parent[x]
-    
+
     def union(self, x, y):
-        root_x = self.find(x)
-        root_y = self.find(y)
-        
+        root_x, root_y = self.find(x), self.find(y)
         if root_x == root_y:
             return False
-        
         if self.rank[root_x] < self.rank[root_y]:
             self.parent[root_x] = root_y
         elif self.rank[root_x] > self.rank[root_y]:
@@ -1357,987 +924,700 @@ class UnionFind:
             self.rank[root_x] += 1
         return True
 
-class Kruskal:
-    def __init__(self, n):
-        self.n = n
-        self.edges = []
-    
-    def add_edge(self, u, v, w):
-        self.edges.append((u, v, w))
-    
-    def mst(self):
-        self.edges.sort(key=lambda x: x[2])
-        
-        uf = UnionFind(self.n)
-        mst = []
-        total_weight = 0
-        
-        for u, v, w in self.edges:
-            if uf.union(u, v):
-                mst.append((u, v, w))
-                total_weight += w
-        
-        return mst, total_weight
+def kruskal(n, edges):
+    """
+    Kruskal 算法求最小生成树
+    edges: [(u, v, w), ...]
+    """
+    # 按权重排序
+    edges.sort(key=lambda x: x[2])
+
+    uf = UnionFind(n)
+    mst = []
+    total_weight = 0
+
+    for u, v, w in edges:
+        if uf.union(u, v):
+            mst.append((u, v, w))
+            total_weight += w
+            if len(mst) == n - 1:
+                break
+
+    return mst, total_weight
 
 # 测试
-kruskal = Kruskal(5)
-kruskal.add_edge(0, 1, 2)
-kruskal.add_edge(0, 3, 6)
-kruskal.add_edge(1, 2, 3)
-kruskal.add_edge(1, 3, 8)
-kruskal.add_edge(1, 4, 5)
-kruskal.add_edge(2, 4, 7)
-kruskal.add_edge(3, 4, 9)
+edges = [
+    (0, 1, 4), (0, 2, 2),
+    (1, 2, 5), (1, 3, 10),
+    (2, 3, 3), (3, 4, 7),
+    (2, 4, 6)
+]
+mst, weight = kruskal(5, edges)
+print(f"MST: {mst}")
+print(f"总权重：{weight}")</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
 
-mst, weight = kruskal.mst()
-print("MST总权重:", weight)
-print("MST边:", mst)
-                    </code></pre></div>
-                </div>
-            </div>
+                    <!-- 拓扑排序 -->
+                    <section id="topo">
+                        <h2>拓扑排序 (Topological Sort)</h2>
+                        <p>对有向无环图 (DAG) 的顶点进行线性排序，使得对于每一条有向边 (u, v)，u 在排序中都出现在 v 之前。</p>
 
-            <h3>Prim算法</h3>
-            <div class="algorithm-content">
-                <p><strong>算法思想：</strong>从任意一个顶点开始，逐步扩展生成树。每次选择一条连接已选顶点集合和未选顶点集合的最小权重边。</p>
-                
-                <p style="margin-top: 15px;"><strong>实现方式：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>朴素版：</strong>O(V²)，适合稠密图</li>
-                    <li><strong>优先队列版：</strong>O(E log V)，适合稀疏图</li>
-                </ul>
-            </div>
+                        <div class="info-card warning">
+                            <div class="info-card-title">
+                                <span>⚠️</span> 注意
+                            </div>
+                            <div class="info-card-content">
+                                只有有向无环图 (DAG) 才能进行拓扑排序。如果图中存在环，则无法完成拓扑排序。
+                            </div>
+                        </div>
 
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="prim-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="prim-python">Python</button>
-                </div>
-                <div id="prim-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
-class Prim {
+                        <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
+                            <div class="mermaid">
+sequenceDiagram
+    participant 初始化入度
+    participant 入队
+    participant BFS
+    participant 结果
+
+    初始化入度->>入队：计算所有节点入度
+    入队->>BFS: 入度为 0 的节点入队
+    BFS->>BFS: 取出节点，减少邻居入度
+    BFS->>入队：新入度为 0 的节点入队
+    BFS->>结果：所有节点出队即为拓扑序
+    Note over 初始化入度，结果：Kahn 算法流程
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="topo-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="topo-python">Python</button>
+                            </div>
+                            <div id="topo-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Kahn 算法 - BFS 实现
+function topologicalSort(graph) {
+    const n = graph.length;
+    const inDegree = Array(n).fill(0);
+    const result = [];
+
+    // 计算入度
+    for (let u = 0; u < n; u++) {
+        for (const v of graph[u]) {
+            inDegree[v]++;
+        }
+    }
+
+    // 入度为 0 的节点入队
+    const queue = [];
+    for (let i = 0; i < n; i++) {
+        if (inDegree[i] === 0) {
+            queue.push(i);
+        }
+    }
+
+    // BFS 处理
+    while (queue.length > 0) {
+        const u = queue.shift();
+        result.push(u);
+
+        for (const v of graph[u]) {
+            inDegree[v]--;
+            if (inDegree[v] === 0) {
+                queue.push(v);
+            }
+        }
+    }
+
+    // 检查是否有环
+    return result.length === n ? result : [];
+}
+
+// 测试 - 课程表问题
+const courseGraph = [
+    [2],    // 课程 0 完成后才能学课程 2
+    [2, 3], // 课程 1 完成后才能学课程 2 和 3
+    [4],    // 课程 2 完成后才能学课程 4
+    [4],    // 课程 3 完成后才能学课程 4
+    []      // 课程 4 没有后续
+];
+console.log(topologicalSort(courseGraph));
+// 可能的输出：[0, 1, 2, 3, 4] 或 [1, 0, 3, 2, 4]</code></pre></div>
+                            </div>
+                            <div id="topo-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">from collections import deque
+
+def topological_sort(graph):
+    """
+    Kahn 算法 - 拓扑排序
+    graph: 邻接表，graph[u] = [v1, v2, ...]
+    """
+    n = len(graph)
+    in_degree = [0] * n
+    result = []
+
+    # 计算入度
+    for u in range(n):
+        for v in graph[u]:
+            in_degree[v] += 1
+
+    # 入度为 0 的节点入队
+    queue = deque([i for i in range(n) if in_degree[i] == 0])
+
+    # BFS 处理
+    while queue:
+        u = queue.popleft()
+        result.append(u)
+
+        for v in graph[u]:
+            in_degree[v] -= 1
+            if in_degree[v] == 0:
+                queue.append(v)
+
+    # 检查是否有环
+    return result if len(result) == n else []
+
+# 测试 - 课程表问题
+course_graph = [
+    [2],        # 课程 0 -> 课程 2
+    [2, 3],     # 课程 1 -> 课程 2, 3
+    [4],        # 课程 2 -> 课程 4
+    [4],        # 课程 3 -> 课程 4
+    []          # 课程 4 无后续
+]
+print(topological_sort(course_graph))
+# 可能的输出：[0, 1, 2, 3, 4] 或 [1, 0, 3, 2, 4]</code></pre></div>
+                            </div>
+                        </div>
+
+                        <h3 class="mt-4">实际应用场景</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>应用场景</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>任务调度</td>
+                                    <td>确定任务执行顺序</td>
+                                    <td>构建系统、CI/CD 流水线</td>
+                                </tr>
+                                <tr>
+                                    <td>课程安排</td>
+                                    <td>确定课程学习顺序</td>
+                                    <td>大学课程先修关系</td>
+                                </tr>
+                                <tr>
+                                    <td>依赖解析</td>
+                                    <td>解析包依赖关系</td>
+                                    <td>npm、pip、maven</td>
+                                </tr>
+                                <tr>
+                                    <td>电子表格</td>
+                                    <td>单元格计算顺序</td>
+                                    <td>Excel 公式计算</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <!-- 最大流 -->
+                    <section id="maxflow">
+                        <h2>最大流问题 (Maximum Flow)</h2>
+                        <p>在网络流图中，找到从源点 (source) 到汇点 (sink) 的最大流量。每条边有容量限制，且流入等于流出。</p>
+
+                        <div class="formula-box">
+                            <div class="formula-title">最大流约束条件</div>
+                            <div>
+                                1. 容量限制：f(u, v) ≤ c(u, v)<br>
+                                2. 流量守恒：∑f(u, v) = ∑f(v, u) (除源点和汇点外)<br>
+                                3. 反对称性：f(u, v) = -f(v, u)
+                            </div>
+                        </div>
+
+                        <div class="algorithm-comparison">
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🔄</span> Ford-Fulkerson
+                                </h4>
+                                <p>寻找增广路径，更新残留网络</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(E·max_flow)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="algo-card">
+                                <h4>
+                                    <span>⚡</span> Edmonds-Karp
+                                </h4>
+                                <p>使用 BFS 找增广路径</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(VE²)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="algo-card">
+                                <h4>
+                                    <span>🚀</span> Dinic
+                                </h4>
+                                <p>分层图 + 阻塞流</p>
+                                <div class="complexity">
+                                    <div class="complexity-row">
+                                        <span class="complexity-label">时间:</span>
+                                        <span class="complexity-value">O(V²E)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="maxflow-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="maxflow-python">Python</button>
+                            </div>
+                            <div id="maxflow-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Edmonds-Karp 算法 (Ford-Fulkerson + BFS)
+class MaxFlow {
     constructor(n) {
         this.n = n;
-        this.graph = Array(n).fill(null).map(() => Array(n).fill(0));
+        this.capacity = Array(n).fill(null).map(() => Array(n).fill(0));
     }
 
-    addEdge(u, v, w) {
-        this.graph[u][v] = w;
-        this.graph[v][u] = w;
+    addEdge(u, v, cap) {
+        this.capacity[u][v] += cap;
     }
 
-    mst(start = 0) {
-        const key = Array(this.n).fill(Infinity);
-        const parent = Array(this.n).fill(-1);
-        const inMST = Array(this.n).fill(false);
-        const pq = new PriorityQueue();
+    bfs(s, t, parent) {
+        const visited = Array(this.n).fill(false);
+        const queue = [s];
+        visited[s] = true;
+        parent[s] = -1;
 
-        key[start] = 0;
-        pq.enqueue(start, 0);
-
-        while (!pq.isEmpty()) {
-            const { element: u } = pq.dequeue();
-            inMST[u] = true;
+        while (queue.length > 0) {
+            const u = queue.shift();
 
             for (let v = 0; v < this.n; v++) {
-                if (this.graph[u][v] > 0 && !inMST[v] && this.graph[u][v] < key[v]) {
-                    key[v] = this.graph[u][v];
+                if (!visited[v] && this.capacity[u][v] > 0) {
+                    visited[v] = true;
                     parent[v] = u;
-                    pq.enqueue(v, key[v]);
+                    queue.push(v);
+                    if (v === t) return true;
                 }
             }
         }
+        return false;
+    }
 
-        const mst = [];
-        let totalWeight = 0;
-        for (let i = 1; i < this.n; i++) {
-            if (parent[i] !== -1) {
-                mst.push({ u: parent[i], v: i, w: this.graph[parent[i]][i] });
-                totalWeight += this.graph[parent[i]][i];
+    edmondsKarp(s, t) {
+        let maxFlow = 0;
+        const parent = Array(this.n).fill(-1);
+
+        while (this.bfs(s, t, parent)) {
+            // 找到路径上的最小容量
+            let pathFlow = Infinity;
+            let v = t;
+            while (v !== s) {
+                const u = parent[v];
+                pathFlow = Math.min(pathFlow, this.capacity[u][v]);
+                v = u;
             }
+
+            // 更新残留网络
+            v = t;
+            while (v !== s) {
+                const u = parent[v];
+                this.capacity[u][v] -= pathFlow;
+                this.capacity[v][u] += pathFlow;
+                v = u;
+            }
+
+            maxFlow += pathFlow;
         }
 
-        return { edges: mst, totalWeight };
-    }
-}
-
-class PriorityQueue {
-    constructor() {
-        this.items = [];
-    }
-
-    enqueue(element, priority) {
-        this.items.push({ element, priority });
-        this.items.sort((a, b) => a.priority - b.priority);
-    }
-
-    dequeue() {
-        return this.items.shift();
-    }
-
-    isEmpty() {
-        return this.items.length === 0;
+        return maxFlow;
     }
 }
 
 // 测试
-const prim = new Prim(5);
-prim.addEdge(0, 1, 2);
-prim.addEdge(0, 3, 6);
-prim.addEdge(1, 2, 3);
-prim.addEdge(1, 3, 8);
-prim.addEdge(1, 4, 5);
-prim.addEdge(2, 4, 7);
-prim.addEdge(3, 4, 9);
+const mf = new MaxFlow(6);
+mf.addEdge(0, 1, 16);
+mf.addEdge(0, 2, 13);
+mf.addEdge(1, 2, 10);
+mf.addEdge(1, 3, 12);
+mf.addEdge(2, 1, 4);
+mf.addEdge(2, 4, 14);
+mf.addEdge(3, 2, 9);
+mf.addEdge(3, 5, 20);
+mf.addEdge(4, 3, 7);
+mf.addEdge(4, 5, 4);
 
-const result2 = prim.mst(0);
-console.log("MST总权重:", result2.totalWeight);
-console.log("MST边:", result2.edges);
-                    </code></pre></div>
-                </div>
-                <div id="prim-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-import heapq
+console.log(mf.edmondsKarp(0, 5)); // 23</code></pre></div>
+                            </div>
+                            <div id="maxflow-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">from collections import deque
 
-class Prim:
+class MaxFlow:
     def __init__(self, n):
         self.n = n
-        self.graph = [[0] * n for _ in range(n)]
-    
-    def add_edge(self, u, v, w):
-        self.graph[u][v] = w
-        self.graph[v][u] = w
-    
-    def mst(self, start=0):
-        key = [float('inf')] * self.n
-        parent = [-1] * self.n
-        in_mst = [False] * self.n
-        
-        key[start] = 0
-        pq = [(0, start)]  # (weight, vertex)
-        
-        while pq:
-            weight, u = heapq.heappop(pq)
-            if in_mst[u]:
-                continue
-            in_mst[u] = True
-            
-            for v in range(self.n):
-                if self.graph[u][v] > 0 and not in_mst[v]:
-                    if self.graph[u][v] < key[v]:
-                        key[v] = self.graph[u][v]
-                        parent[v] = u
-                        heapq.heappush(pq, (key[v], v))
-        
-        mst = []
-        total_weight = 0
-        for i in range(1, self.n):
-            if parent[i] != -1:
-                mst.append((parent[i], i, self.graph[parent[i]][i]))
-                total_weight += self.graph[parent[i]][i]
-        
-        return mst, total_weight
+        self.capacity = [[0] * n for _ in range(n)]
 
-# 测试
-prim = Prim(5)
-prim.add_edge(0, 1, 2)
-prim.add_edge(0, 3, 6)
-prim.add_edge(1, 2, 3)
-prim.add_edge(1, 3, 8)
-prim.add_edge(1, 4, 5)
-prim.add_edge(2, 4, 7)
-prim.add_edge(3, 4, 9)
+    def add_edge(self, u, v, cap):
+        self.capacity[u][v] += cap
 
-mst, weight = prim.mst(0)
-print("MST总权重:", weight)
-print("MST边:", mst)
-                    </code></pre></div>
-                </div>
-            </div>
+    def bfs(self, s, t, parent):
+        visited = [False] * self.n
+        queue = deque([s])
+        visited[s] = True
+        parent[s] = -1
 
-            <h3>Kruskal vs Prim</h3>
-            <div class="algorithm-content">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr style="background: #3498db; color: white;">
-                        <th style="padding: 12px;">特性</th>
-                        <th style="padding: 12px;">Kruskal</th>
-                        <th style="padding: 12px;">Prim</th>
-                    </tr>
-                    <tr style="background: #f8f9fa;">
-                        <td style="padding: 12px;">时间复杂度</td>
-                        <td style="padding: 12px;">O(E log E)</td>
-                        <td style="padding: 12px;">O(E log V)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 12px;">适用图类型</td>
-                        <td style="padding: 12px;">稀疏图</td>
-                        <td style="padding: 12px;">稠密图</td>
-                    </tr>
-                    <tr style="background: #f8f9fa;">
-                        <td style="padding: 12px;">实现复杂度</td>
-                        <td style="padding: 12px;">简单</td>
-                        <td style="padding: 12px;">中等</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 12px;">数据结构</td>
-                        <td style="padding: 12px;">并查集</td>
-                        <td style="padding: 12px;">优先队列</td>
-                    </tr>
-                </table>
-            </div>
-
-            <h3>最小生成树应用场景</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li><strong>网络设计：</strong>通信网络、电网的最小成本建设</li>
-                    <li><strong>聚类分析：</strong>基于MST的层次聚类</li>
-                    <li><strong>图像处理：</strong>最小生成树用于图像分割</li>
-                    <li><strong>近似算法：</strong>旅行商问题的近似解</li>
-                </ul>
-            </div>
-
-            <h3>社区发现算法 (Community Detection)</h3>
-            <div class="algorithm-content">
-                <h3>什么是社区发现？</h3>
-                <p>社区发现旨在将复杂网络中的节点分组，使得同一社区内的节点连接紧密，不同社区间的节点连接稀疏。这对于分析社交网络、生物网络等非常重要。</p>
-                
-                <p style="margin-top: 15px;"><strong>核心概念：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>社区(Community)：</strong>内部连接紧密的节点集合</li>
-                    <li><strong>模块度(Modularity)：</strong>衡量社区划分质量的指标</li>
-                    <li><strong>Q值：</strong>模块度的取值范围通常为[-0.5, 1]</li>
-                </ul>
-            </div>
-
-            <div class="complexity">
-                <div class="complexity-item">
-                    <h4>Louvain</h4>
-                    <p>O(n log n)</p>
-                </div>
-                <div class="complexity-item">
-                    <h4>Girvan-Newman</h4>
-                    <p>O(VE²)</p>
-                </div>
-            </div>
-
-            <h3>Louvain算法</h3>
-            <div class="algorithm-content">
-                <p>Louvain算法是一种基于模块度优化的社区发现算法，时间复杂度接近线性，适合大规模网络。</p>
-                
-                <p style="margin-top: 15px;"><strong>算法步骤：</strong></p>
-                <ol style="margin-left: 20px;">
-                    <li><strong>初始阶段：</strong>每个节点作为一个独立的社区</li>
-                    <li><strong>局部优化：</strong>将节点移动到能最大增加模块度的邻居社区</li>
-                    <li><strong>凝聚阶段：</strong>将同一社区的节点合并为一个超节点</li>
-                    <li><strong>迭代：</strong>重复步骤2-3直到模块度不再增加</li>
-                </ol>
-
-                <p style="margin-top: 15px;"><strong>模块度计算公式：</strong></p>
-                <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Consolas', monospace; color: #f8f8f2;">
-                    <p>Q = (1/2m) × Σᵢⱼ [Aᵢⱼ - kᵢkⱼ/(2m)] × δ(cᵢ, cⱼ)</p>
-                    <p>其中：</p>
-                    <p>m = 边的总数</p>
-                    <p>Aᵢⱼ = 邻接矩阵（1表示有边）</p>
-                    <p>kᵢ = 节点i的度</p>
-                    <p>cᵢ = 节点i所属社区</p>
-                    <p>δ(cᵢ, cⱼ) = 1如果cᵢ = cⱼ，否则为0</p>
-                </div>
-            </div>
-
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="louvain-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="louvain-python">Python</button>
-                </div>
-                <div id="louvain-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
-class Louvain {
-    constructor() {
-        this.graph = new Map();
-        this.communities = new Map();
-        this.weights = new Map();
-    }
-
-    addEdge(u, v, weight = 1) {
-        if (!this.graph.has(u)) {
-            this.graph.set(u, new Map());
-            this.communities.set(u, u);
-        }
-        if (!this.graph.has(v)) {
-            this.graph.set(v, new Map());
-            this.communities.set(v, v);
-        }
-
-        const key = u < v ? `${u}-${v}` : `${v}-${u}`;
-        const existing = this.graph.get(u).get(v) || 0;
-        this.graph.get(u).set(v, existing + weight);
-        this.graph.get(v).set(u, existing + weight);
-    }
-
-    _getNeighbors(node) {
-        return this.graph.get(node) || new Map();
-    }
-
-    _getWeight(u, v) {
-        return this._getNeighbors(u).get(v) || 0;
-    }
-
-    _getDegree(node) {
-        return Array.from(this._getNeighbors(node).values()).reduce((a, b) => a + b, 0);
-    }
-
-    _calculateModularity() {
-        let Q = 0;
-        const m = this._getTotalWeight();
-        
-        for (const [u, neighbors] of this.graph) {
-            for, w] of (const [v neighbors) {
-                if (u < v) {
-                    const cu = this.communities.get(u);
-                    const cv = this.communities.get(v);
-                    if (cu === cv) {
-                        const ki = this._getDegree(u);
-                        const kj = this._getDegree(v);
-                        Q += (w - (ki * kj) / (2 * m));
-                    }
-                }
-            }
-        }
-        
-        return Q / m;
-    }
-
-    _getTotalWeight() {
-        let total = 0;
-        for (const [u, neighbors] of this.graph) {
-            for (const [v, w] of neighbors) {
-                if (u < v) total += w;
-            }
-        }
-        return total;
-    }
-
-    _calculateDeltaQ(node, newCommunity, oldCommunity) {
-        const m = this._getTotalWeight();
-        const k = this._getDegree(node);
-        
-        let sumIn = 0;  // 新社区内部边的权重和
-        let sumTot = 0; // 新社区所有边的权重和
-        
-        for (const [neighbor, w] of this._getNeighbors(node)) {
-            if (this.communities.get(neighbor) === newCommunity) {
-                sumIn += w;
-                sumTot += w;
-            } else if (this.communities.get(neighbor) === oldCommunity) {
-                sumTot += w;
-            }
-        }
-        
-        const sigmaTot = sumTot;
-        const kiIn = sumIn;
-        
-        return (sigmaTot + k) / m - Math.pow(kiIn + k, 2) / (m * m) 
-             - (sigmaTot - k) / m - Math.pow(kiIn, 2) / (m * m);
-    }
-
-    fit(maxIterations = 100) {
-        let iteration = 0;
-        let modularity = this._calculateModularity();
-        
-        while (iteration < maxIterations) {
-            let changed = false;
-            
-            for (const node of this.graph.keys()) {
-                const currentCommunity = this.communities.get(node);
-                const neighbors = this._getNeighbors(node);
-                
-                let bestCommunity = currentCommunity;
-                let bestDeltaQ = 0;
-                
-                for (const [neighbor] of neighbors) {
-                    const neighborCommunity = this.communities.get(neighbor);
-                    if (neighborCommunity !== currentCommunity) {
-                        const deltaQ = this._calculateDeltaQ(node, neighborCommunity, currentCommunity);
-                        if (deltaQ > bestDeltaQ) {
-                            bestDeltaQ = deltaQ;
-                            bestCommunity = neighborCommunity;
-                        }
-                    }
-                }
-                
-                if (bestCommunity !== currentCommunity && bestDeltaQ > 0) {
-                    this.communities.set(node, bestCommunity);
-                    changed = true;
-                }
-            }
-            
-            const newModularity = this._calculateModularity();
-            if (!changed || Math.abs(newModularity - modularity) < 1e-6) {
-                break;
-            }
-            modularity = newModularity;
-            iteration++;
-        }
-        
-        return {
-            communities: this.communities,
-            modularity: this._calculateModularity()
-        };
-    }
-
-    getCommunityLabels() {
-        const labels = {};
-        for (const [node, community] of this.communities) {
-            labels[node] = community;
-        }
-        return labels;
-    }
-}
-
-// 测试：Karate Club网络
-const louvain = new Louvain();
-// 构建一个示例网络
-louvain.addEdge(0, 1, 4);
-louvain.addEdge(0, 2, 3);
-louvain.addEdge(0, 3, 3);
-louvain.addEdge(1, 2, 2);
-louvain.addEdge(1, 3, 3);
-louvain.addEdge(2, 3, 2);
-louvain.addEdge(2, 4, 1);
-louvain.addEdge(3, 4, 1);
-louvain.addEdge(4, 5, 2);
-louvain.addEdge(4, 6, 1);
-louvain.addEdge(5, 6, 3);
-
-const result = louvain.fit();
-console.log("社区划分:", result.communities);
-console.log("模块度:", result.modularity);
-console.log("标签:", louvain.getCommunityLabels());
-                    </code></pre></div>
-                </div>
-                <div id="louvain-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-import numpy as np
-
-class Louvain:
-    def __init__(self):
-        self.graph = {}
-        self.communities = {}
-        self.weights = {}
-    
-    def add_edge(self, u, v, weight=1):
-        if u not in self.graph:
-            self.graph[u] = {}
-            self.communities[u] = u
-        if v not in self.graph:
-            self.graph[v] = {}
-            self.communities[v] = v
-        
-        self.graph[u][v] = self.graph[u].get(v, 0) + weight
-        self.graph[v][u] = self.graph[v].get(u, 0) + weight
-    
-    def _get_neighbors(self, node):
-        return self.graph.get(node, {})
-    
-    def _get_weight(self, u, v):
-        return self._get_neighbors(u).get(v, 0)
-    
-    def _get_degree(self, node):
-        return sum(self._get_neighbors(node).values())
-    
-    def _get_total_weight(self):
-        total = 0
-        for u in self.graph:
-            for v in self.graph[u]:
-                if u < v:
-                    total += self.graph[u][v]
-        return total
-    
-    def _calculate_modularity(self):
-        m = self._get_total_weight()
-        Q = 0
-        
-        for u in self.graph:
-            for v in self.graph[u]:
-                if u < v:
-                    cu = self.communities[u]
-                    cv = self.communities[v]
-                    if cu == cv:
-                        w = self.graph[u][v]
-                        ki = self._get_degree(u)
-                        kj = self._get_degree(v)
-                        Q += w - (ki * kj) / (2 * m)
-        
-        return Q / m
-    
-    def _calculate_delta_q(self, node, new_community, old_community):
-        m = self._get_total_weight()
-        k = self._get_degree(node)
-        
-        sum_in = 0
-        sum_tot = 0
-        
-        for neighbor, w in self._get_neighbors(node).items():
-            comm = self.communities[neighbor]
-            if comm == new_community:
-                sum_in += w
-                sum_tot += w
-            elif comm == old_community:
-                sum_tot += w
-        
-        sigma_tot = sum_tot
-        ki_in = sum_in
-        
-        return ((sigma_tot + k) / m - (ki_in + k) ** 2 / (m * m)
-                - (sigma_tot - k) / m - ki_in ** 2 / (m * m))
-    
-    def fit(self, max_iterations=100):
-        modularity = self._calculate_modularity()
-        
-        for _ in range(max_iterations):
-            changed = False
-            
-            for node in self.graph:
-                current_comm = self.communities[node]
-                neighbors = self._get_neighbors(node)
-                
-                best_comm = current_comm
-                best_delta = 0
-                
-                for neighbor in neighbors:
-                    neighbor_comm = self.communities[neighbor]
-                    if neighbor_comm != current_comm:
-                        delta = self._calculate_delta_q(node, neighbor_comm, current_comm)
-                        if delta > best_delta:
-                            best_delta = delta
-                            best_comm = neighbor_comm
-                
-                if best_comm != current_comm and best_delta > 0:
-                    self.communities[node] = best_comm
-                    changed = True
-            
-            new_modularity = self._calculate_modularity()
-            if not changed or abs(new_modularity - modularity) < 1e-6:
-                break
-            modularity = new_modularity
-        
-        return {
-            'communities': self.communities,
-            'modularity': self._calculate_modularity()
-        }
-
-# 测试
-louvain = Louvain()
-louvain.add_edge(0, 1, 4)
-louvain.add_edge(0, 2, 3)
-louvain.add_edge(0, 3, 3)
-louvain.add_edge(1, 2, 2)
-louvain.add_edge(1, 3, 3)
-louvain.add_edge(2, 3, 2)
-louvain.add_edge(2, 4, 1)
-louvain.add_edge(3, 4, 1)
-louvain.add_edge(4, 5, 2)
-louvain.add_edge(4, 6, 1)
-louvain.add_edge(5, 6, 3)
-
-result = louvain.fit()
-print("社区划分:", result['communities'])
-print("模块度:", result['modularity'])
-                    </code></pre></div>
-                </div>
-            </div>
-
-            <h3>Girvan-Newman算法</h3>
-            <div class="algorithm-content">
-                <p>Girvan-Newman是一种基于边介数的社区发现算法，通过逐步移除介数最大的边来分割网络。</p>
-                
-                <p style="margin-top: 15px;"><strong>核心概念：</strong></p>
-                <ul style="margin-left: 20px;">
-                    <li><strong>边介数(Betweenness)：</strong>经过一条边的最短路径数量</li>
-                    <li>介数高的边通常是连接不同社区的"桥梁"</li>
-                </ul>
-
-                <p style="margin-top: 15px;"><strong>算法步骤：</strong></p>
-                <ol style="margin-left: 20px;">
-                    <li>计算所有边的介数</li>
-                    <li>移除介数最高的边</li>
-                    <li>重新计算剩余边的介数</li>
-                    <li>重复直到达到期望的社区数量</li>
-                </ol>
-            </div>
-
-            <div class="code-tabs">
-                <div class="code-tab-header">
-                    <button class="code-tab-btn active" data-tab="gn-js">JavaScript</button>
-                    <button class="code-tab-btn" data-tab="gn-python">Python</button>
-                </div>
-                <div id="gn-js" class="code-tab-content active">
-                    <div class="code-block line-numbers"><pre><code class="language-javascript">
-class GirvanNewman {
-    constructor() {
-        this.graph = new Map();
-    }
-
-    addEdge(u, v) {
-        if (!this.graph.has(u)) this.graph.set(u, new Set());
-        if (!this.graph.has(v)) this.graph.set(v, new Set());
-        this.graph.get(u).add(v);
-        this.graph.get(v).add(u);
-    }
-
-    _bfs(source) {
-        const distances = new Map();
-        const parents = new Map();
-        const edgeCount = new Map();
-        const queue = [source];
-        
-        distances.set(source, 0);
-        for (const node of this.graph.keys()) {
-            if (node !== source) distances.set(node, -1);
-            parents.set(node, []);
-            edgeCount.set(node, 1);
-        }
-        
-        const visited = new Set([source]);
-        
-        while (queue.length > 0) {
-            const u = queue.shift();
-            for (const v of this.graph.get(u)) {
-                if (!visited.has(v)) {
-                    visited.add(v);
-                    distances.set(v, distances.get(u) + 1);
-                    queue.push(v);
-                    parents.get(v).push(u);
-                } else if (distances.get(v) === distances.get(u) + 1) {
-                    parents.get(v).push(u);
-                }
-            }
-        }
-        
-        const betweenness = new Map();
-        for (const node of this.graph.keys()) {
-            betweenness.set(node, 0);
-        }
-        
-        const reversed = [...this.graph.keys()].reverse();
-        for (const u of reversed) {
-            for (const v of parents.get(u)) {
-                const contribution = edgeCount.get(u) * (1 + betweenness.get(u)) / edgeCount.get(v);
-                betweenness.set(v, betweenness.get(v) + contribution);
-            }
-        }
-        
-        const edgeBetweenness = new Map();
-        for (const u of this.graph.keys()) {
-            for (const v of this.graph.get(u)) {
-                if (u < v) {
-                    const key = `${u}-${v}`;
-                    edgeBetweenness.set(key, (betweenness.get(u) + betweenness.get(v)) / 2);
-                }
-            }
-        }
-        
-        return edgeBetweenness;
-    }
-
-    calculateAllBetweenness() {
-        const totalBetweenness = new Map();
-        
-        for (const node of this.graph.keys()) {
-            const eb = this._bfs(node);
-            for (const [edge, value] of eb) {
-                totalBetweenness.set(edge, (totalBetweenness.get(edge) || 0) + value);
-            }
-        }
-        
-        return totalBetweenness;
-    }
-
-    getCommunities(nCommunities) {
-        const originalGraph = new Map();
-        for (const [node, neighbors] of this.graph) {
-            originalGraph.set(node, new Set(neighbors));
-        }
-        
-        const communities = [];
-        for (const node of originalGraph.keys()) {
-            communities.push([node]);
-        }
-        
-        while (communities.length > nCommunities) {
-            const betweenness = this.calculateAllBetweenness();
-            
-            // 找到介数最高的边
-            let maxEdge = null;
-            let maxValue = -1;
-            for (const [edge, value] of betweenness) {
-                if (value > maxValue) {
-                    maxValue = value;
-                    maxEdge = edge;
-                }
-            }
-            
-            if (!maxEdge) break;
-            
-            // 移除该边
-            const [u, v] = maxEdge.split('-');
-            this.graph.get(u).delete(v);
-            this.graph.get(v).delete(u);
-            
-            // 如果图不连通，分裂社区
-            if (!this._isConnected()) {
-                const components = this._getComponents();
-                // 更新communities数组
-                const newCommunities = [];
-                const nodeToNewComm = new Map();
-                
-                for (let i = 0; i < communities.length; i++) {
-                    const compNodes = new Set(components.map(c => c.has(i) ? i : null).filter(x => x !== null));
-                }
-            }
-        }
-        
-        return communities;
-    }
-
-    _isConnected() {
-        if (this.graph.size === 0) return true;
-        
-        const visited = new Set();
-        const queue = [this.graph.keys().next().value];
-        
-        while (queue.length > 0) {
-            const node = queue.shift();
-            visited.add(node);
-            
-            for (const neighbor of this.graph.get(node)) {
-                if (!visited.has(neighbor)) {
-                    visited.add(neighbor);
-                    queue.push(neighbor);
-                }
-            }
-        }
-        
-        return visited.size === this.graph.size;
-    }
-
-    _getComponents() {
-        const visited = new Set();
-        const components = [];
-        
-        for (const node of this.graph.keys()) {
-            if (!visited.has(node)) {
-                const component = new Set();
-                const queue = [node];
-                
-                while (queue.length > 0) {
-                    const u = queue.shift();
-                    if (visited.has(u)) continue;
-                    visited.add(u);
-                    component.add(u);
-                    
-                    for (const v of this.graph.get(u)) {
-                        if (!visited.has(v)) {
-                            queue.push(v);
-                        }
-                    }
-                }
-                
-                components.push(component);
-            }
-        }
-        
-        return components;
-    }
-}
-                    </code></pre></div>
-                </div>
-                <div id="gn-python" class="code-tab-content">
-                    <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import deque
-
-class GirvanNewman:
-    def __init__(self):
-        self.graph = {}
-    
-    def add_edge(self, u, v):
-        if u not in self.graph:
-            self.graph[u] = set()
-        if v not in self.graph:
-            self.graph[v] = set()
-        self.graph[u].add(v)
-        self.graph[v].add(u)
-    
-    def _bfs(self, source):
-        distances = {source: 0}
-        parents = {node: [] for node in self.graph}
-        edge_count = {node: 1 for node in self.graph}
-        queue = deque([source])
-        visited = {source}
-        
         while queue:
             u = queue.popleft()
-            for v in self.graph[u]:
-                if v not in visited:
-                    visited.add(v)
-                    distances[v] = distances[u] + 1
+            for v in range(self.n):
+                if not visited[v] and self.capacity[u][v] > 0:
+                    visited[v] = True
+                    parent[v] = u
                     queue.append(v)
-                    parents[v].append(u)
-                elif distances[v] == distances[u] + 1:
-                    parents[v].append(u)
-        
-        betweenness = {node: 0 for node in self.graph}
-        
-        for node in reversed(list(self.graph.keys())):
-            for v in parents[node]:
-                contribution = edge_count[node] * (1 + betweenness[node]) / edge_count[v]
-                betweenness[v] += contribution
-        
-        edge_betweenness = {}
-        for u in self.graph:
-            for v in self.graph[u]:
-                if u < v:
-                    edge_betweenness[(u, v)] = (betweenness[u] + betweenness[v]) / 2
-        
-        return edge_betweenness
-    
-    def calculate_all_betweenness(self):
-        total_betweenness = {}
-        for node in self.graph:
-            eb = self._bfs(node)
-            for edge, value in eb.items():
-                total_betweenness[edge] = total_betweenness.get(edge, 0) + value
-        return total_betweenness
-    
-    def get_communities(self, n_communities):
-        communities = [[node] for node in self.graph.keys()]
-        
-        while len(communities) > n_communities:
-            betweenness = self.calculate_all_betweenness()
-            
-            if not betweenness:
-                break
-            
-            max_edge = max(betweenness.items(), key=lambda x: x[1])[0]
-            u, v = max_edge
-            
-            # 移除边
-            self.graph[u].remove(v)
-            self.graph[v].remove(u)
-            
-            # 检查是否形成新社区
-            components = self._get_components()
-            if len(components) > len(communities):
-                # 合并到新社区
-                communities = [list(c) for c in components]
-        
-        return communities
-    
-    def _get_components(self):
-        visited = set()
-        components = []
-        
-        for node in self.graph:
-            if node not in visited:
-                component = set()
-                queue = [node]
-                
-                while queue:
-                    u = queue.pop()
-                    if u in visited:
-                        continue
-                    visited.add(u)
-                    component.add(u)
-                    
-                    for v in self.graph[u]:
-                        if v not in visited:
-                            queue.append(v)
-                
-                components.append(component)
-        
-        return components
+                    if v == t:
+                        return True
+        return False
+
+    def edmonds_karp(self, s, t):
+        max_flow = 0
+        parent = [-1] * self.n
+
+        while self.bfs(s, t, parent):
+            # 找到路径上的最小容量
+            path_flow = float('inf')
+            v = t
+            while v != s:
+                u = parent[v]
+                path_flow = min(path_flow, self.capacity[u][v])
+                v = u
+
+            # 更新残留网络
+            v = t
+            while v != s:
+                u = parent[v]
+                self.capacity[u][v] -= path_flow
+                self.capacity[v][u] += path_flow
+                v = u
+
+            max_flow += path_flow
+
+        return max_flow
 
 # 测试
-gn = GirvanNewman()
-gn.add_edge(0, 1)
-gn.add_edge(0, 2)
-gn.add_edge(0, 3)
-gn.add_edge(1, 2)
-gn.add_edge(1, 3)
-gn.add_edge(2, 3)
-gn.add_edge(3, 4)
-gn.add_edge(4, 5)
-gn.add_edge(4, 6)
-gn.add_edge(5, 6)
+mf = MaxFlow(6)
+mf.add_edge(0, 1, 16)
+mf.add_edge(0, 2, 13)
+mf.add_edge(1, 2, 10)
+mf.add_edge(1, 3, 12)
+mf.add_edge(2, 1, 4)
+mf.add_edge(2, 4, 14)
+mf.add_edge(3, 2, 9)
+mf.add_edge(3, 5, 20)
+mf.add_edge(4, 3, 7)
+mf.add_edge(4, 5, 4)
 
-communities = gn.get_communities(2)
-print("社区划分:", communities)
-                    </code></pre></div>
+print(mf.edmonds_karp(0, 5))  # 23</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 实际应用 -->
+                    <section id="applications">
+                        <h2>实际应用场景</h2>
+                        <p>图算法在现实世界中有广泛的应用：</p>
+
+                        <div class="comparison-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                            <div class="approach-card">
+                                <h4>🗺️ 导航系统</h4>
+                                <p style="color: var(--text-secondary); margin: 12px 0;">Dijkstra、A*算法用于计算两点间最短路径</p>
+                                <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <li>Google Maps 路线规划</li>
+                                    <li>GPS 导航系统</li>
+                                    <li>物流配送路径优化</li>
+                                </ul>
+                            </div>
+                            <div class="approach-card">
+                                <h4>🌐 网络路由</h4>
+                                <p style="color: var(--text-secondary); margin: 12px 0;">最短路径算法用于数据包路由</p>
+                                <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <li>OSPF 路由协议</li>
+                                    <li>互联网骨干网路由</li>
+                                    <li>CDN 内容分发</li>
+                                </ul>
+                            </div>
+                            <div class="approach-card">
+                                <h4>📱 社交网络</h4>
+                                <p style="color: var(--text-secondary); margin: 12px 0;">图算法分析社交关系</p>
+                                <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <li>好友推荐系统</li>
+                                    <li>社区发现算法</li>
+                                    <li>影响力分析</li>
+                                </ul>
+                            </div>
+                            <div class="approach-card">
+                                <h4>📦 任务调度</h4>
+                                <p style="color: var(--text-secondary); margin: 12px 0;">拓扑排序确定任务执行顺序</p>
+                                <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <li>构建系统 (Make, Gradle)</li>
+                                    <li>工作流引擎</li>
+                                    <li>依赖解析</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 学习建议 -->
+                    <div class="info-card success mt-4">
+                        <div class="info-card-title">
+                            <span>✅</span> 学习建议
+                        </div>
+                        <div class="info-card-content">
+                            <ul style="margin: 16px 0 0 20px; line-height: 2;">
+                                <li>先掌握图的两种遍历：DFS 和 BFS</li>
+                                <li>理解 Dijkstra 的贪心思想和优先队列优化</li>
+                                <li>掌握并查集，它是 Kruskal 算法的基础</li>
+                                <li>通过 LeetCode 题目巩固：课程表、网络延迟时间、最小生成树等</li>
+                                <li>理解各算法的适用场景和时间复杂度</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <h3>Louvain vs Girvan-Newman</h3>
-            <div class="algorithm-content">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr style="background: #3498db; color: white;">
-                        <th style="padding: 12px;">特性</th>
-                        <th style="padding: 12px;">Louvain</th>
-                        <th style="padding: 12px;">Girvan-Newman</th>
-                    </tr>
-                    <tr style="background: #f8f9fa;">
-                        <td style="padding: 12px;">时间复杂度</td>
-                        <td style="padding: 12px;">O(n log n)</td>
-                        <td style="padding: 12px;">O(VE²)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 12px;">策略</td>
-                        <td style="padding: 12px;">凝聚式</td>
-                        <td style="padding: 12px;">分裂式</td>
-                    </tr>
-                    <tr style="background: #f8f9fa;">
-                        <td style="padding: 12px;">大规模网络</td>
-                        <td style="padding: 12px;">适合</td>
-                        <td style="padding: 12px;">不适合</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 12px;">层次结构</td>
-                        <td style="padding: 12px;">自然产生</td>
-                        <td style="padding: 12px;">需额外处理</td>
-                    </tr>
-                </table>
-            </div>
-
-            <h3>社区发现应用场景</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li><strong>社交网络分析：</strong>发现用户群体、好友圈</li>
-                    <li><strong>生物信息学：</strong>蛋白质相互作用网络、功能模块识别</li>
-                    <li><strong>推荐系统：</strong>基于社区的协同过滤</li>
-                    <li><strong>网络安全：</strong>检测异常社区、僵尸网络</li>
-                    <li><strong>市场营销：</strong>细分客户群体</li>
-                </ul>
-            </div>
-
-            <h3>学习建议</h3>
-            <div class="algorithm-content">
-                <ul>
-                    <li>掌握图的基本表示方法：邻接矩阵和邻接表</li>
-                    <li>理解不同算法的适用场景</li>
-                    <li>多练习经典问题：最短路径、最小生成树</li>
-                    <li>学习BFS和DFS在图中的应用</li>
-                    <li>深入理解最大流最小割定理</li>
-                    <li>对比Ford-Fulkerson和Dinic算法的效率差异</li>
-                    <li>理解残量网络和增广路径的概念</li>
-                    <li>理解模块度(Q值)在社区发现中的意义</li>
-                    <li>掌握Kruskal的并查集优化和Prim的优先队列优化</li>
-                </ul>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
             </div>
         </div>
-    </section>
+    </footer>
 
-    <script src="../js/main.js"></script>
+    <!-- 脚本 -->
+    <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
     <script src="../lib/prism/prism-go.min.js"></script>
     <script src="../lib/prism/prism-line-numbers.min.js"></script>
+
+    <script>
+        // Dijkstra 可视化
+        let graphData = {
+            nodes: [
+                { id: 0, x: 100, y: 200, label: 'A' },
+                { id: 1, x: 250, y: 100, label: 'B' },
+                { id: 2, x: 250, y: 300, label: 'C' },
+                { id: 3, x: 400, y: 200, label: 'D' },
+                { id: 4, x: 550, y: 200, label: 'E' }
+            ],
+            edges: [
+                { from: 0, to: 1, weight: 4 },
+                { from: 0, to: 2, weight: 2 },
+                { from: 1, to: 2, weight: 5 },
+                { from: 1, to: 3, weight: 10 },
+                { from: 2, to: 3, weight: 3 },
+                { from: 3, to: 4, weight: 7 }
+            ]
+        };
+
+        let dist = [];
+        let visited = [];
+        let currentNode = -1;
+        let isRunning = false;
+        let animationStep = 0;
+
+        function initGraph() {
+            const canvas = document.getElementById('graph-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 设置 canvas 尺寸
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 400;
+
+            drawGraph();
+        }
+
+        function drawGraph(highlight = {}) {
+            const canvas = document.getElementById('graph-canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制边
+            graphData.edges.forEach(edge => {
+                const from = graphData.nodes[edge.from];
+                const to = graphData.nodes[edge.to];
+
+                ctx.beginPath();
+                ctx.moveTo(from.x, from.y);
+                ctx.lineTo(to.x, to.y);
+                ctx.strokeStyle = '#rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 绘制权重
+                const midX = (from.x + to.x) / 2;
+                const midY = (from.y + to.y) / 2;
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(edge.weight.toString(), midX, midY - 10);
+            });
+
+            // 绘制节点
+            graphData.nodes.forEach((node, i) => {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 30, 0, Math.PI * 2);
+
+                if (visited[i]) {
+                    ctx.fillStyle = '#48bb78';
+                } else if (i === currentNode) {
+                    ctx.fillStyle = '#f56565';
+                } else {
+                    ctx.fillStyle = '#667eea';
+                }
+
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // 绘制标签
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.label, node.x, node.y);
+
+                // 绘制距离
+                if (dist[i] !== undefined && dist[i] !== Infinity) {
+                    ctx.fillStyle = '#48bb78';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`d=${dist[i]}`, node.x, node.y + 50);
+                }
+            });
+        }
+
+        function startDijkstra() {
+            if (isRunning) return;
+            isRunning = true;
+
+            const n = graphData.nodes.length;
+            dist = Array(n).fill(Infinity);
+            visited = Array(n).fill(false);
+            dist[0] = 0;
+            currentNode = 0;
+
+            const statusEl = document.getElementById('dijkstra-status');
+            let step = 0;
+
+            function nextStep() {
+                if (!isRunning) return;
+
+                // 找到未访问的最小距离节点
+                let u = -1;
+                for (let v = 0; v < n; v++) {
+                    if (!visited[v] && (u === -1 || dist[v] < dist[u])) {
+                        u = v;
+                    }
+                }
+
+                if (u === -1 || dist[u] === Infinity) {
+                    statusEl.innerHTML = '<div class="step complete">✓ 算法完成！</div>';
+                    isRunning = false;
+                    return;
+                }
+
+                currentNode = u;
+                visited[u] = true;
+
+                let statusHtml = `<div class="step highlight">步骤 ${step + 1}: 访问节点 ${graphData.nodes[u].label}, 距离 = ${dist[u]}</div>`;
+
+                // 更新邻居
+                graphData.edges.forEach(edge => {
+                    if (edge.from === u && !visited[edge.to]) {
+                        const newDist = dist[u] + edge.weight;
+                        if (newDist < dist[edge.to]) {
+                            statusHtml += `<div class="step">更新 ${graphData.nodes[edge.to].label}: ${dist[edge.to]} → ${newDist}</div>`;
+                            dist[edge.to] = newDist;
+                        }
+                    }
+                });
+
+                statusEl.innerHTML = statusHtml;
+                drawGraph();
+                step++;
+
+                setTimeout(nextStep, 1500);
+            }
+
+            nextStep();
+        }
+
+        function resetDijkstra() {
+            isRunning = false;
+            dist = [];
+            visited = [];
+            currentNode = -1;
+            document.getElementById('dijkstra-status').innerHTML = '<div class="step highlight">准备开始 Dijkstra 算法演示</div>';
+            drawGraph();
+        }
+
+        function setRandomGraph() {
+            // 生成随机图
+            const nodes = [];
+            const edges = [];
+            const n = 5;
+
+            for (let i = 0; i < n; i++) {
+                nodes.push({
+                    id: i,
+                    x: 100 + i * 120,
+                    y: 100 + Math.random() * 200,
+                    label: String.fromCharCode(65 + i)
+                });
+            }
+
+            for (let i = 0; i < n - 1; i++) {
+                edges.push({
+                    from: i,
+                    to: i + 1,
+                    weight: Math.floor(Math.random() * 10) + 1
+                });
+            }
+
+            // 添加一些额外边
+            for (let i = 0; i < n - 2; i++) {
+                if (Math.random() > 0.5) {
+                    edges.push({
+                        from: i,
+                        to: i + 2,
+                        weight: Math.floor(Math.random() * 10) + 1
+                    });
+                }
+            }
+
+            graphData = { nodes, edges };
+            resetDijkstra();
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', initGraph);
+        window.addEventListener('resize', initGraph);
+    </script>
 </body>
 </html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>共识算法 - 分布式一致性 2026</title>
+    <meta name="description" content="全面理解分布式共识算法：Paxos、Raft、PBFT、PoW、PoS，配备时序图和流程对比">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .consensus-timeline {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
+            color: white;
+        }
+
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .algorithm-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-node {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .timeline-node:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .timeline-node .year {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .timeline-node .name {
+            font-weight: 600;
+            margin: 8px 0;
+        }
+
+        .timeline-node .description {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .fault-tolerance-viz {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .fault-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .fault-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fault-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px 4px 4px 0;
+        }
+
+        .fault-crash { background: #3498db; color: white; }
+        .fault-byzantine { background: #e74c3c; color: white; }
+        .fault-omission { background: #f39c12; color: white; }
+
+        .consensus-comparison {
+            overflow-x: auto;
+            margin: 32px 0;
+        }
+
+        .consensus-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .consensus-table th,
+        .consensus-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .consensus-table th {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 600;
+        }
+
+        .consensus-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-sync { background: #c6f6d5; color: #276749; }
+        .badge-async { background: #feebc8; color: #c05621; }
+        .badge-crash { background: #bee3f8; color: #2c5282; }
+        .badge-byzantine { background: #fed7d7; color: #742a2a; }
+
+        .raft-state-viz {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 24px 0;
+            color: var(--code-text);
+        }
+
+        .raft-state-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .raft-state {
+            padding: 20px 30px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .raft-state.follower {
+            background: #3498db;
+            color: white;
+        }
+
+        .raft-state.candidate {
+            background: #f39c12;
+            color: white;
+        }
+
+        .raft-state.leader {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .state-arrow {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .paxos-phase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 32px 0;
+        }
+
+        .phase-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .phase-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        .phase-card ol {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+        }
+
+        .phase-card li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">AlgoGuide 2026</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="algorithm-detail">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="../index.html#algorithms">算法分类</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>共识算法</span>
+            </div>
+
+            <h1 class="page-title">分布式共识算法</h1>
+            <p class="page-description">在分布式系统中，多个节点就某个值或决策达成一致的核心算法</p>
+
+            <div class="detail-layout">
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#intro">1. 共识问题概述</a></li>
+                        <li><a href="#paxos">2. Paxos 算法</a></li>
+                        <li><a href="#raft">3. Raft 算法</a></li>
+                        <li><a href="#pbft">4. PBFT 算法</a></li>
+                        <li><a href="#pow">5. PoW 工作量证明</a></li>
+                        <li><a href="#pos">6. PoS 权益证明</a></li>
+                        <li><a href="#comparison">7. 算法对比</a></li>
+                    </ul>
+                </aside>
+
+                <div class="main-content">
+                    <section id="intro">
+                        <h2>共识问题概述</h2>
+                        <p>分布式共识是指在分布式系统中，多个节点就某个值或决策达成一致的过程。由于网络延迟、节点故障等原因，达成共识是一个核心挑战。</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title"><span>📐</span> FLP 不可能定理</div>
+                            <div class="info-card-content">
+                                在异步网络环境中，即使只有一个节点可能失效，也无法保证在有限时间内达成确定性共识。
+                            </div>
+                        </div>
+
+                        <!-- 共识算法发展时间线 -->
+                        <div class="consensus-timeline">
+                            <div class="timeline-header">
+                                <h3>共识算法发展时间线</h3>
+                            </div>
+                            <div class="algorithm-timeline">
+                                <div class="timeline-node">
+                                    <div class="year">1989</div>
+                                    <div class="name">Paxos</div>
+                                    <div class="description">Leslie Lamport 提出</div>
+                                </div>
+                                <div class="timeline-node">
+                                    <div class="year">1999</div>
+                                    <div class="name">PBFT</div>
+                                    <div class="description">Castro & Liskov</div>
+                                </div>
+                                <div class="timeline-node">
+                                    <div class="year">2008</div>
+                                    <div class="name">PoW</div>
+                                    <div class="description">比特币区块链</div>
+                                </div>
+                                <div class="timeline-node">
+                                    <div class="year">2013</div>
+                                    <div class="name">Raft</div>
+                                    <div class="description">Ousterhout & Ong</div>
+                                </div>
+                                <div class="timeline-node">
+                                    <div class="year">2014</div>
+                                    <div class="name">PoS</div>
+                                    <div class="description">以太坊 2.0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 故障类型 -->
+                        <h3 class="mt-4">故障类型</h3>
+                        <div class="fault-tolerance-viz">
+                            <div class="fault-card">
+                                <h4><span>💥</span> 崩溃故障</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">节点停止响应，不再发送消息</p>
+                                <div style="margin-top: 12px;">
+                                    <span class="fault-type fault-crash">Crash Failure</span>
+                                </div>
+                            </div>
+                            <div class="fault-card">
+                                <h4><span>🎭</span> 拜占庭故障</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">节点可能发送错误或恶意消息</p>
+                                <div style="margin-top: 12px;">
+                                    <span class="fault-type fault-byzantine">Byzantine Failure</span>
+                                </div>
+                            </div>
+                            <div class="fault-card">
+                                <h4><span>📭</span> 遗漏故障</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">消息丢失或延迟到达</p>
+                                <div style="margin-top: 12px;">
+                                    <span class="fault-type fault-omission">Omission Failure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="paxos">
+                        <h2>Paxos 算法</h2>
+                        <p>Paxos 是由 Leslie Lamport 在 1989 年提出的分布式共识算法，被譽为最经典的共识算法。它允许在存在节点故障的分布式系统中达成一致。</p>
+
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+sequenceDiagram
+    participant P as Proposer
+    participant A as Acceptor
+    participant L as Learner
+
+    P->>A: Phase 1a: Prepare(n)
+    A->>P: Phase 1b: Promise(n, acceptedValue)
+    P->>A: Phase 2a: Accept(n, value)
+    A->>P: Phase 2b: Accepted(n, value)
+    A->>L: Learn(value)
+    Note over P,L: 两阶段提交
+                            </div>
+                        </div>
+
+                        <div class="paxos-phase">
+                            <div class="phase-card">
+                                <h4>阶段 1: 准备阶段</h4>
+                                <ol>
+                                    <li>Proposer 提出编号为 n 的提案</li>
+                                    <li>向多数派 Acceptor 发送 Prepare 请求</li>
+                                    <li>Acceptor 回复 Promise，承诺不接受编号小于 n 的提案</li>
+                                </ol>
+                            </div>
+                            <div class="phase-card">
+                                <h4>阶段 2: 接受阶段</h4>
+                                <ol>
+                                    <li>Proposer 收到多数派的 Promise 后</li>
+                                    <li>发送 Accept 请求，包含提案值</li>
+                                    <li>Acceptor 接受后，提案被批准</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="formula-box">
+                            <div class="formula-title">Paxos 安全性保证</div>
+                            <div>
+                                1. 只有被提出的值才能被批准<br>
+                                2. 只有一个值能被批准<br>
+                                3. 一个值被批准后，Learner 才能学习到
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="raft">
+                        <h2>Raft 算法</h2>
+                        <p>Raft 是一种易于理解的分布式共识算法，由 Stanford 大学于 2013 年提出。它将共识问题分解为三个子问题：领导者选举、日志复制和安全性。</p>
+
+                        <!-- Raft 状态转换 -->
+                        <div class="raft-state-viz">
+                            <h4 style="margin-bottom: 20px;">Raft 节点状态转换</h4>
+                            <div class="raft-state-diagram">
+                                <div class="raft-state follower">
+                                    <div>Follower</div>
+                                    <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.8;">被动响应</div>
+                                </div>
+                                <div class="state-arrow">⇄</div>
+                                <div class="raft-state candidate">
+                                    <div>Candidate</div>
+                                    <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.8;">请求投票</div>
+                                </div>
+                                <div class="state-arrow">→</div>
+                                <div class="raft-state leader">
+                                    <div>Leader</div>
+                                    <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.8;">管理日志</div>
+                                </div>
+                            </div>
+                            <p style="text-align: center; margin-top: 20px; opacity: 0.8; font-size: 0.9rem;">
+                                所有节点从 Follower 开始，超时后成为 Candidate，获得多数票后成为 Leader
+                            </p>
+                        </div>
+
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+sequenceDiagram
+    participant L as Leader
+    participant F1 as Follower1
+    participant F2 as Follower2
+    participant F3 as Follower3
+
+    L->>F1: AppendEntries(log, term)
+    L->>F2: AppendEntries(log, term)
+    L->>F3: AppendEntries(log, term)
+    F1-->>L: Success
+    F2-->>L: Success
+    Note over L,F3: 多数派确认
+    L->>L: Commit entry
+    L->>F1: Commit index
+    L->>F2: Commit index
+    L->>F3: Commit index
+    Note over L,F3: 日志复制完成
+                            </div>
+                        </div>
+
+                        <h3 class="mt-4">Raft 核心机制</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>机制</th>
+                                    <th>说明</th>
+                                    <th>关键参数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>领导者选举</td>
+                                    <td>超时后成为 Candidate，请求投票</td>
+                                    <td>选举超时：150-300ms</td>
+                                </tr>
+                                <tr>
+                                    <td>日志复制</td>
+                                    <td>Leader 向 Follower 复制日志</td>
+                                    <td>心跳间隔：50ms</td>
+                                </tr>
+                                <tr>
+                                    <td>安全性保证</td>
+                                    <td>Leader 包含所有已提交日志</td>
+                                    <td>Leader 完整性</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section id="pbft">
+                        <h2>PBFT 算法</h2>
+                        <p>实用拜占庭容错 (Practical Byzantine Fault Tolerance) 算法由 Castro 和 Liskov 于 1999 年提出，能够容忍最多 f 个拜占庭节点 (总节点数 n ≥ 3f + 1)。</p>
+
+                        <div class="state-transition-diagram">
+                            <div class="mermaid">
+sequenceDiagram
+    participant C as Client
+    participant P as Primary
+    participant R1 as Replica1
+    participant R2 as Replica2
+    participant R3 as Replica3
+
+    C->>P: Request(m)
+    P->>R1: Pre-Prepare(m, n, d)
+    P->>R2: Pre-Prepare(m, n, d)
+    P->>R3: Pre-Prepare(m, n, d)
+    R1->>R2: Prepare(n, d, i)
+    R1->>R3: Prepare(n, d, i)
+    R2->>R1: Prepare(n, d, i)
+    R2->>R3: Prepare(n, d, i)
+    R3->>R1: Prepare(n, d, i)
+    R3->>R2: Prepare(n, d, i)
+    Note over R1,R3: 2f+1 个 Prepare
+    R1->>R2: Commit(n, d, i)
+    R1->>R3: Commit(n, d, i)
+    R2->>R1: Commit(n, d, i)
+    R2->>R3: Commit(n, d, i)
+    R3->>R1: Commit(n, d, i)
+    R3->>R2: Commit(n, d, i)
+    Note over R1,R3: 2f+1 个 Commit
+    R1-->>C: Reply(r)
+    Note over C,R3: 三阶段提交
+                            </div>
+                        </div>
+
+                        <div class="paxos-phase">
+                            <div class="phase-card">
+                                <h4>阶段 1: Pre-Prepare</h4>
+                                <ol>
+                                    <li>Client 发送请求到 Primary</li>
+                                    <li>Primary 分配序列号 n</li>
+                                    <li>广播 Pre-Prepare 消息给所有 Replica</li>
+                                </ol>
+                            </div>
+                            <div class="phase-card">
+                                <h4>阶段 2: Prepare</h4>
+                                <ol>
+                                    <li>Replica 验证 Pre-Prepare</li>
+                                    <li>广播 Prepare 消息</li>
+                                    <li>收到 2f+1 个 Prepare 后进入下一阶段</li>
+                                </ol>
+                            </div>
+                            <div class="phase-card">
+                                <h4>阶段 3: Commit</h4>
+                                <ol>
+                                    <li>广播 Commit 消息</li>
+                                    <li>收到 2f+1 个 Commit 后执行</li>
+                                    <li>返回结果给 Client</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="pow">
+                        <h2>PoW 工作量证明</h2>
+                        <p>PoW (Proof of Work) 是比特币使用的共识机制，要求节点通过计算密集型任务来竞争记账权，防止恶意攻击。</p>
+
+                        <div class="info-card warning">
+                            <div class="info-card-title"><span>⚠️</span> 优缺点分析</div>
+                            <div class="info-card-content">
+                                <strong>优点:</strong> 安全性高，抗攻击能力强<br>
+                                <strong>缺点:</strong> 能源消耗大，交易确认慢，存在算力集中风险
+                            </div>
+                        </div>
+
+                        <div class="formula-box">
+                            <div class="formula-title">PoW 难度目标</div>
+                            <div>
+                                SHA256(SHA256(block_header)) < target<br>
+                                <span style="color: #a0aec0; font-size: 0.9rem;">
+                                    难度调整：每 2016 个区块调整一次，目标出块时间 10 分钟
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="pos">
+                        <h2>PoS 权益证明</h2>
+                        <p>PoS (Proof of Stake) 通过持有代币的数量和时间来选择验证者，相比 PoW 更节能高效。</p>
+
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>PoW</th>
+                                    <th>PoS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>选择机制</td>
+                                    <td>算力竞争</td>
+                                    <td>持币质押</td>
+                                </tr>
+                                <tr>
+                                    <td>能源消耗</td>
+                                    <td>高</td>
+                                    <td>低</td>
+                                </tr>
+                                <tr>
+                                    <td>交易速度</td>
+                                    <td>慢 (比特币 7 TPS)</td>
+                                    <td>快 (以太坊 2.0 100000+ TPS)</td>
+                                </tr>
+                                <tr>
+                                    <td>安全性</td>
+                                    <td>51% 算力攻击</td>
+                                    <td>51% 持币攻击</td>
+                                </tr>
+                                <tr>
+                                    <td>代表项目</td>
+                                    <td>比特币、莱特币</td>
+                                    <td>以太坊 2.0、Cardano</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section id="comparison">
+                        <h2>算法对比与选择</h2>
+
+                        <div class="consensus-comparison">
+                            <table class="consensus-table">
+                                <thead>
+                                    <tr>
+                                        <th>算法</th>
+                                        <th>故障容忍</th>
+                                        <th>通信复杂度</th>
+                                        <th>确认延迟</th>
+                                        <th>应用场景</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Paxos</strong></td>
+                                        <td><span class="badge badge-crash">崩溃故障</span></td>
+                                        <td>O(n)</td>
+                                        <td>低</td>
+                                        <td>Chubby, ZooKeeper</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Raft</strong></td>
+                                        <td><span class="badge badge-crash">崩溃故障</span></td>
+                                        <td>O(n)</td>
+                                        <td>低</td>
+                                        <td>etcd, Consul, TiKV</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PBFT</strong></td>
+                                        <td><span class="badge badge-byzantine">拜占庭故障</span></td>
+                                        <td>O(n²)</td>
+                                        <td>中</td>
+                                        <td>联盟链，Hyperledger</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PoW</strong></td>
+                                        <td><span class="badge badge-byzantine">拜占庭故障</span></td>
+                                        <td>O(1)</td>
+                                        <td>高 (10 分钟)</td>
+                                        <td>比特币，公有链</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PoS</strong></td>
+                                        <td><span class="badge badge-byzantine">拜占庭故障</span></td>
+                                        <td>O(1)</td>
+                                        <td>中 (12 秒)</td>
+                                        <td>以太坊 2.0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>DPoS</strong></td>
+                                        <td><span class="badge badge-byzantine">拜占庭故障</span></td>
+                                        <td>O(n)</td>
+                                        <td>低 (3 秒)</td>
+                                        <td>EOS, TRON</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="info-card success">
+                            <div class="info-card-title"><span>✅</span> 算法选择指南</div>
+                            <div class="info-card-content">
+                                <ul style="margin: 16px 0 0 20px; line-height: 2;">
+                                    <li><strong>许可链/内部系统:</strong> 选择 Raft 或 PBFT，性能好，延迟低</li>
+                                    <li><strong>公有链:</strong> 选择 PoW 或 PoS，抗攻击，去中心化</li>
+                                    <li><strong>高吞吐场景:</strong> 考虑 DPoS 或 PoS 变体</li>
+                                    <li><strong>强一致性要求:</strong> 选择 Paxos/Raft 系列</li>
+                                    <li><strong>弱一致性可接受:</strong> 考虑 Gossip 协议</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

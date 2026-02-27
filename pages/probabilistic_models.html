@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>概率图模型 - 算法学习指南</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .algo-section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .algo-section:last-child {
+            border-bottom: none;
+        }
+        .formula {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Consolas', monospace;
+            color: #f8f8f2;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo"></h1>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="algorithm-detail">
+        <div class="container">
+            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
+            <h2>概率图模型</h2>
+            
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li>1. <a href="#intro">概率图模型概述</a></li>
+                    <li>2. <a href="#naive-bayes">朴素贝叶斯分类器</a></li>
+                    <li>3. <a href="#hmm">隐马尔可夫模型 (HMM)</a></li>
+                    <li>4. <a href="#comparison">算法对比与选择</a></li>
+                </ul>
+            </div>
+
+            <div class="algo-section" id="intro">
+                <h2>概率图模型概述</h2>
+                
+                <div class="algorithm-content">
+                    <h3>什么是概率图模型？</h3>
+                    <p>概率图模型（Probabilistic Graphical Models）是用图结构表示随机变量之间概率关系的框架。它结合了概率论和图论，能够有效地表示和处理复杂的不确定性推理问题。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>主要类型：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>贝叶斯网络：</strong>有向无环图，表示因果关系</li>
+                        <li><strong>马尔可夫网络：</strong>无向图，表示相关性</li>
+                        <li><strong>隐马尔可夫模型：</strong>双重随机过程</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>核心优势：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>可视化表示，易于理解</li>
+                        <li>条件独立假设简化计算</li>
+                        <li>支持不确定性推理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="naive-bayes">
+                <h2>朴素贝叶斯分类器 (Naive Bayes)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>朴素贝叶斯是基于贝叶斯定理的分类器，它假设所有特征相互条件独立（朴素假设），尽管这个假设在现实中往往不成立，但算法仍然非常有效。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>贝叶斯定理：</strong></p>
+                    <div class="formula">
+                        <p>P(C|X) = P(X|C) × P(C) / P(X)</p>
+                        <p>其中：</p>
+                        <p>P(C|X) = 给定特征X时类别C的后验概率</p>
+                        <p>P(X|C) = 给定类别C时特征X的似然</p>
+                        <p>P(C) = 类别C的先验概率</p>
+                        <p>P(X) = 特征X的边缘概率</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>训练时间</h4>
+                        <p>O(n × d)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>预测时间</h4>
+                        <p>O(c × d)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>空间复杂度</h4>
+                        <p>O(c × d)</p>
+                    </div>
+                </div>
+
+                <h3>朴素假设的数学表示</h3>
+                <div class="algorithm-content">
+                    <p><strong>条件独立性假设：</strong></p>
+                    <div class="formula">
+                        <p>P(X₁, X₂, ..., Xₙ | C) = P(X₁|C) × P(X₂|C) × ... × P(Xₙ|C)</p>
+                    </div>
+                    
+                    <p style="margin-top: 15px;"><strong>分类决策：</strong></p>
+                    <div class="formula">
+                        <p>Cₘₐₓ = argmax P(C) × ∏ᵢ P(Xᵢ|C)</p>
+                        <p>C</p>
+                        <p style="margin-top: 10px;">由于P(X)对所有类别相同，可以忽略</p>
+                    </div>
+                </div>
+
+                <h3>拉普拉斯平滑 (Laplace Smoothing)</h3>
+                <div class="algorithm-content">
+                    <p><strong>问题：</strong>如果某个特征值在训练集中从未出现，其条件概率为0，会导致整个后验概率为0。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>解决方案：</strong>给每个计数加上一个平滑参数α</p>
+                    <div class="formula">
+                        <p>P(Xᵢ = x | C = c) = (count(Xᵢ = x, C = c) + α) / (count(C = c) + α × |Vᵢ|)</p>
+                        <p style="margin-top: 10px;">其中|Vᵢ|是特征Xᵢ的可能取值数量</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>常用设置：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>α = 1：拉普拉斯平滑</li>
+                        <li>0 < α < 1： Lidstone平滑</li>
+                    </ul>
+                </div>
+
+                <h3>三种常见的朴素贝叶斯模型</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">模型</th>
+                            <th style="padding: 12px;">特征类型</th>
+                            <th style="padding: 12px;">应用场景</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">高斯朴素贝叶斯</td>
+                            <td style="padding: 12px;">连续值</td>
+                            <td style="padding: 12px;">Iris数据集、房价预测</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">多项式朴素贝叶斯</td>
+                            <td style="padding: 12px;">离散计数</td>
+                            <td style="padding: 12px;">文本分类、词频统计</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">伯努利朴素贝叶斯</td>
+                            <td style="padding: 12px;">二元特征</td>
+                            <td style="padding: 12px;">垃圾邮件检测、文本分类</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="nb-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="nb-python">Python</button>
+                    </div>
+                    <div id="nb-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class NaiveBayes {
+    constructor(alpha = 1) {
+        this.alpha = alpha;
+        this.classPriors = {};
+        this.conditionalProbs = {};
+        this.classes = new Set();
+        this.featureTypes = {}; // 'categorical', 'continuous'
+    }
+
+    fit(X, y, featureTypes = {}) {
+        const n = X.length;
+        const d = X[0].length;
+
+        // 记录特征类型
+        for (let j = 0; j < d; j++) {
+            if (!featureTypes[j]) {
+                const isContinuous = X.some(x => typeof x[j] === 'number');
+                this.featureTypes[j] = isContinuous ? 'continuous' : 'categorical';
+            }
+        }
+
+        // 统计每个类别的样本数
+        const classCounts = {};
+        for (const label of y) {
+            classCounts[label] = (classCounts[label] || 0) + 1;
+            this.classes.add(label);
+        }
+
+        // 计算先验概率 P(C)
+        for (const c of this.classes) {
+            this.classPriors[c] = classCounts[c] / n;
+        }
+
+        // 初始化条件概率
+        for (const c of this.classes) {
+            this.conditionalProbs[c] = {};
+        }
+
+        // 计算条件概率 P(Xᵢ|C)
+        for (let j = 0; j < d; j++) {
+            const type = this.featureTypes[j];
+            
+            if (type === 'continuous') {
+                // 高斯分布参数
+                for (const c of this.classes) {
+                    this.conditionalProbs[c][j] = { mean: 0, var: 0 };
+                }
+
+                const sums = Array(this.classes.size).fill(0);
+                const classList = [...this.classes];
+                
+                for (let i = 0; i < n; i++) {
+                    const cIndex = classList.indexOf(y[i]);
+                    sums[cIndex] += X[i][j];
+                }
+                
+                const means = sums.map((s, i) => s / classCounts[classList[i]]);
+                
+                for (let i = 0; i < n; i++) {
+                    const cIndex = classList.indexOf(y[i]);
+                    const diff = X[i][j] - means[cIndex];
+                    this.conditionalProbs[classList[cIndex]][j].mean = means[cIndex];
+                    this.conditionalProbs[classList[cIndex]][j].var += diff * diff;
+                }
+
+                for (let i = 0; i < classList.length; i++) {
+                    this.conditionalProbs[classList[i]][j].var /= (classCounts[classList[i]] - 1 || 1);
+                }
+            } else {
+                // 类别特征：计数
+                const valueCounts = {};
+                
+                for (const c of this.classes) {
+                    this.conditionalProbs[c][j] = {};
+                    valueCounts[c] = {};
+                }
+
+                for (let i = 0; i < n; i++) {
+                    const c = y[i];
+                    const val = X[i][j];
+                    if (!valueCounts[c][val]) {
+                        valueCounts[c][val] = 0;
+                    }
+                    valueCounts[c][val]++;
+                }
+
+                // 获取所有可能的值
+                const allValues = new Set();
+                for (const c of this.classes) {
+                    for (const val in valueCounts[c]) {
+                        allValues.add(val);
+                    }
+                }
+
+                for (const c of this.classes) {
+                    const total = classCounts[c];
+                    for (const val of allValues) {
+                        const count = valueCounts[c][val] || 0;
+                        // 拉普拉斯平滑
+                        this.conditionalProbs[c][j][val] = (count + this.alpha) / (total + this.alpha * allValues.size);
+                    }
+                }
+            }
+        }
+    }
+
+    _gaussianPDF(x, mean, var) {
+        if (var === 0) var = 1e-10;
+        const coeff = 1 / Math.sqrt(2 * Math.PI * var);
+        const exponent = -Math.pow(x - mean, 2) / (2 * var);
+        return coeff * Math.exp(exponent);
+    }
+
+    predict(X) {
+        return X.map(x => this._predictSingle(x));
+    }
+
+    _predictSingle(x) {
+        let bestClass = null;
+        let bestLogProb = -Infinity;
+        const classList = [...this.classes];
+
+        for (const c of classList) {
+            let logProb = Math.log(this.classPriors[c]);
+            
+            for (let j = 0; j < x.length; j++) {
+                const type = this.featureTypes[j];
+                
+                if (type === 'continuous') {
+                    const { mean, var: variance } = this.conditionalProbs[c][j];
+                    const prob = this._gaussianPDF(x[j], mean, variance);
+                    logProb += Math.log(prob + 1e-10);
+                } else {
+                    const val = String(x[j]);
+                    const prob = this.conditionalProbs[c][j][val] || this.alpha / (this.alpha * 10); // 未知值
+                    logProb += Math.log(prob);
+                }
+            }
+            
+            if (logProb > bestLogProb) {
+                bestLogProb = logProb;
+                bestClass = c;
+            }
+        }
+        
+        return bestClass;
+    }
+
+    predictProba(X) {
+        return X.map(x => {
+            const probs = {};
+            const classList = [...this.classes];
+            let totalProb = 0;
+
+            for (const c of classList) {
+                let logProb = Math.log(this.classPriors[c]);
+                
+                for (let j = 0; j < x.length; j++) {
+                    const type = this.featureTypes[j];
+                    
+                    if (type === 'continuous') {
+                        const { mean, var: variance } = this.conditionalProbs[c][j];
+                        const prob = this._gaussianPDF(x[j], mean, variance);
+                        logProb += Math.log(prob + 1e-10);
+                    } else {
+                        const val = String(x[j]);
+                        const prob = this.conditionalProbs[c][j][val] || this.alpha / (this.alpha * 10);
+                        logProb += Math.log(prob);
+                    }
+                }
+                
+                probs[c] = Math.exp(logProb);
+                totalProb += probs[c];
+            }
+
+            // 归一化
+            for (const c of classList) {
+                probs[c] /= totalProb;
+            }
+            
+            return probs;
+        });
+    }
+}
+
+// 测试
+const X = [
+    [1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0], [1, 5], [4, 5]
+];
+const y = ['A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B'];
+
+const nb = new NaiveBayes(1);
+nb.fit(X, y);
+
+const test = [[3, 3], [5, 3]];
+console.log("预测:", nb.predict(test));
+console.log("概率:", nb.predictProba(test));
+                        </code></pre></div>
+                    </div>
+                    <div id="nb-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from collections import Counter
+
+class NaiveBayes:
+    def __init__(self, alpha=1):
+        self.alpha = alpha
+        self.class_priors = {}
+        self.conditional_probs = {}
+        self.classes = set()
+        self.feature_types = {}
+    
+    def fit(self, X, y):
+        X = np.array(X)
+        y = np.array(y)
+        n, d = X.shape
+        
+        # 检测特征类型
+        for j in range(d):
+            if np.issubdtype(X[:, j].dtype, np.number):
+                self.feature_types[j] = 'continuous'
+            else:
+                self.feature_types[j] = 'categorical'
+        
+        # 先验概率
+        class_counts = Counter(y)
+        for c in class_counts:
+            self.class_priors[c] = class_counts[c] / n
+            self.classes.add(c)
+            self.conditional_probs[c] = {}
+        
+        # 条件概率
+        for j in range(d):
+            if self.feature_types[j] == 'continuous':
+                # 高斯分布
+                for c in self.classes:
+                    X_c = X[y == c, j]
+                    self.conditional_probs[c][j] = {
+                        'mean': np.mean(X_c),
+                        'var': np.var(X_c, ddof=1) + 1e-10
+                    }
+            else:
+                # 类别特征
+                all_values = set(X[:, j])
+                for c in self.classes:
+                    X_c = X[y == c, j]
+                    count_c = len(X_c)
+                    value_counts = Counter(X_c)
+                    for val in all_values:
+                        count = value_counts.get(val, 0)
+                        self.conditional_probs[c][j][val] = (count + self.alpha) / (count_c + self.alpha * len(all_values))
+    
+    def _gaussian_pdf(self, x, mean, var):
+        coeff = 1 / np.sqrt(2 * np.pi * var)
+        exponent = -((x - mean) ** 2) / (2 * var)
+        return coeff * np.exp(exponent)
+    
+    def predict(self, X):
+        X = np.array(X)
+        return [self._predict_single(x) for x in X]
+    
+    def _predict_single(self, x):
+        best_class = None
+        best_log_prob = -np.inf
+        
+        for c in self.classes:
+            log_prob = np.log(self.class_priors[c])
+            
+            for j, val in enumerate(x):
+                if self.feature_types[j] == 'continuous':
+                    params = self.conditional_probs[c][j]
+                    prob = self._gaussian_pdf(val, params['mean'], params['var'])
+                    log_prob += np.log(prob + 1e-10)
+                else:
+                    prob = self.conditional_probs[c][j].get(val, self.alpha / (self.alpha * 10))
+                    log_prob += np.log(prob)
+            
+            if log_prob > best_log_prob:
+                best_log_prob = log_prob
+                best_class = c
+        
+        return best_class
+    
+    def predict_proba(self, X):
+        X = np.array(X)
+        n = len(X)
+        classes = list(self.classes)
+        probas = np.zeros((n, len(classes)))
+        
+        for i, x in enumerate(X):
+            log_probs = []
+            for c in classes:
+                log_prob = np.log(self.class_priors[c])
+                for j, val in enumerate(x):
+                    if self.feature_types[j] == 'continuous':
+                        params = self.conditional_probs[c][j]
+                        prob = self._gaussian_pdf(val, params['mean'], params['var'])
+                        log_prob += np.log(prob + 1e-10)
+                    else:
+                        prob = self.conditional_probs[c][j].get(val, self.alpha / (self.alpha * 10))
+                        log_prob += np.log(prob)
+                log_probs.append(log_prob)
+            
+            # 归一化
+            log_probs = np.array(log_probs)
+            log_probs -= np.max(log_probs)
+            probs = np.exp(log_probs)
+            probs /= probs.sum()
+            probs
+        
+        return probas
+
+# 测试
+X = np.array([
+    [1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0],
+    [8, 2], [8, 4], [8, 0], [1, 5], [4, 5]
+])
+y = np.array(['A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B'])
+
+nb = NaiveBayes(1)
+nb.fit(X, y)
+
+test = np.array([[3, 3], [5, 3]])
+print("预测:", nb.predict(test))
+print("概率:", nb.predict_proba(test))
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>朴素贝叶斯的优缺点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>简单高效，训练和预测速度快</li>
+                        <li>对小样本数据效果好</li>
+                        <li>抗过拟合能力强</li>
+                        <li>对缺失值不敏感</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>条件独立性假设过强</li>
+                        <li>特征间有相关性时效果下降</li>
+                        <li>连续特征假设正态分布可能不准确</li>
+                    </ul>
+                </div>
+
+                <h3>朴素贝叶斯应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>文本分类：</strong>垃圾邮件检测、情感分析、新闻分类</li>
+                        <li><strong>多分类问题：</strong>类别数量较多时表现良好</li>
+                        <li><strong>实时预测：</strong>计算量小，适合在线场景</li>
+                        <li><strong>特征工程：</strong>作为基线模型</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="hmm">
+                <h2>隐马尔可夫模型 (HMM)</h2>
+                
+                <div class="algorithm-content">
+                    <h3>算法原理</h3>
+                    <p>隐马尔可夫模型（Hidden Markov Model, HMM）是一种统计模型，用于描述一个含有隐含状态（未观测）的马尔可夫过程。它包含两个随机过程：</p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>隐状态链：</strong>不可观测的马尔可夫链</li>
+                        <li><strong>观测序列：</strong>由隐状态生成的观测值</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>HMM的五元组定义：</strong></p>
+                    <div class="formula">
+                        <p>λ = (N, M, A, B, π)</p>
+                        <p>其中：</p>
+                        <p>N = 隐状态数量</p>
+                        <p>M = 观测符号数量</p>
+                        <p>A = 状态转移概率矩阵 (N×N)</p>
+                        <p>B = 观测概率矩阵 (N×M)</p>
+                        <p>π = 初始状态概率分布 (N)</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <h4>评估问题</h4>
+                        <p>O(T × N²)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>解码问题</h4>
+                        <p>O(T × N²)</p>
+                    </div>
+                    <div class="complexity-item">
+                        <h4>学习问题</h4>
+                        <p>O(T × N² × I)</p>
+                    </div>
+                </div>
+
+                <h3>HMM的三个基本问题</h3>
+                <div class="algorithm-content">
+                    <p><strong>问题1：评估（概率计算）</strong></p>
+                    <p>给定模型λ和观测序列O，计算P(O|λ)。</p>
+                    <p style="margin-top: 5px;"><strong>解法：</strong>前向算法或后向算法</p>
+                    
+                    <p style="margin-top: 15px;"><strong>问题2：解码（状态预测）</strong></p>
+                    <p>给定模型λ和观测序列O，找到最可能的隐状态序列Q。</p>
+                    <p style="margin-top: 5px;"><strong>解法：</strong>Viterbi算法</p>
+                    
+                    <p style="margin-top: 15px;"><strong>问题3：学习（参数估计）</strong></p>
+                    <p>给定观测序列O，估计模型参数λ使得P(O|λ)最大。</p>
+                    <p style="margin-top: 5px;"><strong>解法：</strong>Baum-Welch算法（EM算法特例）</p>
+                </div>
+
+                <h3>前向算法（解决评估问题）</h3>
+                <div class="algorithm-content">
+                    <p><strong>前向变量：</strong></p>
+                    <div class="formula">
+                        <p>αₜ(i) = P(o₁, o₂, ..., oₜ, qₜ = Sᵢ | λ)</p>
+                        <p>表示到时刻t为止的观测序列，且在状态Sᵢ的概率</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>递归步骤：</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>初始化：</strong>α₁(i) = πᵢ × bᵢ(o₁)</li>
+                        <li><strong>递归：</strong>αₜ₊₁(j) = [Σᵢ αₜ(i) × aᵢⱼ] × bⱼ(oₜ₊₁)</li>
+                        <li><strong>终止：</strong>P(O|λ) = Σᵢ αₜ(i)</li>
+                    </ol>
+
+                    <p style="margin-top: 15px;"><strong>时间复杂度：</strong>O(T × N²)</p>
+                    <p>相比直接计算O(T × Nᵀ)的复杂度大幅降低</p>
+                </div>
+
+                <h3>Viterbi算法（解决解码问题）</h3>
+                <div class="algorithm-content">
+                    <p><strong>Viterbi变量：</strong></p>
+                    <div class="formula">
+                        <p>δₜ(i) = max P(q₁, q₂, ..., qₜ = Sᵢ, o₁, o₂, ..., oₜ | λ)</p>
+                        <p>表示到时刻t为止，最可能产生观测序列的状态序列，且当前状态为Sᵢ的概率</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>递归步骤：</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>初始化：</strong>δ₁(i) = πᵢ × bᵢ(o₁), ψ₁(i) = 0</li>
+                        <li><strong>递归：</strong>δₜ(j) = maxᵢ [δₜ₋₁(i) × aᵢⱼ] × bⱼ(oₜ)</li>
+                        <li><strong>回溯：</strong>从T时刻回溯最优路径</li>
+                    </ol>
+
+                    <div class="formula">
+                        <p style="margin-top: 15px;"><strong>回溯公式：</strong></p>
+                        <p>qₜ* = argmaxᵢ [δₜ(i)]</p>
+                        <p>qₜ₋₁* = ψₜ(qₜ*)</p>
+                    </div>
+                </div>
+
+                <h3>Baum-Welch算法（解决学习问题）</h3>
+                <div class="algorithm-content">
+                    <p>Baum-Welch是EM算法在HMM中的特例，通过迭代优化期望最大化来估计参数。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>辅助函数Q(λ, λ̄)：</strong></p>
+                    <div class="formula">
+                        <p>Q(λ̄, λ) = Σ_Q P(Q|O, λ) × log P(O, Q|λ̄)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>E步：计算期望</strong></p>
+                    <p>使用前向后向算法计算γ和ξ：</p>
+                    <div class="formula">
+                        <p>γₜ(i) = P(qₜ = Sᵢ | O, λ) = αₜ(i) × βₜ(i) / P(O|λ)</p>
+                        <p>ξₜ(i, j) = P(qₜ = Sᵢ, qₜ₊₁ = Sⱼ | O, λ)</p>
+                        <p>= αₜ(i) × aᵢⱼ × bⱼ(oₜ₊₁) × βₜ₊₁(j) / P(O|λ)</p>
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>M步：最大化</strong></p>
+                    <div class="formula">
+                        <p>πᵢ = γ₁(i)</p>
+                        <p>aᵢⱼ = Σₜ ξₜ(i, j) / Σₜ γₜ(i)</p>
+                        <p>bⱼ(k) = Σₜ γₜ(j) × δ(oₜ, vₖ) / Σₜ γₜ(j)</p>
+                    </div>
+                </div>
+
+                <h3>算法实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="hmm-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="hmm-python">Python</button>
+                    </div>
+                    <div id="hmm-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class HMM {
+    constructor(nStates, nObservations) {
+        this.nStates = nStates;
+        this.nObservations = nObservations;
+        this.A = this._randomMatrix(nStates, nStates);
+        this.B = this._randomMatrix(nStates, nObservations);
+        this.pi = new Array(nStates).fill(1 / nStates);
+    }
+
+    _randomMatrix(rows, cols) {
+        const mat = [];
+        for (let i = 0; i < rows; i++) {
+            const row = [];
+            let sum = 0;
+            for (let j = 0; j < cols; j++) {
+                const val = Math.random();
+                row.push(val);
+                sum += val;
+            }
+            mat.push(row.map(v => v / sum));
+        }
+        return mat;
+    }
+
+    // 前向算法
+    forward(observations) {
+        const T = observations.length;
+        const alpha = Array(T).fill(null).map(() => new Array(this.nStates).fill(0));
+
+        // 初始化
+        for (let i = 0; i < this.nStates; i++) {
+            alpha[0][i] = this.pi[i] * this.B[i][observations[0]];
+        }
+
+        // 递归
+        for (let t = 1; t < T; t++) {
+            for (let j = 0; j < this.nStates; j++) {
+                let sum = 0;
+                for (let i = 0; i < this.nStates; i++) {
+                    sum += alpha[t-1][i] * this.A[i][j];
+                }
+                alpha[t][j] = sum * this.B[j][observations[t]];
+            }
+        }
+
+        // 终止：计算观测序列的概率
+        const prob = alpha[T-1].reduce((sum, val) => sum + val, 0);
+        return { alpha, prob };
+    }
+
+    // 后向算法
+    backward(observations) {
+        const T = observations.length;
+        const beta = Array(T).fill(null).map(() => new Array(this.nStates).fill(0));
+
+        // 初始化
+        for (let i = 0; i < this.nStates; i++) {
+            beta[T-1][i] = 1;
+        }
+
+        // 递归
+        for (let t = T-2; t >= 0; t--) {
+            for (let i = 0; i < this.nStates; i++) {
+                let sum = 0;
+                for (let j = 0; j < this.nStates; j++) {
+                    sum += this.A[i][j] * this.B[j][observations[t+1]] * beta[t+1][j];
+                }
+                beta[t][i] = sum;
+            }
+        }
+
+        return beta;
+    }
+
+    // Viterbi算法：解码
+    viterbi(observations) {
+        const T = observations.length;
+        const delta = Array(T).fill(null).map(() => new Array(this.nStates).fill(0));
+        const psi = Array(T).fill(null).map(() => new Array(this.nStates).fill(0));
+
+        // 初始化
+        for (let i = 0; i < this.nStates; i++) {
+            delta[0][i] = this.pi[i] * this.B[i][observations[0]];
+            psi[0][i] = 0;
+        }
+
+        // 递归
+        for (let t = 1; t < T; t++) {
+            for (let j = 0; j < this.nStates; j++) {
+                let maxProb = -1;
+                let maxState = -1;
+                
+                for (let i = 0; i < this.nStates; i++) {
+                    const prob = delta[t-1][i] * this.A[i][j];
+                    if (prob > maxProb) {
+                        maxProb = prob;
+                        maxState = i;
+                    }
+                }
+                
+                delta[t][j] = maxProb * this.B[j][observations[t]];
+                psi[t][j] = maxState;
+            }
+        }
+
+        // 回溯
+        const path = new Array(T);
+        let maxProb = -1;
+        let maxState = -1;
+        
+        for (let i = 0; i < this.nStates; i++) {
+            if (delta[T-1][i] > maxProb) {
+                maxProb = delta[T-1][i];
+                maxState = i;
+            }
+        }
+        
+        path[T-1] = maxState;
+        
+        for (let t = T-2; t >= 0; t--) {
+            path[t] = psi[t+1][path[t+1]];
+        }
+
+        return { path, prob: maxProb };
+    }
+
+    // Baum-Welch算法：学习
+    baumWelch(observations, maxIter = 100, tol = 1e-6) {
+        const T = observations.length;
+        
+        for (let iter = 0; iter < maxIter; iter++) {
+            // E步
+            const { alpha, prob } = this.forward(observations);
+            const beta = this.backward(observations);
+            
+            // 计算gamma和xi
+            const gamma = Array(T).fill(null).map(() => new Array(this.nStates).fill(0));
+            const xi = Array(T-1).fill(null).map(() => 
+                this.nStates > 0 ? new Array(this.nStates * this.nStates).fill(0) : []
+            );
+
+            for (let t = 0; t < T; t++) {
+                let sum = 0;
+                for (let i = 0; i < this.nStates; i++) {
+                    gamma[t][i] = alpha[t][i] * (t < T-1 ? beta[t][i] : 1);
+                    sum += gamma[t][i];
+                }
+                for (let i = 0; i < this.nStates; i++) {
+                    gamma[t][i] /= (sum || 1);
+                }
+            }
+
+            for (let t = 0; t < T-1; t++) {
+                let sum = 0;
+                for (let i = 0; i < this.nStates; i++) {
+                    for (let j = 0; j < this.nStates; j++) {
+                        const val = alpha[t][i] * this.A[i][j] * 
+                                   this.B[j][observations[t+1]] * beta[t+1][j];
+                        xi[t][i * this.nStates + j] = val;
+                        sum += val;
+                    }
+                }
+                for (let i = 0; i < this.nStates; i++) {
+                    for (let j = 0; j < this.nStates; j++) {
+                        xi[t][i * this.nStates + j] /= (sum || 1);
+                    }
+                }
+            }
+
+            // M步：更新参数
+            const oldPi = [...this.pi];
+            const oldA = this.A.map(row => [...row]);
+            const oldB = this.B.map(row => [...row]);
+
+            // 更新pi
+            for (let i = 0; i < this.nStates; i++) {
+                this.pi[i] = gamma[0][i];
+            }
+
+            // 更新A
+            for (let i = 0; i < this.nStates; i++) {
+                let gammaSum = 0;
+                for (let t = 0; t < T-1; t++) {
+                    gammaSum += gamma[t][i];
+                }
+                
+                for (let j = 0; j < this.nStates; j++) {
+                    let xiSum = 0;
+                    for (let t = 0; t < T-1; t++) {
+                        xiSum += xi[t][i * this.nStates + j];
+                    }
+                    this.A[i][j] = xiSum / (gammaSum || 1);
+                }
+            }
+
+            // 更新B
+            for (let j = 0; j < this.nStates; j++) {
+                let gammaSum = 0;
+                for (let t = 0; t < T; t++) {
+                    gammaSum += gamma[t][j];
+                }
+                
+                for (let k = 0; k < this.nObservations; k++) {
+                    let obsGammaSum = 0;
+                    for (let t = 0; t < T; t++) {
+                        if (observations[t] === k) {
+                            obsGammaSum += gamma[t][j];
+                        }
+                    }
+                    this.B[j][k] = obsGammaSum / (gammaSum || 1);
+                }
+            }
+
+            // 检查收敛
+            const piDiff = Math.abs(this.pi.reduce((s, v, i) => s + Math.abs(v - oldPi[i]), 0));
+            const aDiff = this.A.reduce((s, row, i) => 
+                s + row.reduce((ss, v, j) => ss + Math.abs(v - oldA[i][j]), 0), 0);
+            
+            if (piDiff + aDiff < tol) {
+                break;
+            }
+        }
+    }
+}
+
+// 测试
+const hmm = new HMM(3, 4);
+
+// 训练数据：观测序列
+const observations = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3];
+
+// 使用简单的随机数据进行演示
+console.log("训练前:");
+const { alpha, prob } = hmm.forward(observations);
+console.log("观测概率:", prob);
+
+const { path, prob: pathProb } = hmm.viterbi(observations);
+console.log("最优路径:", path);
+console.log("路径概率:", pathProb);
+                        </code></pre></div>
+                    </div>
+                    <div id="hmm-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+
+class HMM:
+    def __init__(self, n_states, n_observations):
+        self.n_states = n_states
+        self.n_observations = n_observations
+        self.A = np.random.rand(n_states, n_states)
+        self.A /= self.A.sum(axis=1, keepdims=True)
+        self.B = np.random.rand(n_states, n_observations)
+        self.B /= self.B.sum(axis=1, keepdims=True)
+        self.pi = np.ones(n_states) / n_states
+    
+    def forward(self, observations):
+        T = len(observations)
+        alpha = np.zeros((T, self.n_states))
+        
+        # 初始化
+        alpha[0] = self.pi * self.B[:, observations[0]]
+        
+        # 递归
+        for t in range(1, T):
+            for j in range(self.n_states):
+                alpha[t, j] = np.sum(alpha[t-1] * self.A[:, j]) * self.B[j, observations[t]]
+        
+        prob = np.sum(alpha[T-1])
+        return alpha, prob
+    
+    def backward(self, observations):
+        T = len(observations)
+        beta = np.zeros((T, self.n_states))
+        
+        # 初始化
+        beta[T-1] = 1
+        
+        # 递归
+        for t in range(T-2, -1, -1):
+            for i in range(self.n_states):
+                beta[t, i] = np.sum(self.A[i, :] * self.B[:, observations[t+1]] * beta[t+1])
+        
+        return beta
+    
+    def viterbi(self, observations):
+        T = len(observations)
+        delta = np.zeros((T, self.n_states))
+        psi = np.zeros((T, self.n_states), dtype=int)
+        
+        # 初始化
+        delta[0] = self.pi * self.B[:, observations[0]]
+        psi[0] = 0
+        
+        # 递归
+        for t in range(1, T):
+            for j in range(self.n_states):
+                delta[t, j] = np.max(delta[t-1] * self.A[:, j]) * self.B[j, observations[t]]
+                psi[t, j] = np.argmax(delta[t-1] * self.A[:, j])
+        
+        # 回溯
+        path = np.zeros(T, dtype=int)
+        path[T-1] = np.argmax(delta[T-1])
+        for t in range(T-2, -1, -1):
+            path[t] = psi[t+1, path[t+1]]
+        
+        return path, np.max(delta[T-1])
+    
+    def baum_welch(self, observations, max_iter=100, tol=1e-6):
+        T = len(observations)
+        
+        for _ in range(max_iter):
+            alpha, prob = self.forward(observations)
+            beta = self.backward(observations)
+            
+            # E步：计算gamma和xi
+            gamma = alpha * beta
+            gamma /= (gamma.sum(axis=1, keepdims=True) + 1e-10)
+            
+            xi = np.zeros((T-1, self.n_states, self.n_states))
+            for t in range(T-1):
+                for i in range(self.n_states):
+                    for j in range(self.n_states):
+                        xi[t, i, j] = alpha[t, i] * self.A[i, j] * \
+                                     self.B[j, observations[t+1]] * beta[t+1, j]
+                xi[t] /= (xi[t].sum() + 1e-10)
+            
+            # M步：更新参数
+            old_pi = self.pi.copy()
+            old_A = self.A.copy()
+            
+            self.pi = gamma[0]
+            
+            for i in range(self.n_states):
+                gamma_sum = gamma[:T-1, i].sum()
+                self.A[i] = xi[:T-1, i].sum(axis=0) / (gamma_sum + 1e-10)
+            
+            for j in range(self.n_states):
+                gamma_sum = gamma[:, j].sum()
+                for k in range(self.n_observations):
+                    obs_gamma = np.where(observations == k)[0]
+                    self.B[j, k] = gamma[obs_gamma, j].sum() / (gamma_sum + 1e-10)
+            
+            # 检查收敛
+            pi_diff = np.abs(self.pi - old_pi).sum()
+            a_diff = np.abs(self.A - old_A).sum()
+            
+            if pi_diff + a_diff < tol:
+                break
+
+# 测试
+hmm = HMM(n_states=3, n_observations=4)
+
+# 观测序列
+observations = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3]
+
+print("训练前:")
+alpha, prob = hmm.forward(observations)
+print("观测概率:", prob)
+
+path, path_prob = hmm.viterbi(observations)
+print("最优路径:", path)
+print("路径概率:", path_prob)
+
+# 训练
+hmm.baum_welch(observations)
+print("\n训练后:")
+alpha, prob = hmm.forward(observations)
+print("观测概率:", prob)
+
+path, path_prob = hmm.viterbi(observations)
+print("最优路径:", path)
+                        </code></pre></div>
+                    </div>
+                </div>
+
+                <h3>HMM的优缺点</h3>
+                <div class="algorithm-content">
+                    <p><strong>优点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>理论基础扎实，数学表达优雅</li>
+                        <li>高效的概率计算和状态预测算法</li>
+                        <li>参数学习有成熟的EM算法</li>
+                        <li>可解释性强，隐状态有实际意义</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>马尔可夫假设过强（当前状态只与前一状态相关）</li>
+                        <li>观测独立假设（观测值只与当前状态相关）</li>
+                        <li>状态空间离散且有限</li>
+                        <li>对长序列可能出现数值下溢</li>
+                    </ul>
+                </div>
+
+                <h3>HMM的应用场景</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>语音识别：</strong>将声学特征序列转换为文本</li>
+                        <li><strong>词性标注：</strong>给定句子，确定每个词的词性</li>
+                        <li><strong>生物信息学：</strong>基因序列分析、蛋白质结构预测</li>
+                        <li><strong>金融分析：</strong>市场状态预测、期权定价</li>
+                        <li><strong>手势识别：</strong>传感器数据序列的意图识别</li>
+                        <li><strong>网络安全：</strong>异常行为检测</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algo-section" id="comparison">
+                <h2>算法对比与选择</h2>
+                
+                <h3>朴素贝叶斯 vs HMM</h3>
+                <div class="algorithm-content">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #3498db; color: white;">
+                            <th style="padding: 12px;">特性</th>
+                            <th style="padding: 12px;">朴素贝叶斯</th>
+                            <th style="padding: 12px;">HMM</th>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">模型类型</td>
+                            <td style="padding: 12px;">生成式（判别式变体存在）</td>
+                            <td style="padding: 12px;">生成式</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">时间依赖</td>
+                            <td style="padding: 12px;">无</td>
+                            <td style="padding: 12px;">有（马尔可夫链）</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">隐变量</td>
+                            <td style="padding: 12px;">无</td>
+                            <td style="padding: 12px;">有（隐状态）</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">输出</td>
+                            <td style="padding: 12px;">类别标签</td>
+                            <td style="padding: 12px;">类别标签 + 隐状态序列</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px;">序列建模</td>
+                            <td style="padding: 12px;">不支持</td>
+                            <td style="padding: 12px;">支持</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>选择建议</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>选择朴素贝叶斯当：</strong>
+                            <ul style="margin-left: 20px;">
+                                <li>数据特征条件独立或近似独立</li>
+                                <li>需要快速训练和预测</li>
+                                <li>样本量较小</li>
+                                <li>多分类问题</li>
+                            </ul>
+                        </li>
+                        <li><strong>选择HMM当：</strong>
+                            <ul style="margin-left: 20px;">
+                                <li>数据有明显的序列依赖关系</li>
+                                <li>需要建模隐含状态</li>
+                                <li>观测序列长度适中（不太长）</li>
+                                <li>需要解码最优状态序列</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3>扩展阅读</h3>
+                <div class="algorithm-content">
+                    <ul>
+                        <li><strong>贝叶斯网络：</strong>更一般的概率图模型，允许有向边</li>
+                        <li><strong>CRF条件随机场：</strong>判别式序列标注模型</li>
+                        <li><strong>LSTM/Transformer：</strong>深度学习序列模型</li>
+                        <li><strong>卡尔曼滤波器：</strong>连续状态的HMM变体</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/main.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>
