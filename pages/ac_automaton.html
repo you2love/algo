@@ -265,6 +265,7 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
+```mermaid
 graph TD
     A[开始] --> B[创建根节点]
     B --> C[遍历每个模式串]
@@ -284,6 +285,7 @@ graph TD
     style K fill:#48bb78,color:#fff
     style E fill:#ed8936,color:#fff
     style I fill:#667eea,color:#fff
+```
                             </div>
                         </div>
                     </section>
@@ -335,6 +337,7 @@ graph TD
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
+```mermaid
 sequenceDiagram
     participant T as 文本指针
     participant S as 当前状态
@@ -348,6 +351,7 @@ sequenceDiagram
     S->>O: 到达结束节点？输出匹配
     O->>T: 继续下一个字符
     Note over T,O: 只需遍历文本一次
+```
                             </div>
                         </div>
                     </section>

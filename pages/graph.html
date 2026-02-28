@@ -334,34 +334,36 @@
                         <!-- 图算法分类流程图 -->
                         <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
                             <div class="mermaid">
+```mermaid
 graph TD
     A[图算法] --> B[遍历算法]
     A --> C[最短路径]
     A --> D[最小生成树]
     A --> E[网络流]
     A --> F[拓扑排序]
-    
+
     B --> B1[DFS 深度优先]
     B --> B2[BFS 广度优先]
-    
+
     C --> C1[Dijkstra]
     C --> C2[Bellman-Ford]
     C --> C3[Floyd-Warshall]
     C --> C4[A*搜索]
-    
+
     D --> D1[Prim]
     D --> D2[Kruskal]
-    
+
     E --> E1[Ford-Fulkerson]
     E --> E2[Edmonds-Karp]
     E --> E3[Dinic]
-    
+
     style A fill:#2c5282,color:#fff
     style B fill:#4299e1,color:#fff
     style C fill:#48bb78,color:#fff
     style D fill:#ed8936,color:#fff
     style E fill:#f56565,color:#fff
     style F fill:#9f7aea,color:#fff
+```
                             </div>
                         </div>
                     </section>
@@ -1031,18 +1033,20 @@ print(f"总权重：{weight}")</code></pre></div>
 
                         <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
                             <div class="mermaid">
+```mermaid
 sequenceDiagram
-    participant 初始化入度
-    participant 入队
-    participant BFS
-    participant 结果
+    participant Init as 初始化入度
+    participant Queue as 入队
+    participant BFSProc as BFS
+    participant Result as 结果
 
-    初始化入度->>入队：计算所有节点入度
-    入队->>BFS: 入度为 0 的节点入队
-    BFS->>BFS: 取出节点，减少邻居入度
-    BFS->>入队：新入度为 0 的节点入队
-    BFS->>结果：所有节点出队即为拓扑序
-    Note over 初始化入度，结果：Kahn 算法流程
+    Init->>Queue: 计算所有节点入度
+    Queue->>BFSProc: 入度为 0 的节点入队
+    BFSProc->>BFSProc: 取出节点，减少邻居入度
+    BFSProc->>Queue: 新入度为 0 的节点入队
+    BFSProc->>Result: 所有节点出队即为拓扑序
+    Note over Init,Result: Kahn 算法流程
+```
                             </div>
                         </div>
 

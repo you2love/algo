@@ -337,6 +337,7 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
+```mermaid
 sequenceDiagram
     participant P as Proposer
     participant A as Acceptor
@@ -348,6 +349,7 @@ sequenceDiagram
     A->>P: Phase 2b: Accepted(n, value)
     A->>L: Learn(value)
     Note over P,L: 两阶段提交
+```
                             </div>
                         </div>
 
@@ -410,6 +412,7 @@ sequenceDiagram
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
+```mermaid
 sequenceDiagram
     participant L as Leader
     participant F1 as Follower1
@@ -427,6 +430,7 @@ sequenceDiagram
     L->>F2: Commit index
     L->>F3: Commit index
     Note over L,F3: 日志复制完成
+```
                             </div>
                         </div>
 
@@ -465,6 +469,7 @@ sequenceDiagram
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
+```mermaid
 sequenceDiagram
     participant C as Client
     participant P as Primary
@@ -492,6 +497,7 @@ sequenceDiagram
     Note over R1,R3: 2f+1 个 Commit
     R1-->>C: Reply(r)
     Note over C,R3: 三阶段提交
+```
                             </div>
                         </div>
 
