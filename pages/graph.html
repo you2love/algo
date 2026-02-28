@@ -261,9 +261,13 @@
                         <li><a href="#astar">8. A* 搜索</a></li>
                         <li><a href="#bellman-ford">9. Bellman-Ford</a></li>
                         <li><a href="#prim">10. Prim 算法</a></li>
-                        <li><a href="#tarjan">11. Tarjan SCC</a></li>
-                        <li><a href="#summary">12. 算法对比</a></li>
-                        <li><a href="#applications">13. 实际应用</a></li>
+                        <li><a href="#kruskal">11. Kruskal 算法</a></li>
+                        <li><a href="#spfa">12. SPFA 算法</a></li>
+                        <li><a href="#tarjan">13. Tarjan SCC</a></li>
+                        <li><a href="#bipartite-matching">14. 二分图匹配</a></li>
+                        <li><a href="#pagerank">15. PageRank</a></li>
+                        <li><a href="#summary">16. 算法对比</a></li>
+                        <li><a href="#applications">17. 实际应用</a></li>
                     </ul>
                 </aside>
 
@@ -2330,6 +2334,768 @@ func main() {
                         </div>
                     </section>
 
+                    <!-- Kruskal 算法 -->
+                    <section id="kruskal">
+                        <h2>Kruskal 算法 - 最小生成树</h2>
+                        <p>Kruskal 算法通过贪心策略，每次选择权重最小的边来构建最小生成树，使用并查集来检测环。</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <span>💡</span> 核心思想
+                            </div>
+                            <div class="info-card-content">
+                                <strong>贪心 + 并查集</strong> —— 将所有边按权重排序，从小到大依次选择，如果边的两个端点不在同一连通分量中，则加入该边。
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="kruskal-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="kruskal-python">Python</button>
+                                <button class="code-tab-btn" data-tab="kruskal-go">Go</button>
+                            </div>
+                            <div id="kruskal-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// 并查集实现
+class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({length: n}, (_, i) => i);
+        this.rank = Array(n).fill(0);
+    }
+
+    find(x) {
+        if (this.parent[x] !== x) {
+            this.parent[x] = this.find(this.parent[x]);
+        }
+        return this.parent[x];
+    }
+
+    union(x, y) {
+        const px = this.find(x);
+        const py = this.find(y);
+        if (px === py) return false;
+
+        if (this.rank[px] < this.rank[py]) {
+            this.parent[px] = py;
+        } else if (this.rank[px] > this.rank[py]) {
+            this.parent[py] = px;
+        } else {
+            this.parent[py] = px;
+            this.rank[px]++;
+        }
+        return true;
+    }
+}
+
+// Kruskal 算法
+function kruskal(n, edges) {
+    // 按权重排序
+    edges.sort((a, b) => a[2] - b[2]);
+
+    const uf = new UnionFind(n);
+    const mstEdges = [];
+    let mstWeight = 0;
+
+    for (const [u, v, w] of edges) {
+        if (uf.union(u, v)) {
+            mstEdges.push([u, v, w]);
+            mstWeight += w;
+            if (mstEdges.length === n - 1) break;
+        }
+    }
+
+    return mstEdges.length === n - 1 ? { edges: mstEdges, weight: mstWeight } : null;
+}
+
+// 测试
+const n = 5;
+const edges = [
+    [0, 1, 2], [0, 3, 6],
+    [1, 2, 3], [1, 3, 8], [1, 4, 5],
+    [2, 4, 7],
+    [3, 4, 9]
+];
+
+const result = kruskal(n, edges);
+if (result) {
+    console.log('MST 边:', result.edges);
+    console.log('MST 总权重:', result.weight);
+}</code></pre></div>
+                            </div>
+                            <div id="kruskal-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False
+
+        if self.rank[px] < self.rank[py]:
+            self.parent[px] = py
+        elif self.rank[px] > self.rank[py]:
+            self.parent[py] = px
+        else:
+            self.parent[py] = px
+            self.rank[px] += 1
+        return True
+
+def kruskal(n, edges):
+    """
+    Kruskal 算法 - 最小生成树
+    edges: 边列表 [(u, v, w), ...]
+    """
+    # 按权重排序
+    edges.sort(key=lambda x: x[2])
+
+    uf = UnionFind(n)
+    mst_edges = []
+    mst_weight = 0
+
+    for u, v, w in edges:
+        if uf.union(u, v):
+            mst_edges.append((u, v, w))
+            mst_weight += w
+            if len(mst_edges) == n - 1:
+                break
+
+    return {'edges': mst_edges, 'weight': mst_weight} if len(mst_edges) == n - 1 else None
+
+# 测试
+n = 5
+edges = [
+    (0, 1, 2), (0, 3, 6),
+    (1, 2, 3), (1, 3, 8), (1, 4, 5),
+    (2, 4, 7),
+    (3, 4, 9)
+]
+
+result = kruskal(n, edges)
+if result:
+    print(f"MST 边：{result['edges']}")
+    print(f"MST 总权重：{result['weight']}")</code></pre></div>
+                            </div>
+                            <div id="kruskal-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+type Edge struct {
+    u, v, w int
+}
+
+type UnionFind struct {
+    parent []int
+    rank   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n)
+    rank := make([]int, n)
+    for i := range parent {
+        parent[i] = i
+    }
+    return &UnionFind{parent, rank}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if uf.parent[x] != x {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(x, y int) bool {
+    px, py := uf.Find(x), uf.Find(y)
+    if px == py {
+        return false
+    }
+
+    if uf.rank[px] < uf.rank[py] {
+        uf.parent[px] = py
+    } else if uf.rank[px] > uf.rank[py] {
+        uf.parent[py] = px
+    } else {
+        uf.parent[py] = px
+        uf.rank[px]++
+    }
+    return true
+}
+
+func kruskal(n int, edges []Edge) ([]Edge, int) {
+    // 按权重排序
+    sort.Slice(edges, func(i, j int) bool {
+        return edges[i].w < edges[j].w
+    })
+
+    uf := NewUnionFind(n)
+    var mstEdges []Edge
+    mstWeight := 0
+
+    for _, e := range edges {
+        if uf.Union(e.u, e.v) {
+            mstEdges = append(mstEdges, e)
+            mstWeight += e.w
+            if len(mstEdges) == n-1 {
+                break
+            }
+        }
+    }
+
+    if len(mstEdges) == n-1 {
+        return mstEdges, mstWeight
+    }
+    return nil, 0
+}
+
+func main() {
+    n := 5
+    edges := []Edge{
+        {0, 1, 2}, {0, 3, 6},
+        {1, 2, 3}, {1, 3, 8}, {1, 4, 5},
+        {2, 4, 7},
+        {3, 4, 9},
+    }
+
+    mstEdges, mstWeight := kruskal(n, edges)
+    if mstEdges != nil {
+        fmt.Printf("MST 边：%v\n", mstEdges)
+        fmt.Printf("MST 总权重：%d\n", mstWeight)
+    }
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SPFA 算法 -->
+                    <section id="spfa">
+                        <h2>SPFA 算法 - 队列优化的 Bellman-Ford</h2>
+                        <p>SPFA (Shortest Path Faster Algorithm) 是 Bellman-Ford 算法的队列优化版本，在稀疏图上表现更好。</p>
+
+                        <div class="info-card warning">
+                            <div class="info-card-title">
+                                <span>⚠️</span> 注意事项
+                            </div>
+                            <div class="info-card-content">
+                                SPFA 在最坏情况下时间复杂度仍为 O(VE)，但在随机稀疏图上通常表现优异。可以检测负权环。
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="spfa-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="spfa-python">Python</button>
+                                <button class="code-tab-btn" data-tab="spfa-go">Go</button>
+                            </div>
+                            <div id="spfa-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// SPFA 算法
+function spfa(n, graph, start) {
+    const dist = Array(n).fill(Infinity);
+    const inQueue = Array(n).fill(false);
+    const count = Array(n).fill(0); // 记录入队次数，检测负环
+    dist[start] = 0;
+
+    const queue = [start];
+    inQueue[start] = true;
+    count[start] = 1;
+
+    while (queue.length > 0) {
+        const u = queue.shift();
+        inQueue[u] = false;
+
+        for (const [v, w] of graph[u]) {
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                if (!inQueue[v]) {
+                    queue.push(v);
+                    inQueue[v] = true;
+                    count[v]++;
+                    if (count[v] >= n) {
+                        return { hasNegativeCycle: true };
+                    }
+                }
+            }
+        }
+    }
+
+    return { dist, hasNegativeCycle: false };
+}
+
+// 测试
+const n = 5;
+const graph = [
+    [[1, 4], [2, 2]],
+    [[2, -1], [3, 5]],
+    [[3, 8], [4, 10]],
+    [[4, 2]],
+    []
+];
+
+const result = spfa(n, graph, 0);
+if (result.hasNegativeCycle) {
+    console.log('存在负权环');
+} else {
+    console.log('最短距离:', result.dist);
+}</code></pre></div>
+                            </div>
+                            <div id="spfa-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">from collections import deque
+
+def spfa(n, graph, start):
+    """
+    SPFA 算法 - 队列优化的 Bellman-Ford
+    graph: 邻接表，graph[u] = [(v, w), ...]
+    """
+    dist = [float('inf')] * n
+    in_queue = [False] * n
+    count = [0] * n
+    dist[start] = 0
+
+    queue = deque([start])
+    in_queue[start] = True
+    count[start] = 1
+
+    while queue:
+        u = queue.popleft()
+        in_queue[u] = False
+
+        for v, w in graph[u]:
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                if not in_queue[v]:
+                    queue.append(v)
+                    in_queue[v] = True
+                    count[v] += 1
+                    if count[v] >= n:
+                        return {'has_negative_cycle': True}
+
+    return {'dist': dist, 'has_negative_cycle': False}
+
+# 测试
+n = 5
+graph = [
+    [(1, 4), (2, 2)],
+    [(2, -1), (3, 5)],
+    [(3, 8), (4, 10)],
+    [(4, 2)],
+    []
+]
+
+result = spfa(n, graph, 0)
+if result['has_negative_cycle']:
+    print('存在负权环')
+else:
+    print(f"最短距离：{result['dist']}")</code></pre></div>
+                            </div>
+                            <div id="spfa-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type Edge struct {
+    to, weight int
+}
+
+func spfa(n int, graph [][]Edge, start int) ([]int, bool) {
+    const INF = 1e9
+    dist := make([]int, n)
+    inQueue := make([]bool, n)
+    count := make([]int, n)
+    for i := range dist {
+        dist[i] = INF
+    }
+    dist[start] = 0
+
+    queue := []int{start}
+    inQueue[start] = true
+    count[start] = 1
+
+    for len(queue) > 0 {
+        u := queue[0]
+        queue = queue[1:]
+        inQueue[u] = false
+
+        for _, e := range graph[u] {
+            if dist[u]+e.weight < dist[e.to] {
+                dist[e.to] = dist[u] + e.weight
+                if !inQueue[e.to] {
+                    queue = append(queue, e.to)
+                    inQueue[e.to] = true
+                    count[e.to]++
+                    if count[e.to] >= n {
+                        return nil, true
+                    }
+                }
+            }
+        }
+    }
+
+    return dist, false
+}
+
+func main() {
+    n := 5
+    graph := make([][]Edge, n)
+    graph[0] = []Edge{{1, 4}, {2, 2}}
+    graph[1] = []Edge{{2, -1}, {3, 5}}
+    graph[2] = []Edge{{3, 8}, {4, 10}}
+    graph[3] = []Edge{{4, 2}}
+
+    dist, hasNegativeCycle := spfa(n, graph, 0)
+    if hasNegativeCycle {
+        fmt.Println("存在负权环")
+    } else {
+        fmt.Printf("最短距离：%v\n", dist)
+    }
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 二分图匹配 -->
+                    <section id="bipartite-matching">
+                        <h2>二分图匹配 - 匈牙利算法</h2>
+                        <p>匈牙利算法用于在二分图中找到最大匹配，即选择最多的边使得没有两条边共享顶点。</p>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="matching-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="matching-python">Python</button>
+                                <button class="code-tab-btn" data-tab="matching-go">Go</button>
+                            </div>
+                            <div id="matching-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// 匈牙利算法 - 二分图最大匹配
+function maxBipartiteMatching(n, m, graph) {
+    const match = Array(m).fill(-1); // 右侧匹配
+    const vis = Array(n).fill(false);
+
+    function dfs(u) {
+        for (const v of graph[u]) {
+            if (vis[v]) continue;
+            vis[v] = true;
+
+            if (match[v] === -1 || dfs(match[v])) {
+                match[v] = u;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let result = 0;
+    for (let i = 0; i < n; i++) {
+        vis.fill(false);
+        if (dfs(i)) result++;
+    }
+
+    return {
+        maxMatching: result,
+        match: match.map((u, v) => u !== -1 ? [u, v] : null).filter(Boolean)
+    };
+}
+
+// 测试 - 二分图：左侧 4 个点，右侧 3 个点
+const n = 4, m = 3;
+const graph = [
+    [0, 1],      // 左侧点 0 连接右侧点 0,1
+    [0, 2],      // 左侧点 1 连接右侧点 0,2
+    [1],         // 左侧点 2 连接右侧点 1
+    [2]          // 左侧点 3 连接右侧点 2
+];
+
+const result = maxBipartiteMatching(n, m, graph);
+console.log('最大匹配数:', result.maxMatching);
+console.log('匹配边:', result.match);</code></pre></div>
+                            </div>
+                            <div id="matching-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">def max_bipartite_matching(n, m, graph):
+    """
+    匈牙利算法 - 二分图最大匹配
+    n: 左侧点数
+    m: 右侧点数
+    graph: 邻接表，graph[u] = [v1, v2, ...]
+    """
+    match = [-1] * m  # 右侧匹配
+    vis = [False] * n
+
+    def dfs(u):
+        for v in graph[u]:
+            if vis[v]:
+                continue
+            vis[v] = True
+
+            if match[v] == -1 or dfs(match[v]):
+                match[v] = u
+                return True
+        return False
+
+    result = 0
+    for i in range(n):
+        vis = [False] * n
+        if dfs(i):
+            result += 1
+
+    match_edges = [(u, v) for v, u in enumerate(match) if u != -1]
+    return {'max_matching': result, 'match': match_edges}
+
+# 测试
+n, m = 4, 3
+graph = [
+    [0, 1],      # 左侧点 0 连接右侧点 0,1
+    [0, 2],      # 左侧点 1 连接右侧点 0,2
+    [1],         # 左侧点 2 连接右侧点 1
+    [2]          # 左侧点 3 连接右侧点 2
+]
+
+result = max_bipartite_matching(n, m, graph)
+print(f"最大匹配数：{result['max_matching']}")
+print(f"匹配边：{result['match']}")</code></pre></div>
+                            </div>
+                            <div id="matching-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+func maxBipartiteMatching(n, m int, graph [][]int) (int, [][2]int) {
+    match := make([]int, m)
+    for i := range match {
+        match[i] = -1
+    }
+
+    var dfs func(int, []bool) bool
+    dfs = func(u int, vis []bool) bool {
+        for _, v := range graph[u] {
+            if vis[v] {
+                continue
+            }
+            vis[v] = true
+
+            if match[v] == -1 || dfs(match[v], vis) {
+                match[v] = u
+                return true
+            }
+        }
+        return false
+    }
+
+    result := 0
+    for i := 0; i < n; i++ {
+        vis := make([]bool, n)
+        if dfs(i, vis) {
+            result++
+        }
+    }
+
+    var matchEdges [][2]int
+    for v, u := range match {
+        if u != -1 {
+            matchEdges = append(matchEdges, [2]int{u, v})
+        }
+    }
+
+    return result, matchEdges
+}
+
+func main() {
+    n, m := 4, 3
+    graph := [][]int{
+        {0, 1},
+        {0, 2},
+        {1},
+        {2},
+    }
+
+    maxMatching, matchEdges := maxBipartiteMatching(n, m, graph)
+    fmt.Printf("最大匹配数：%d\n", maxMatching)
+    fmt.Printf("匹配边：%v\n", matchEdges)
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- PageRank 算法 -->
+                    <section id="pagerank">
+                        <h2>PageRank 算法 - 网页排名</h2>
+                        <p>PageRank 是 Google 的核心算法之一，用于衡量网页的重要性。基于"被重要网页链接的网页也重要"的思想。</p>
+
+                        <div class="formula-box">
+                            <div class="formula-title">PageRank 公式</div>
+                            <div>
+                                PR(A) = (1-d)/N + d × Σ(PR(B)/L(B))<br>
+                                <span style="color: #a0aec0; font-size: 0.9rem;">
+                                    d = 阻尼因子 (通常 0.85), L(B) = B 的出链数
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="pr-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="pr-python">Python</button>
+                                <button class="code-tab-btn" data-tab="pr-go">Go</button>
+                            </div>
+                            <div id="pr-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// PageRank 算法
+function pageRank(n, graph, d = 0.85, maxIter = 100) {
+    let pr = Array(n).fill(1 / n);
+
+    // 计算出度
+    const outDegree = Array(n).fill(0);
+    for (let u = 0; u < n; u++) {
+        outDegree[u] = graph[u].length;
+    }
+
+    for (let iter = 0; iter < maxIter; iter++) {
+        const newPr = Array(n).fill((1 - d) / n);
+
+        for (let u = 0; u < n; u++) {
+            for (const v of graph[u]) {
+                newPr[v] += d * pr[u] / outDegree[u];
+            }
+        }
+
+        pr = newPr;
+    }
+
+    return pr.map((score, i) => ({ node: i, score }));
+}
+
+// 测试 - 4 个网页的链接关系
+const n = 4;
+const graph = [
+    [1, 2],    // 0 链接到 1,2
+    [2],       // 1 链接到 2
+    [0, 3],    // 2 链接到 0,3
+    [2]        // 3 链接到 2
+];
+
+const result = pageRank(n, graph);
+result.sort((a, b) => b.score - a.score);
+console.log('PageRank 排名:');
+result.forEach(({ node, score }) => {
+    console.log(`  节点 ${node}: ${score.toFixed(4)}`);
+});</code></pre></div>
+                            </div>
+                            <div id="pr-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">def pagerank(n, graph, d=0.85, max_iter=100):
+    """
+    PageRank 算法
+    n: 节点数
+    graph: 邻接表，graph[u] = [v1, v2, ...]
+    d: 阻尼因子
+    """
+    pr = [1 / n] * n
+
+    # 计算出度
+    out_degree = [len(graph[u]) for u in range(n)]
+
+    for _ in range(max_iter):
+        new_pr = [(1 - d) / n] * n
+
+        for u in range(n):
+            if out_degree[u] == 0:
+                continue
+            for v in graph[u]:
+                new_pr[v] += d * pr[u] / out_degree[u]
+
+        pr = new_pr
+
+    return [(i, score) for i, score in enumerate(pr)]
+
+# 测试
+n = 4
+graph = [
+    [1, 2],    # 0 链接到 1,2
+    [2],       # 1 链接到 2
+    [0, 3],    # 2 链接到 0,3
+    [2]        # 3 链接到 2
+]
+
+result = sorted(pagerank(n, graph), key=lambda x: x[1], reverse=True)
+print('PageRank 排名:')
+for node, score in result:
+    print(f"  节点 {node}: {score:.4f}")</code></pre></div>
+                            </div>
+                            <div id="pr-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+func pageRank(n int, graph [][]int, d float64, maxIter int) []struct {
+    Node  int
+    Score float64
+} {
+    pr := make([]float64, n)
+    for i := range pr {
+        pr[i] = 1.0 / float64(n)
+    }
+
+    outDegree := make([]int, n)
+    for i := range graph {
+        outDegree[i] = len(graph[i])
+    }
+
+    for iter := 0; iter < maxIter; iter++ {
+        newPr := make([]float64, n)
+        for i := range newPr {
+            newPr[i] = (1 - d) / float64(n)
+        }
+
+        for u := 0; u < n; u++ {
+            if outDegree[u] == 0 {
+                continue
+            }
+            for _, v := range graph[u] {
+                newPr[v] += d * pr[u] / float64(outDegree[u])
+            }
+        }
+
+        pr = newPr
+    }
+
+    result := make([]struct {
+        Node  int
+        Score float64
+    }, n)
+    for i := range result {
+        result[i].Node = i
+        result[i].Score = pr[i]
+    }
+    return result
+}
+
+func main() {
+    n := 4
+    graph := [][]int{
+        {1, 2},
+        {2},
+        {0, 3},
+        {2},
+    }
+
+    result := pageRank(n, graph, 0.85, 100)
+    fmt.Println("PageRank 排名:")
+    for _, r := range result {
+        fmt.Printf("  节点 %d: %.4f\n", r.Node, r.Score)
+    }
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- 图算法对比总结 -->
                     <section id="summary">
                         <h2>图算法对比总结</h2>
@@ -2399,6 +3165,27 @@ func main() {
                                     <td>O(V+E)</td>
                                     <td>O(V)</td>
                                     <td>任务调度，依赖解析</td>
+                                </tr>
+                                <tr>
+                                    <td>SPFA</td>
+                                    <td>单源最短路径</td>
+                                    <td>O(kE) 平均</td>
+                                    <td>O(V)</td>
+                                    <td>队列优化，可处理负权</td>
+                                </tr>
+                                <tr>
+                                    <td>匈牙利算法</td>
+                                    <td>二分图匹配</td>
+                                    <td>O(VE)</td>
+                                    <td>O(V)</td>
+                                    <td>DFS 增广路，最大匹配</td>
+                                </tr>
+                                <tr>
+                                    <td>PageRank</td>
+                                    <td>图中心性</td>
+                                    <td>O(k(V+E))</td>
+                                    <td>O(V)</td>
+                                    <td>网页排名，影响力分析</td>
                                 </tr>
                             </tbody>
                         </table>
