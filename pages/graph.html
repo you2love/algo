@@ -258,7 +258,12 @@
                         <li><a href="#mst">4. 最小生成树</a></li>
                         <li><a href="#topo">5. 拓扑排序</a></li>
                         <li><a href="#maxflow">6. 最大流</a></li>
-                        <li><a href="#applications">7. 实际应用</a></li>
+                        <li><a href="#astar">8. A* 搜索</a></li>
+                        <li><a href="#bellman-ford">9. Bellman-Ford</a></li>
+                        <li><a href="#prim">10. Prim 算法</a></li>
+                        <li><a href="#tarjan">11. Tarjan SCC</a></li>
+                        <li><a href="#summary">12. 算法对比</a></li>
+                        <li><a href="#applications">13. 实际应用</a></li>
                     </ul>
                 </aside>
 
@@ -334,36 +339,29 @@
                         <!-- 图算法分类流程图 -->
                         <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
                             <div class="mermaid">
-```mermaid
 graph TD
     A[图算法] --> B[遍历算法]
     A --> C[最短路径]
     A --> D[最小生成树]
     A --> E[网络流]
     A --> F[拓扑排序]
-
     B --> B1[DFS 深度优先]
     B --> B2[BFS 广度优先]
-
     C --> C1[Dijkstra]
     C --> C2[Bellman-Ford]
     C --> C3[Floyd-Warshall]
     C --> C4[A*搜索]
-
     D --> D1[Prim]
     D --> D2[Kruskal]
-
     E --> E1[Ford-Fulkerson]
     E --> E2[Edmonds-Karp]
     E --> E3[Dinic]
-
     style A fill:#2c5282,color:#fff
     style B fill:#4299e1,color:#fff
     style C fill:#48bb78,color:#fff
     style D fill:#ed8936,color:#fff
     style E fill:#f56565,color:#fff
     style F fill:#9f7aea,color:#fff
-```
                             </div>
                         </div>
                     </section>
@@ -1033,20 +1031,17 @@ print(f"总权重：{weight}")</code></pre></div>
 
                         <div class="state-transition-diagram" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; margin: 32px 0; overflow-x: auto;">
                             <div class="mermaid">
-```mermaid
 sequenceDiagram
     participant Init as 初始化入度
     participant Queue as 入队
     participant BFSProc as BFS
     participant Result as 结果
-
     Init->>Queue: 计算所有节点入度
     Queue->>BFSProc: 入度为 0 的节点入队
     BFSProc->>BFSProc: 取出节点，减少邻居入度
     BFSProc->>Queue: 新入度为 0 的节点入队
     BFSProc->>Result: 所有节点出队即为拓扑序
     Note over Init,Result: Kahn 算法流程
-```
                             </div>
                         </div>
 
@@ -1435,6 +1430,978 @@ print(mf.edmonds_karp(0, 5))  # 23</code></pre></div>
                                 </ul>
                             </div>
                         </div>
+                    </section>
+
+                    <!-- A* 搜索算法 -->
+                    <section id="astar">
+                        <h2>A* 搜索算法 - 启发式最短路径</h2>
+                        <p>A*算法是一种启发式搜索算法，通过评估函数 f(n) = g(n) + h(n) 来选择最优路径，广泛用于路径规划和游戏 AI。</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <span>💡</span> 核心思想
+                            </div>
+                            <div class="info-card-content">
+                                <strong>f(n) = g(n) + h(n)</strong> —— g(n) 是起点到当前点的实际代价，h(n) 是当前点到终点的估计代价（启发函数）。
+                            </div>
+                        </div>
+
+                        <div class="formula-box">
+                            <div class="formula-title">A* 评估函数</div>
+                            <div>
+                                f(n) = g(n) + h(n)<br>
+                                <span style="color: #a0aec0; font-size: 0.9rem;">
+                                    常用启发函数：曼哈顿距离、欧几里得距离、切比雪夫距离
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="astar-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="astar-python">Python</button>
+                                <button class="code-tab-btn" data-tab="astar-go">Go</button>
+                            </div>
+                            <div id="astar-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// A* 搜索算法
+function aStar(grid, start, end) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    
+    // 启发函数：曼哈顿距离
+    function heuristic(a, b) {
+        return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+    }
+    
+    const openSet = [[start[0], start[1], 0 + heuristic(start, end), 0]];
+    const closedSet = new Set();
+    const cameFrom = new Map();
+    const gScore = new Map();
+    gScore.set(start.toString(), 0);
+    
+    while (openSet.length > 0) {
+        // 按 f 值排序，取最小
+        openSet.sort((a, b) => a[2] - b[2]);
+        const current = openSet.shift();
+        const [row, col, f, g] = current;
+        
+        if (row === end[0] && col === end[1]) {
+            // 重建路径
+            const path = [];
+            let key = end.toString();
+            while (cameFrom.has(key)) {
+                const [r, c] = JSON.parse(key);
+                path.unshift([r, c]);
+                key = cameFrom.get(key).toString();
+            }
+            path.unshift(start);
+            return path;
+        }
+        
+        closedSet.add(`${row},${col}`);
+        
+        // 检查四个方向
+        const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+        for (const [dr, dc] of directions) {
+            const nr = row + dr;
+            const nc = col + dc;
+            
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+            if (grid[nr][nc] === 1) continue; // 障碍物
+            if (closedSet.has(`${nr},${nc}`)) continue;
+            
+            const newG = g + 1;
+            const key = `${nr},${nc}`;
+            
+            if (newG < (gScore.get(key) || Infinity)) {
+                cameFrom.set(key, [row, col]);
+                gScore.set(key, newG);
+                const f = newG + heuristic([nr, nc], end);
+                openSet.push([nr, nc, f, newG]);
+            }
+        }
+    }
+    
+    return []; // 无路径
+}
+
+// 测试 - 网格地图 (0=空地，1=障碍)
+const grid = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0],
+    [0, 0, 0, 0, 0]
+];
+const path = aStar(grid, [0, 0], [4, 4]);
+console.log('路径:', path);
+// 可能的输出：[[0,0], [1,0], [2,0], [2,1], [2,2], [2,3], [3,3], [4,3], [4,4]]</code></pre></div>
+                            </div>
+                            <div id="astar-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">import heapq
+
+def a_star(grid, start, end):
+    """
+    A* 搜索算法
+    grid: 二维数组，0=空地，1=障碍
+    start: 起点 (row, col)
+    end: 终点 (row, col)
+    """
+    rows, cols = len(grid), len(grid[0])
+    
+    # 启发函数：曼哈顿距离
+    def heuristic(a, b):
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    
+    # 优先队列：(f, g, row, col)
+    open_set = [(heuristic(start, end), 0, start[0], start[1])]
+    closed_set = set()
+    came_from = {}
+    g_score = {start: 0}
+    
+    while open_set:
+        f, g, row, col = heapq.heappop(open_set)
+        current = (row, col)
+        
+        if current == end:
+            # 重建路径
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]
+        
+        closed_set.add(current)
+        
+        # 检查四个方向
+        for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            nr, nc = row + dr, col + dc
+            neighbor = (nr, nc)
+            
+            if not (0 <= nr < rows and 0 <= nc < cols):
+                continue
+            if grid[nr][nc] == 1:
+                continue
+            if neighbor in closed_set:
+                continue
+            
+            new_g = g + 1
+            if new_g < g_score.get(neighbor, float('inf')):
+                came_from[neighbor] = current
+                g_score[neighbor] = new_g
+                f = new_g + heuristic(neighbor, end)
+                heapq.heappush(open_set, (f, new_g, nr, nc))
+    
+    return []  # 无路径
+
+# 测试
+grid = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0],
+    [0, 0, 0, 0, 0]
+]
+path = a_star(grid, (0, 0), (4, 4))
+print(f'路径：{path}')
+# 可能的输出：[(0,0), (1,0), (2,0), (2,1), (2,2), (2,3), (3,3), (4,3), (4,4)]</code></pre></div>
+                            </div>
+                            <div id="astar-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+type Node struct {
+    row, col int
+    f, g     int
+}
+
+func aStar(grid [][]int, start, end [2]int) [][2]int {
+    rows, cols := len(grid), len(grid[0])
+    
+    // 启发函数：曼哈顿距离
+    heuristic := func(a, b [2]int) int {
+        return abs(a[0]-b[0]) + abs(a[1]-b[1])
+    }
+    
+    openSet := []Node{{start[0], start[1], heuristic(start, end), 0}}
+    closedSet := make(map[string]bool)
+    cameFrom := make(map[string][2]int)
+    gScore := make(map[string]int)
+    gScore[key(start)] = 0
+    
+    for len(openSet) > 0 {
+        // 按 f 值排序
+        sort.Slice(openSet, func(i, j int) bool {
+            return openSet[i].f < openSet[j].f
+        })
+        
+        current := openSet[0]
+        openSet = openSet[1:]
+        
+        if current.row == end[0] && current.col == end[1] {
+            // 重建路径
+            var path [][2]int
+            k := key(end)
+            for prev, ok := cameFrom[k]; ok; {
+                path = append([][2]int{prev}, path...)
+                k = key(prev)
+            }
+            path = append([][2]int{start}, path...)
+            return path
+        }
+        
+        closedSet[key([2]int{current.row, current.col})] = true
+        
+        // 检查四个方向
+        directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+        for _, d := range directions {
+            nr, nc := current.row+d[0], current.col+d[1]
+            
+            if nr < 0 || nr >= rows || nc < 0 || nc >= cols {
+                continue
+            }
+            if grid[nr][nc] == 1 {
+                continue
+            }
+            if closedSet[key([2]int{nr, nc})] {
+                continue
+            }
+            
+            newG := current.g + 1
+            nkey := key([2]int{nr, nc})
+            
+            if newG < getOrDefault(gScore, nkey, 999999) {
+                cameFrom[nkey] = [2]int{current.row, current.col}
+                gScore[nkey] = newG
+                f := newG + heuristic([2]int{nr, nc}, end)
+                openSet = append(openSet, Node{nr, nc, f, newG})
+            }
+        }
+    }
+    
+    return nil
+}
+
+func key(pos [2]int) string {
+    return fmt.Sprintf("%d,%d", pos[0], pos[1])
+}
+
+func getOrDefault(m map[string]int, key string, defaultVal int) int {
+    if v, ok := m[key]; ok {
+        return v
+    }
+    return defaultVal
+}
+
+func abs(x int) int {
+    if x < 0 {
+        return -x
+    }
+    return x
+}
+
+func main() {
+    grid := [][]int{
+        {0, 0, 0, 0, 0},
+        {0, 1, 1, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0},
+    }
+    
+    path := aStar(grid, [2]int{0, 0}, [2]int{4, 4})
+    fmt.Printf("路径：%v\n", path)
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Bellman-Ford 算法 -->
+                    <section id="bellman-ford">
+                        <h2>Bellman-Ford 算法 - 可处理负权的最短路径</h2>
+                        <p>Bellman-Ford 算法可以处理带有负权边的图，并且能够检测负权环。</p>
+
+                        <div class="info-card warning">
+                            <div class="info-card-title">
+                                <span>⚠️</span> 负权环检测
+                            </div>
+                            <div class="info-card-content">
+                                如果图中存在负权环，从起点可以无限降低到某些节点的距离，算法会检测到这种情况。
+                            </div>
+                        </div>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="bf-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="bf-python">Python</button>
+                                <button class="code-tab-btn" data-tab="bf-go">Go</button>
+                            </div>
+                            <div id="bf-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Bellman-Ford 算法
+function bellmanFord(n, edges, start) {
+    const dist = Array(n).fill(Infinity);
+    dist[start] = 0;
+    
+    // 松弛 n-1 轮
+    for (let i = 0; i < n - 1; i++) {
+        let updated = false;
+        for (const [u, v, w] of edges) {
+            if (dist[u] !== Infinity && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                updated = true;
+            }
+        }
+        if (!updated) break; // 提前收敛
+    }
+    
+    // 检测负权环
+    for (const [u, v, w] of edges) {
+        if (dist[u] !== Infinity && dist[u] + w < dist[v]) {
+            return { hasNegativeCycle: true };
+        }
+    }
+    
+    return { dist, hasNegativeCycle: false };
+}
+
+// 测试
+const n = 5;
+const edges = [
+    [0, 1, 4],
+    [0, 2, 2],
+    [1, 2, -1],
+    [1, 3, 5],
+    [2, 3, 8],
+    [2, 4, 10],
+    [3, 4, 2]
+];
+
+const result = bellmanFord(n, edges, 0);
+if (result.hasNegativeCycle) {
+    console.log('存在负权环');
+} else {
+    console.log('最短距离:', result.dist);
+    // [0, 4, 2, 9, 11]
+}</code></pre></div>
+                            </div>
+                            <div id="bf-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">def bellman_ford(n, edges, start):
+    """
+    Bellman-Ford 算法
+    n: 节点数
+    edges: 边列表 [(u, v, w), ...]
+    start: 起点
+    """
+    dist = [float('inf')] * n
+    dist[start] = 0
+    
+    # 松弛 n-1 轮
+    for _ in range(n - 1):
+        updated = False
+        for u, v, w in edges:
+            if dist[u] != float('inf') and dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                updated = True
+        if not updated:
+            break
+    
+    # 检测负权环
+    for u, v, w in edges:
+        if dist[u] != float('inf') and dist[u] + w < dist[v]:
+            return {'has_negative_cycle': True}
+    
+    return {'dist': dist, 'has_negative_cycle': False}
+
+# 测试
+n = 5
+edges = [
+    (0, 1, 4),
+    (0, 2, 2),
+    (1, 2, -1),
+    (1, 3, 5),
+    (2, 3, 8),
+    (2, 4, 10),
+    (3, 4, 2)
+]
+
+result = bellman_ford(n, edges, 0)
+if result['has_negative_cycle']:
+    print('存在负权环')
+else:
+    print(f"最短距离：{result['dist']}")
+    # [0, 4, 2, 9, 11]</code></pre></div>
+                            </div>
+                            <div id="bf-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type Edge struct {
+    u, v, w int
+}
+
+func bellmanFord(n int, edges []Edge, start int) ([]int, bool) {
+    const INF = 1e9
+    dist := make([]int, n)
+    for i := range dist {
+        dist[i] = INF
+    }
+    dist[start] = 0
+    
+    // 松弛 n-1 轮
+    for i := 0; i < n-1; i++ {
+        updated := false
+        for _, e := range edges {
+            if dist[e.u] != INF && dist[e.u]+e.w < dist[e.v] {
+                dist[e.v] = dist[e.u] + e.w
+                updated = true
+            }
+        }
+        if !updated {
+            break
+        }
+    }
+    
+    // 检测负权环
+    for _, e := range edges {
+        if dist[e.u] != INF && dist[e.u]+e.w < dist[e.v] {
+            return nil, true
+        }
+    }
+    
+    return dist, false
+}
+
+func main() {
+    n := 5
+    edges := []Edge{
+        {0, 1, 4},
+        {0, 2, 2},
+        {1, 2, -1},
+        {1, 3, 5},
+        {2, 3, 8},
+        {2, 4, 10},
+        {3, 4, 2},
+    }
+    
+    dist, hasNegativeCycle := bellmanFord(n, edges, 0)
+    if hasNegativeCycle {
+        fmt.Println("存在负权环")
+    } else {
+        fmt.Printf("最短距离：%v\n", dist)
+        // [0 4 2 9 11]
+    }
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Prim 最小生成树算法 -->
+                    <section id="prim">
+                        <h2>Prim 算法 - 最小生成树</h2>
+                        <p>Prim 算法用于在加权无向图中找到最小生成树，从任意节点开始，逐步添加最小权重的边。</p>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="prim-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="prim-python">Python</button>
+                                <button class="code-tab-btn" data-tab="prim-go">Go</button>
+                            </div>
+                            <div id="prim-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Prim 算法 - 最小生成树
+function prim(n, graph) {
+    const visited = Array(n).fill(false);
+    const minEdge = Array(n).fill(Infinity);
+    const parent = Array(n).fill(-1);
+    minEdge[0] = 0;
+    
+    let mstWeight = 0;
+    
+    for (let i = 0; i < n; i++) {
+        // 找到未访问的最小边节点
+        let u = -1;
+        for (let v = 0; v < n; v++) {
+            if (!visited[v] && (u === -1 || minEdge[v] < minEdge[u])) {
+                u = v;
+            }
+        }
+        
+        if (minEdge[u] === Infinity) return null; // 不连通
+        
+        visited[u] = true;
+        mstWeight += minEdge[u];
+        
+        // 更新邻居
+        for (const [v, w] of graph[u]) {
+            if (!visited[v] && w < minEdge[v]) {
+                minEdge[v] = w;
+                parent[v] = u;
+            }
+        }
+    }
+    
+    // 构建 MST 边列表
+    const mstEdges = [];
+    for (let i = 1; i < n; i++) {
+        if (parent[i] !== -1) {
+            mstEdges.push([parent[i], i, minEdge[i]]);
+        }
+    }
+    
+    return { edges: mstEdges, weight: mstWeight };
+}
+
+// 测试 - 邻接表
+const n = 5;
+const graph = [
+    [[1, 2], [3, 6]],
+    [[0, 2], [3, 8], [4, 5]],
+    [[3, 10]],
+    [[0, 6], [1, 8], [2, 10], [4, 15]],
+    [[1, 5], [3, 15]]
+];
+
+const result = prim(n, graph);
+console.log('MST 边:', result.edges);
+console.log('MST 总权重:', result.weight);</code></pre></div>
+                            </div>
+                            <div id="prim-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">import heapq
+
+def prim(n, graph):
+    """
+    Prim 算法 - 最小生成树
+    graph: 邻接表，graph[u] = [(v, w), ...]
+    """
+    visited = [False] * n
+    min_heap = [(0, 0, -1)]  # (weight, node, parent)
+    mst_weight = 0
+    mst_edges = []
+    
+    while min_heap:
+        w, u, p = heapq.heappop(min_heap)
+        
+        if visited[u]:
+            continue
+        
+        visited[u] = True
+        mst_weight += w
+        if p != -1:
+            mst_edges.append((p, u, w))
+        
+        for v, weight in graph[u]:
+            if not visited[v]:
+                heapq.heappush(min_heap, (weight, v, u))
+    
+    if sum(visited) != n:
+        return None  # 不连通
+    
+    return {'edges': mst_edges, 'weight': mst_weight}
+
+# 测试
+n = 5
+graph = [
+    [(1, 2), (3, 6)],
+    [(0, 2), (3, 8), (4, 5)],
+    [(3, 10)],
+    [(0, 6), (1, 8), (2, 10), (4, 15)],
+    [(1, 5), (3, 15)]
+]
+
+result = prim(n, graph)
+if result:
+    print(f"MST 边：{result['edges']}")
+    print(f"MST 总权重：{result['weight']}")</code></pre></div>
+                            </div>
+                            <div id="prim-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type Edge struct {
+    to, weight int
+}
+
+func prim(n int, graph [][]Edge) ([][3]int, int) {
+    visited := make([]bool, n)
+    minEdge := make([]int, n)
+    parent := make([]int, n)
+    for i := range minEdge {
+        minEdge[i] = 1e9
+        parent[i] = -1
+    }
+    minEdge[0] = 0
+    
+    mstWeight := 0
+    
+    for i := 0; i < n; i++ {
+        // 找到未访问的最小边节点
+        u := -1
+        for v := 0; v < n; v++ {
+            if !visited[v] && (u == -1 || minEdge[v] < minEdge[u]) {
+                u = v
+            }
+        }
+        
+        if minEdge[u] == 1e9 {
+            return nil, 0 // 不连通
+        }
+        
+        visited[u] = true
+        mstWeight += minEdge[u]
+        
+        // 更新邻居
+        for _, e := range graph[u] {
+            if !visited[e.to] && e.weight < minEdge[e.to] {
+                minEdge[e.to] = e.weight
+                parent[e.to] = u
+            }
+        }
+    }
+    
+    // 构建 MST 边列表
+    var mstEdges [][3]int
+    for i := 1; i < n; i++ {
+        if parent[i] != -1 {
+            mstEdges = append(mstEdges, [3]int{parent[i], i, minEdge[i]})
+        }
+    }
+    
+    return mstEdges, mstWeight
+}
+
+func main() {
+    n := 5
+    graph := make([][]Edge, n)
+    graph[0] = []Edge{{1, 2}, {3, 6}}
+    graph[1] = []Edge{{0, 2}, {3, 8}, {4, 5}}
+    graph[2] = []Edge{{3, 10}}
+    graph[3] = []Edge{{0, 6}, {1, 8}, {2, 10}, {4, 15}}
+    graph[4] = []Edge{{1, 5}, {3, 15}}
+    
+    edges, weight := prim(n, graph)
+    fmt.Printf("MST 边：%v\n", edges)
+    fmt.Printf("MST 总权重：%d\n", weight)
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tarjan 强连通分量算法 -->
+                    <section id="tarjan">
+                        <h2>Tarjan 算法 - 强连通分量</h2>
+                        <p>Tarjan 算法用于在有向图中找到所有强连通分量（SCC），即图中任意两点都互相可达的最大子图。</p>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="tarjan-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="tarjan-python">Python</button>
+                                <button class="code-tab-btn" data-tab="tarjan-go">Go</button>
+                            </div>
+                            <div id="tarjan-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// Tarjan 强连通分量算法
+function tarjanSCC(n, graph) {
+    const visited = Array(n).fill(false);
+    const stack = [];
+    const onStack = Array(n).fill(false);
+    const disc = Array(n).fill(-1);
+    const low = Array(n).fill(-1);
+    
+    let time = 0;
+    const sccs = [];
+    
+    function dfs(u) {
+        disc[u] = low[u] = time++;
+        stack.push(u);
+        onStack[u] = true;
+        
+        for (const v of graph[u]) {
+            if (disc[v] === -1) {
+                dfs(v);
+                low[u] = Math.min(low[u], low[v]);
+            } else if (onStack[v]) {
+                low[u] = Math.min(low[u], disc[v]);
+            }
+        }
+        
+        // 找到 SCC 根节点
+        if (low[u] === disc[u]) {
+            const scc = [];
+            while (true) {
+                const v = stack.pop();
+                onStack[v] = false;
+                scc.push(v);
+                if (v === u) break;
+            }
+            sccs.push(scc);
+        }
+    }
+    
+    for (let i = 0; i < n; i++) {
+        if (disc[i] === -1) {
+            dfs(i);
+        }
+    }
+    
+    return sccs;
+}
+
+// 测试
+const n = 8;
+const graph = [
+    [1],      // 0
+    [2],      // 1
+    [0, 3],   // 2
+    [4],      // 3
+    [5, 7],   // 4
+    [6],      // 5
+    [4],      // 6
+ [6]       // 7
+];
+
+const sccs = tarjanSCC(n, graph);
+console.log('强连通分量:');
+sccs.forEach((scc, i) => {
+    console.log(`  SCC ${i + 1}: [${scc.join(', ')}]`);
+});
+// 输出：
+//   SCC 1: [7, 6, 5, 4, 3]
+//   SCC 2: [2, 1, 0]</code></pre></div>
+                            </div>
+                            <div id="tarjan-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python">def tarjan_scc(n, graph):
+    """
+    Tarjan 强连通分量算法
+    graph: 邻接表
+    """
+    visited = [False] * n
+    stack = []
+    on_stack = [False] * n
+    disc = [-1] * n
+    low = [-1] * n
+    
+    time = 0
+    sccs = []
+    
+    def dfs(u):
+        nonlocal time
+        disc[u] = low[u] = time
+        time += 1
+        stack.append(u)
+        on_stack[u] = True
+        
+        for v in graph[u]:
+            if disc[v] == -1:
+                dfs(v)
+                low[u] = min(low[u], low[v])
+            elif on_stack[v]:
+                low[u] = min(low[u], disc[v])
+        
+        # 找到 SCC 根节点
+        if low[u] == disc[u]:
+            scc = []
+            while True:
+                v = stack.pop()
+                on_stack[v] = False
+                scc.append(v)
+                if v == u:
+                    break
+            sccs.append(scc)
+    
+    for i in range(n):
+        if disc[i] == -1:
+            dfs(i)
+    
+    return sccs
+
+# 测试
+n = 8
+graph = [
+    [1],      # 0
+    [2],      # 1
+    [0, 3],   # 2
+    [4],      # 3
+    [5, 7],   # 4
+    [6],      # 5
+    [4],      # 6
+    [6]       # 7
+]
+
+sccs = tarjan_scc(n, graph)
+print('强连通分量:')
+for i, scc in enumerate(sccs):
+    print(f"  SCC {i+1}: {scc}")
+# 输出：
+#   SCC 1: [7, 6, 5, 4, 3]
+#   SCC 2: [2, 1, 0]</code></pre></div>
+                            </div>
+                            <div id="tarjan-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+func tarjanSCC(n int, graph [][]int) [][]int {
+    disc := make([]int, n)
+    low := make([]int, n)
+    onStack := make([]bool, n)
+    stack := []int{}
+    
+    for i := range disc {
+        disc[i] = -1
+        low[i] = -1
+    }
+    
+    time := 0
+    var sccs [][]int
+    
+    var dfs func(int)
+    dfs = func(u int) {
+        disc[u] = time
+        low[u] = time
+        time++
+        stack = append(stack, u)
+        onStack[u] = true
+        
+        for _, v := range graph[u] {
+            if disc[v] == -1 {
+                dfs(v)
+                if low[v] < low[u] {
+                    low[u] = low[v]
+                }
+            } else if onStack[v] && disc[v] < low[u] {
+                low[u] = disc[v]
+            }
+        }
+        
+        // 找到 SCC 根节点
+        if low[u] == disc[u] {
+            var scc []int
+            for {
+                v := stack[len(stack)-1]
+                stack = stack[:len(stack)-1]
+                onStack[v] = false
+                scc = append(scc, v)
+                if v == u {
+                    break
+                }
+            }
+            sccs = append(sccs, scc)
+        }
+    }
+    
+    for i := 0; i < n; i++ {
+        if disc[i] == -1 {
+            dfs(i)
+        }
+    }
+    
+    return sccs
+}
+
+func main() {
+    n := 8
+    graph := [][]int{
+        {1},      // 0
+        {2},      // 1
+        {0, 3},   // 2
+        {4},      // 3
+        {5, 7},   // 4
+        {6},      // 5
+        {4},      // 6
+        {6},      // 7
+    }
+    
+    sccs := tarjanSCC(n, graph)
+    fmt.Println("强连通分量:")
+    for i, scc := range sccs {
+        fmt.Printf("  SCC %d: %v\n", i+1, scc)
+    }
+}
+</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 图算法对比总结 -->
+                    <section id="summary">
+                        <h2>图算法对比总结</h2>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>算法</th>
+                                    <th>类型</th>
+                                    <th>时间复杂度</th>
+                                    <th>空间复杂度</th>
+                                    <th>特点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dijkstra</td>
+                                    <td>单源最短路径</td>
+                                    <td>O((V+E) log V)</td>
+                                    <td>O(V)</td>
+                                    <td>贪心，不能处理负权</td>
+                                </tr>
+                                <tr>
+                                    <td>Floyd-Warshall</td>
+                                    <td>多源最短路径</td>
+                                    <td>O(V³)</td>
+                                    <td>O(V²)</td>
+                                    <td>动态规划，可处理负权</td>
+                                </tr>
+                                <tr>
+                                    <td>Bellman-Ford</td>
+                                    <td>单源最短路径</td>
+                                    <td>O(VE)</td>
+                                    <td>O(V)</td>
+                                    <td>可处理负权，检测负权环</td>
+                                </tr>
+                                <tr>
+                                    <td>A*</td>
+                                    <td>启发式搜索</td>
+                                    <td>取决于启发函数</td>
+                                    <td>O(V)</td>
+                                    <td>路径规划，游戏 AI</td>
+                                </tr>
+                                <tr>
+                                    <td>Prim</td>
+                                    <td>最小生成树</td>
+                                    <td>O((V+E) log V)</td>
+                                    <td>O(V)</td>
+                                    <td>贪心，适用于稠密图</td>
+                                </tr>
+                                <tr>
+                                    <td>Kruskal</td>
+                                    <td>最小生成树</td>
+                                    <td>O(E log E)</td>
+                                    <td>O(V)</td>
+                                    <td>并查集，适用于稀疏图</td>
+                                </tr>
+                                <tr>
+                                    <td>Tarjan</td>
+                                    <td>强连通分量</td>
+                                    <td>O(V+E)</td>
+                                    <td>O(V)</td>
+                                    <td>DFS，线性时间</td>
+                                </tr>
+                                <tr>
+                                    <td>拓扑排序</td>
+                                    <td>DAG 排序</td>
+                                    <td>O(V+E)</td>
+                                    <td>O(V)</td>
+                                    <td>任务调度，依赖解析</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </section>
                 </div>
             </div>

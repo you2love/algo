@@ -265,7 +265,6 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 graph TD
     A[开始] --> B[创建根节点]
     B --> C[遍历每个模式串]
@@ -280,12 +279,10 @@ graph TD
     I --> J{还有模式串？}
     J -->|是 | C
     J -->|否 | K[Trie 构建完成]
-
     style A fill:#48bb78,color:#fff
     style K fill:#48bb78,color:#fff
     style E fill:#ed8936,color:#fff
     style I fill:#667eea,color:#fff
-```
                             </div>
                         </div>
                     </section>
@@ -337,13 +334,11 @@ graph TD
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 sequenceDiagram
     participant T as 文本指针
     participant S as 当前状态
     participant F as 失配边
     participant O as 输出
-
     T->>S: 读取字符 c
     S->>S: 尝试转移 go(s, c)
     S->>F: 失败？沿 fail 跳转
@@ -351,7 +346,6 @@ sequenceDiagram
     S->>O: 到达结束节点？输出匹配
     O->>T: 继续下一个字符
     Note over T,O: 只需遍历文本一次
-```
                             </div>
                         </div>
                     </section>

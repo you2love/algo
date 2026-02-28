@@ -337,19 +337,16 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 sequenceDiagram
     participant P as Proposer
     participant A as Acceptor
     participant L as Learner
-
     P->>A: Phase 1a: Prepare(n)
     A->>P: Phase 1b: Promise(n, acceptedValue)
     P->>A: Phase 2a: Accept(n, value)
     A->>P: Phase 2b: Accepted(n, value)
     A->>L: Learn(value)
     Note over P,L: 两阶段提交
-```
                             </div>
                         </div>
 
@@ -412,13 +409,11 @@ sequenceDiagram
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 sequenceDiagram
     participant L as Leader
     participant F1 as Follower1
     participant F2 as Follower2
     participant F3 as Follower3
-
     L->>F1: AppendEntries(log, term)
     L->>F2: AppendEntries(log, term)
     L->>F3: AppendEntries(log, term)
@@ -430,7 +425,6 @@ sequenceDiagram
     L->>F2: Commit index
     L->>F3: Commit index
     Note over L,F3: 日志复制完成
-```
                             </div>
                         </div>
 
@@ -469,14 +463,12 @@ sequenceDiagram
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 sequenceDiagram
     participant C as Client
     participant P as Primary
     participant R1 as Replica1
     participant R2 as Replica2
     participant R3 as Replica3
-
     C->>P: Request(m)
     P->>R1: Pre-Prepare(m, n, d)
     P->>R2: Pre-Prepare(m, n, d)
@@ -497,7 +489,6 @@ sequenceDiagram
     Note over R1,R3: 2f+1 个 Commit
     R1-->>C: Reply(r)
     Note over C,R3: 三阶段提交
-```
                             </div>
                         </div>
 

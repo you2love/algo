@@ -233,7 +233,6 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-```mermaid
 flowchart LR
     A[输入层] -->|前向传播 | B[隐藏层]
     B -->|前向传播 | C[输出层]
@@ -242,7 +241,6 @@ flowchart LR
     E -->|∂L/∂W₃| C
     E -->|∂L/∂W₂| B
     E -->|∂L/∂W₁| A
-
     subgraph 一次迭代
         A
         B
@@ -250,7 +248,6 @@ flowchart LR
         D
         E
     end
-```
                             </div>
                         </div>
                     </section>
