@@ -858,59 +858,6 @@ func main() {
                 </div>
             </section>
 
-            <!-- 其他算法简介 -->
-            <section id="other-algorithms" class="section-detail">
-                <h2><span>📚</span> 其他重要算法</h2>
-                
-                <div class="comparison-grid">
-                    <div class="comparison-card">
-                        <h4><span>🔷</span> 支持向量机 (SVM)</h4>
-                        <ul>
-                            <li>寻找最大间隔超平面</li>
-                            <li>核技巧处理非线性</li>
-                            <li>适用于小样本高维数据</li>
-                            <li>对参数选择敏感</li>
-                        </ul>
-                    </div>
-                    <div class="comparison-card">
-                        <h4><span>🌳</span> 决策树</h4>
-                        <ul>
-                            <li>信息增益/基尼指数划分</li>
-                            <li>可解释性强</li>
-                            <li>容易过拟合</li>
-                            <li>需要剪枝处理</li>
-                        </ul>
-                    </div>
-                    <div class="comparison-card">
-                        <h4><span>🌲</span> 随机森林</h4>
-                        <ul>
-                            <li>Bagging 集成多棵树</li>
-                            <li>随机特征选择</li>
-                            <li>抗过拟合能力强</li>
-                            <li>可评估特征重要性</li>
-                        </ul>
-                    </div>
-                    <div class="comparison-card">
-                        <h4><span>👥</span> K 近邻 (KNN)</h4>
-                        <ul>
-                            <li>基于距离度量</li>
-                            <li>懒惰学习，无训练过程</li>
-                            <li>计算复杂度较高</li>
-                            <li>需要特征缩放</li>
-                        </ul>
-                    </div>
-                    <div class="comparison-card">
-                        <h4><span>📧</span> 朴素贝叶斯</h4>
-                        <ul>
-                            <li>基于贝叶斯定理</li>
-                            <li>特征条件独立假设</li>
-                            <li>文本分类效果好</li>
-                            <li>训练预测都很快</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
             <!-- 算法选择指南 -->
             <div class="info-card warning">
                 <div class="info-card-title">
@@ -927,6 +874,1872 @@ func main() {
                     </ul>
                 </div>
             </div>
+
+            <!-- 支持向量机 -->
+            <section id="svm" class="section-detail">
+                <h2><span>🔷</span> 3. 支持向量机 (SVM)</h2>
+                
+                <h3>算法原理</h3>
+                <p>SVM 通过寻找最大间隔超平面来进行分类，对于线性不可分数据，使用核技巧映射到高维空间。</p>
+                
+                <div class="math-box">
+                    <strong>优化目标：</strong> min (1/2)||w||²<br><br>
+                    <strong>约束条件：</strong> yᵢ(wxᵢ + b) ≥ 1<br><br>
+                    <strong>核函数：</strong> K(xᵢ, xⱼ) = φ(xᵢ)·φ(xⱼ)
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">训练时间复杂度</div>
+                        <div class="value">O(n² × m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">预测时间复杂度</div>
+                        <div class="value">O(k × m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(k)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>最大间隔，泛化能力强</li>
+                            <li>核技巧处理非线性</li>
+                            <li>高维空间表现好</li>
+                            <li>避免局部最优</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>大规模数据训练慢</li>
+                            <li>核函数选择敏感</li>
+                            <li>多分类需要扩展</li>
+                            <li>缺失值敏感</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="svm-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="svm-python">Python</button>
+                        <button class="code-tab-btn" data-tab="svm-go">Go</button>
+                    </div>
+                    <div id="svm-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">// 简化的 SVM 实现（使用梯度下降）
+class SVM {
+    constructor(learningRate = 0.001, lambdaParam = 0.01, nIterations = 1000) {
+        this.learningRate = learningRate;
+        this.lambdaParam = lambdaParam;
+        this.nIterations = nIterations;
+        this.weights = null;
+        this.bias = null;
+    }
+
+    fit(X, y) {
+        const nSamples = X.length;
+        const nFeatures = X[0].length;
+
+        this.weights = new Array(nFeatures).fill(0);
+        this.bias = 0;
+
+        // 将标签转换为 -1 和 1
+        const yTransformed = y.map(label => label === 0 ? -1 : 1);
+
+        for (let iter = 0; iter < this.nIterations; iter++) {
+            for (let i = 0; i < nSamples; i++) {
+                const condition = yTransformed[i] * (this._dotProduct(X[i], this.weights) + this.bias) >= 1;
+                
+                if (condition) {
+                    // 梯度下降更新权重（正则化项）
+                    for (let j = 0; j < nFeatures; j++) {
+                        this.weights[j] -= this.learningRate * (2 * this.lambdaParam * this.weights[j]);
+                    }
+                    this.bias -= this.learningRate * 2 * this.lambdaParam * this.bias;
+                } else {
+                    // 梯度下降更新权重（损失项 + 正则化项）
+                    for (let j = 0; j < nFeatures; j++) {
+                        this.weights[j] -= this.learningRate * (2 * this.lambdaParam * this.weights[j] - yTransformed[i] * X[i][j]);
+                    }
+                    this.bias -= this.learningRate * (-yTransformed[i]);
+                }
+            }
+        }
+    }
+
+    _dotProduct(arr1, arr2) {
+        return arr1.reduce((sum, val, i) => sum + val * arr2[i], 0);
+    }
+
+    predict(X) {
+        return X.map(row => {
+            const linearModel = this._dotProduct(row, this.weights) + this.bias;
+            return linearModel >= 0 ? 1 : 0;
+        });
+    }
+}
+
+// 使用示例
+const X = [[1, 2], [2, 3], [3, 3], [4, 5], [5, 5]];
+const y = [0, 0, 0, 1, 1];
+
+const model = new SVM(0.001, 0.01, 1000);
+model.fit(X, y);
+
+console.log('预测类别:', model.predict([[3, 4], [4, 4]]));</code></pre></div>
+                    </div>
+                    <div id="svm-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
+
+class SVM:
+    def __init__(self, learning_rate=0.001, lambda_param=0.01, n_iterations=1000):
+        self.learning_rate = learning_rate
+        self.lambda_param = lambda_param
+        self.n_iterations = n_iterations
+        self.weights = None
+        self.bias = None
+
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+
+        # 将标签转换为 -1 和 1
+        y_transformed = np.where(y <= 0, -1, 1)
+
+        for _ in range(self.n_iterations):
+            for idx, x_i in enumerate(X):
+                condition = y_transformed[idx] * (np.dot(x_i, self.weights) - self.bias) >= 1
+                
+                if condition:
+                    self.weights -= self.learning_rate * (2 * self.lambda_param * self.weights)
+                else:
+                    self.weights -= self.learning_rate * (2 * self.lambda_param * self.weights - np.dot(x_i, y_transformed[idx]))
+                    self.bias -= self.learning_rate * y_transformed[idx]
+
+    def predict(self, X):
+        linear_output = np.dot(X, self.weights) - self.bias
+        return np.where(linear_output >= 0, 1, 0)
+
+# 使用示例
+if __name__ == "__main__":
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+
+    X, y = make_classification(n_samples=100, n_features=2, n_informative=2,
+                               n_redundant=0, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model = SVM(learning_rate=0.001, lambda_param=0.01, n_iterations=1000)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")</code></pre></div>
+                    </div>
+                    <div id="svm-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type SVM struct {
+    learningRate float64
+    lambdaParam  float64
+    nIterations  int
+    weights      []float64
+    bias         float64
+}
+
+func NewSVM(lr, lambda float64, iters int) *SVM {
+    return &SVM{
+        learningRate: lr,
+        lambdaParam:  lambda,
+        nIterations:  iters,
+    }
+}
+
+func (svm *SVM) dotProduct(a, b []float64) float64 {
+    sum := 0.0
+    for i := range a {
+        sum += a[i] * b[i]
+    }
+    return sum
+}
+
+func (svm *SVM) Fit(X [][]float64, y []int) {
+    nSamples := len(X)
+    nFeatures := len(X[0])
+
+    svm.weights = make([]float64, nFeatures)
+    svm.bias = 0
+
+    // 将标签转换为 -1 和 1
+    yTransformed := make([]int, nSamples)
+    for i, label := range y {
+        if label <= 0 {
+            yTransformed[i] = -1
+        } else {
+            yTransformed[i] = 1
+        }
+    }
+
+    for iter := 0; iter < svm.nIterations; iter++ {
+        for idx := 0; idx < nSamples; idx++ {
+            xI := X[idx]
+            condition := float64(yTransformed[idx]) * (svm.dotProduct(xI, svm.weights) - svm.bias) >= 1
+
+            if condition {
+                for j := 0; j < nFeatures; j++ {
+                    svm.weights[j] -= svm.learningRate * (2 * svm.lambdaParam * svm.weights[j])
+                }
+            } else {
+                for j := 0; j < nFeatures; j++ {
+                    svm.weights[j] -= svm.learningRate * (2 * svm.lambdaParam * svm.weights[j] - float64(yTransformed[idx]) * xI[j])
+                }
+                svm.bias -= svm.learningRate * float64(yTransformed[idx])
+            }
+        }
+    }
+}
+
+func (svm *SVM) Predict(X [][]float64) []int {
+    predictions := make([]int, len(X))
+    for i, row := range X {
+        linearOutput := svm.dotProduct(row, svm.weights) - svm.bias
+        if linearOutput >= 0 {
+            predictions[i] = 1
+        } else {
+            predictions[i] = 0
+        }
+    }
+    return predictions
+}
+
+func main() {
+    X := [][]float64{{1, 2}, {2, 3}, {3, 3}, {4, 5}, {5, 5}}
+    y := []int{0, 0, 0, 1, 1}
+
+    model := NewSVM(0.001, 0.01, 1000)
+    model.Fit(X, y)
+
+    preds := model.Predict([][]float64{{3, 4}, {4, 4}})
+    fmt.Printf("预测类别：%v\n", preds)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 决策树 -->
+            <section id="decision-tree" class="section-detail">
+                <h2><span>🌳</span> 4. 决策树 (Decision Tree)</h2>
+                
+                <h3>算法原理</h3>
+                <p>决策树通过递归地选择最优特征进行数据划分，构建树形结构。常用划分准则包括信息增益、信息增益比和基尼指数。</p>
+                
+                <div class="math-box">
+                    <strong>信息熵：</strong> H(D) = -Σ pᵢ log₂ pᵢ<br><br>
+                    <strong>信息增益：</strong> IG(D, A) = H(D) - H(D|A)<br><br>
+                    <strong>基尼指数：</strong> Gini(D) = 1 - Σ pᵢ²
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">训练时间复杂度</div>
+                        <div class="value">O(n × m × d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">预测时间复杂度</div>
+                        <div class="value">O(d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(nodes)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>可解释性强，可视化直观</li>
+                            <li>不需要特征缩放</li>
+                            <li>能处理数值和类别特征</li>
+                            <li>自动特征选择</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>容易过拟合</li>
+                            <li>对数据变化敏感</li>
+                            <li>可能不连续</li>
+                            <li>偏向取值多的特征</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="tree-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="tree-python">Python</button>
+                        <button class="code-tab-btn" data-tab="tree-go">Go</button>
+                    </div>
+                    <div id="tree-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class TreeNode {
+    constructor(feature = null, threshold = null, left = null, right = null, value = null) {
+        this.feature = feature;
+        this.threshold = threshold;
+        this.left = left;
+        this.right = right;
+        this.value = value;
+    }
+}
+
+class DecisionTree {
+    constructor(maxDepth = 10, minSamplesSplit = 2) {
+        this.maxDepth = maxDepth;
+        this.minSamplesSplit = minSamplesSplit;
+        this.root = null;
+    }
+
+    fit(X, y) {
+        this.nClasses = new Set(y).size;
+        this.nFeatures = X[0].length;
+        this.root = this._growTree(X, y);
+    }
+
+    _growTree(X, y, depth = 0) {
+        const nSamples = X.length;
+        const nLabels = new Set(y).size;
+
+        // 停止条件
+        if (depth >= this.maxDepth || nLabels === 1 || nSamples < this.minSamplesSplit) {
+            const leafValue = this._mostCommonLabel(y);
+            return new TreeNode(value = leafValue);
+        }
+
+        // 寻找最佳划分
+        const { featureIdx, threshold } = this._bestSplit(X, y);
+
+        // 划分数据
+        const leftMask = X.map(row => row[featureIdx] <= threshold);
+        const rightMask = leftMask.map(v => !v);
+
+        const XLeft = X.filter((_, i) => leftMask[i]);
+        const yLeft = y.filter((_, i) => leftMask[i]);
+        const XRight = X.filter((_, i) => rightMask[i]);
+        const yRight = y.filter((_, i) => rightMask[i]);
+
+        // 递归构建子树
+        const left = this._growTree(XLeft, yLeft, depth + 1);
+        const right = this._growTree(XRight, yRight, depth + 1);
+
+        return new TreeNode(featureIdx, threshold, left, right);
+    }
+
+    _bestSplit(X, y) {
+        let bestGain = -Infinity;
+        let bestFeature = 0;
+        let bestThreshold = 0;
+
+        const parentGini = this._giniIndex(y);
+
+        for (let featureIdx = 0; featureIdx < this.nFeatures; featureIdx++) {
+            const thresholds = [...new Set(X.map(row => row[featureIdx]))];
+
+            for (const threshold of thresholds) {
+                const gain = this._informationGain(y, X, featureIdx, threshold);
+                if (gain > bestGain) {
+                    bestGain = gain;
+                    bestFeature = featureIdx;
+                    bestThreshold = threshold;
+                }
+            }
+        }
+
+        return { featureIdx: bestFeature, threshold: bestThreshold };
+    }
+
+    _informationGain(parentY, X, featureIdx, threshold) {
+        const leftMask = X.map(row => row[featureIdx] <= threshold);
+        const n = parentY.length;
+        const nLeft = leftMask.filter(v => v).length;
+
+        if (nLeft === 0 || nLeft === n) return 0;
+
+        const yLeft = parentY.filter((_, i) => leftMask[i]);
+        const yRight = parentY.filter((_, i) => !leftMask[i]);
+
+        return parentY.length - (nLeft * this._giniIndex(yLeft) + (n - nLeft) * this._giniIndex(yRight));
+    }
+
+    _giniIndex(y) {
+        const counts = {};
+        y.forEach(label => counts[label] = (counts[label] || 0) + 1);
+        return 1 - Object.values(counts).reduce((sum, count) => sum + Math.pow(count / y.length, 2), 0);
+    }
+
+    _mostCommonLabel(y) {
+        const counts = {};
+        y.forEach(label => counts[label] = (counts[label] || 0) + 1);
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    predict(X) {
+        return X.map(row => this._traverseTree(row, this.root));
+    }
+
+    _traverseTree(x, node) {
+        if (node.value !== null) return node.value;
+
+        if (x[node.feature] <= node.threshold) {
+            return this._traverseTree(x, node.left);
+        }
+        return this._traverseTree(x, node.right);
+    }
+}
+
+// 使用示例
+const X = [[1, 2], [2, 3], [3, 4], [5, 6], [6, 7], [7, 8]];
+const y = [0, 0, 0, 1, 1, 1];
+
+const tree = new DecisionTree(maxDepth = 3);
+tree.fit(X, y);
+
+console.log('预测类别:', tree.predict([[4, 5], [6, 6]]));</code></pre></div>
+                    </div>
+                    <div id="tree-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">class TreeNode:
+    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
+        self.feature = feature
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.value = value
+
+class DecisionTree:
+    def __init__(self, max_depth=10, min_samples_split=2):
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.root = None
+
+    def fit(self, X, y):
+        self.n_classes = len(set(y))
+        self.n_features = X.shape[1]
+        self.root = self._grow_tree(X, y)
+
+    def _grow_tree(self, X, y, depth=0):
+        n_samples = len(X)
+        n_labels = len(set(y))
+
+        # 停止条件
+        if depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split:
+            return TreeNode(value=self._most_common_label(y))
+
+        # 寻找最佳划分
+        feature_idx, threshold = self._best_split(X, y)
+
+        # 划分数据
+        left_mask = X[:, feature_idx] <= threshold
+        X_left, y_left = X[left_mask], y[left_mask]
+        X_right, y_right = X[~left_mask], y[~left_mask]
+
+        # 递归构建子树
+        left = self._grow_tree(X_left, y_left, depth + 1)
+        right = self._grow_tree(X_right, y_right, depth + 1)
+
+        return TreeNode(feature_idx, threshold, left, right)
+
+    def _best_split(self, X, y):
+        best_gain = -float('inf')
+        best_feature = 0
+        best_threshold = 0
+
+        for feature_idx in range(self.n_features):
+            thresholds = set(X[:, feature_idx])
+            for threshold in thresholds:
+                gain = self._information_gain(y, X, feature_idx, threshold)
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = feature_idx
+                    best_threshold = threshold
+
+        return best_feature, best_threshold
+
+    def _information_gain(self, y, X, feature_idx, threshold):
+        left_mask = X[:, feature_idx] <= threshold
+        y_left = y[left_mask]
+        y_right = y[~left_mask]
+
+        n = len(y)
+        n_left = len(y_left)
+
+        if n_left == 0 or n_left == n:
+            return 0
+
+        return self._gini_index(y) - (n_left / n * self._gini_index(y_left) + (n - n_left) / n * self._gini_index(y_right))
+
+    def _gini_index(self, y):
+        counts = {}
+        for label in y:
+            counts[label] = counts.get(label, 0) + 1
+        return 1 - sum((count / len(y)) ** 2 for count in counts.values())
+
+    def _most_common_label(self, y):
+        counts = {}
+        for label in y:
+            counts[label] = counts.get(label, 0) + 1
+        return max(counts, key=counts.get)
+
+    def predict(self, X):
+        return [self._traverse_tree(x, self.root) for x in X]
+
+    def _traverse_tree(self, x, node):
+        if node.value is not None:
+            return node.value
+
+        if x[node.feature] <= node.threshold:
+            return self._traverse_tree(x, node.left)
+        return self._traverse_tree(x, node.right)
+
+# 使用示例
+if __name__ == "__main__":
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+    import numpy as np
+
+    X, y = make_classification(n_samples=100, n_features=4, n_informative=4, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    tree = DecisionTree(max_depth=5)
+    tree.fit(X_train, y_train)
+    y_pred = tree.predict(X_test)
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")</code></pre></div>
+                    </div>
+                    <div id="tree-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type TreeNode struct {
+    feature   int
+    threshold float64
+    left      *TreeNode
+    right     *TreeNode
+    value     *int
+}
+
+type DecisionTree struct {
+    maxDepth        int
+    minSamplesSplit int
+    root            *TreeNode
+    nFeatures       int
+}
+
+func NewDecisionTree(maxDepth, minSamplesSplit int) *DecisionTree {
+    return &DecisionTree{
+        maxDepth:        maxDepth,
+        minSamplesSplit: minSamplesSplit,
+    }
+}
+
+func (dt *DecisionTree) Fit(X [][]float64, y []int) {
+    dt.nFeatures = len(X[0])
+    dt.root = dt.growTree(X, y, 0)
+}
+
+func (dt *DecisionTree) growTree(X [][]float64, y []int, depth int) *TreeNode {
+    nSamples := len(X)
+    nLabels := len(dt.uniqueLabels(y))
+
+    // 停止条件
+    if depth >= dt.maxDepth || nLabels == 1 || nSamples < dt.minSamplesSplit {
+        value := dt.mostCommonLabel(y)
+        return &TreeNode{value: &value}
+    }
+
+    // 寻找最佳划分
+    featureIdx, threshold := dt.bestSplit(X, y)
+
+    // 划分数据
+    var XLeft, XRight [][]float64
+    var yLeft, yRight []int
+
+    for i, row := range X {
+        if row[featureIdx] <= threshold {
+            XLeft = append(XLeft, row)
+            yLeft = append(yLeft, y[i])
+        } else {
+            XRight = append(XRight, row)
+            yRight = append(yRight, y[i])
+        }
+    }
+
+    // 递归构建子树
+    left := dt.growTree(XLeft, yLeft, depth+1)
+    right := dt.growTree(XRight, yRight, depth+1)
+
+    return &TreeNode{feature: featureIdx, threshold: threshold, left: left, right: right}
+}
+
+func (dt *DecisionTree) bestSplit(X [][]float64, y []int) (int, float64) {
+    bestGain := -1.0
+    bestFeature := 0
+    bestThreshold := 0.0
+
+    parentGini := dt.giniIndex(y)
+
+    for featureIdx := 0; featureIdx < dt.nFeatures; featureIdx++ {
+        thresholds := dt.uniqueThresholds(X, featureIdx)
+        for _, threshold := range thresholds {
+            gain := dt.informationGain(y, X, featureIdx, threshold)
+            if gain > bestGain {
+                bestGain = gain
+                bestFeature = featureIdx
+                bestThreshold = threshold
+            }
+        }
+    }
+
+    return bestFeature, bestThreshold
+}
+
+func (dt *DecisionTree) informationGain(y []int, X [][]float64, featureIdx int, threshold float64) float64 {
+    var yLeft, yRight []int
+    for i, row := range X {
+        if row[featureIdx] <= threshold {
+            yLeft = append(yLeft, y[i])
+        } else {
+            yRight = append(yRight, y[i])
+        }
+    }
+
+    n := len(y)
+    nLeft := len(yLeft)
+
+    if nLeft == 0 || nLeft == n {
+        return 0
+    }
+
+    return float64(n)*dt.giniIndex(y) - float64(nLeft)*dt.giniIndex(yLeft) - float64(n-nLeft)*dt.giniIndex(yRight)
+}
+
+func (dt *DecisionTree) giniIndex(y []int) float64 {
+    counts := make(map[int]int)
+    for _, label := range y {
+        counts[label]++
+    }
+
+    gini := 1.0
+    for _, count := range counts {
+        p := float64(count) / float64(len(y))
+        gini -= p * p
+    }
+    return gini
+}
+
+func (dt *DecisionTree) uniqueLabels(y []int) []int {
+    unique := make(map[int]bool)
+    for _, label := range y {
+        unique[label] = true
+    }
+    result := make([]int, 0, len(unique))
+    for label := range unique {
+        result = append(result, label)
+    }
+    return result
+}
+
+func (dt *DecisionTree) uniqueThresholds(X [][]float64, featureIdx int) []float64 {
+    unique := make(map[float64]bool)
+    for _, row := range X {
+        unique[row[featureIdx]] = true
+    }
+    result := make([]float64, 0, len(unique))
+    for threshold := range unique {
+        result = append(result, threshold)
+    }
+    return result
+}
+
+func (dt *DecisionTree) mostCommonLabel(y []int) int {
+    counts := make(map[int]int)
+    for _, label := range y {
+        counts[label]++
+    }
+
+    maxCount := 0
+    maxLabel := y[0]
+    for label, count := range counts {
+        if count > maxCount {
+            maxCount = count
+            maxLabel = label
+        }
+    }
+    return maxLabel
+}
+
+func (dt *DecisionTree) Predict(X [][]float64) []int {
+    predictions := make([]int, len(X))
+    for i, row := range X {
+        predictions[i] = dt.traverseTree(row, dt.root)
+    }
+    return predictions
+}
+
+func (dt *DecisionTree) traverseTree(x []float64, node *TreeNode) int {
+    if node.value != nil {
+        return *node.value
+    }
+
+    if x[node.feature] <= node.threshold {
+        return dt.traverseTree(x, node.left)
+    }
+    return dt.traverseTree(x, node.right)
+}
+
+func main() {
+    X := [][]float64{{1, 2}, {2, 3}, {3, 4}, {5, 6}, {6, 7}, {7, 8}}
+    y := []int{0, 0, 0, 1, 1, 1}
+
+    tree := NewDecisionTree(3, 2)
+    tree.Fit(X, y)
+
+    preds := tree.Predict([][]float64{{4, 5}, {6, 6}})
+    fmt.Printf("预测类别：%v\n", preds)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 随机森林 -->
+            <section id="random-forest" class="section-detail">
+                <h2><span>🌲</span> 5. 随机森林 (Random Forest)</h2>
+                
+                <h3>算法原理</h3>
+                <p>随机森林是集成学习算法，通过构建多棵决策树并综合它们的预测结果来提高准确性和稳定性。采用 Bagging 和随机特征选择。</p>
+                
+                <div class="math-box">
+                    <strong>Bagging：</strong> 有放回抽样构建训练集<br><br>
+                    <strong>随机特征：</strong> 每棵树随机选择 √m 个特征<br><br>
+                    <strong>投票机制：</strong> ŷ = mode{T₁(x), T₂(x), ..., Tₙ(x)}
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">训练时间复杂度</div>
+                        <div class="value">O(k × n × m × d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">预测时间复杂度</div>
+                        <div class="value">O(k × d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(k × nodes)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>抗过拟合能力强</li>
+                            <li>处理高维数据</li>
+                            <li>可评估特征重要性</li>
+                            <li>性能稳定准确</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>训练时间较长</li>
+                            <li>可解释性较差</li>
+                            <li>内存占用较大</li>
+                            <li>小数据表现一般</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="rf-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="rf-python">Python</button>
+                        <button class="code-tab-btn" data-tab="rf-go">Go</button>
+                    </div>
+                    <div id="rf-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class RandomForest {
+    constructor(nTrees = 100, maxDepth = 10, maxFeatures = null) {
+        this.nTrees = nTrees;
+        this.maxDepth = maxDepth;
+        this.maxFeatures = maxFeatures;
+        this.trees = [];
+    }
+
+    fit(X, y) {
+        const nSamples = X.length;
+        const nFeatures = X[0].length;
+        this.maxFeatures = this.maxFeatures || Math.floor(Math.sqrt(nFeatures));
+
+        this.trees = [];
+        for (let i = 0; i < this.nTrees; i++) {
+            // Bootstrap 采样
+            const { XSample, ySample } = this._bootstrapSample(X, y);
+            
+            // 训练决策树
+            const tree = this._growTree(XSample, ySample, 0, nFeatures);
+            this.trees.push(tree);
+        }
+    }
+
+    _bootstrapSample(X, y) {
+        const nSamples = X.length;
+        const XSample = [];
+        const ySample = [];
+
+        for (let i = 0; i < nSamples; i++) {
+            const idx = Math.floor(Math.random() * nSamples);
+            XSample.push(X[idx]);
+            ySample.push(y[idx]);
+        }
+
+        return { XSample, ySample };
+    }
+
+    _growTree(X, y, depth, nFeatures) {
+        const nSamples = X.length;
+        const nLabels = new Set(y).size;
+
+        if (depth >= this.maxDepth || nLabels === 1 || nSamples < 2) {
+            return { value: this._mostCommonLabel(y) };
+        }
+
+        const { featureIdx, threshold } = this._bestSplit(X, y, nFeatures);
+
+        const leftMask = X.map(row => row[featureIdx] <= threshold);
+        const XLeft = X.filter((_, i) => leftMask[i]);
+        const yLeft = y.filter((_, i) => leftMask[i]);
+        const XRight = X.filter((_, i) => !leftMask[i]);
+        const yRight = y.filter((_, i) => !leftMask[i]);
+
+        return {
+            feature: featureIdx,
+            threshold,
+            left: this._growTree(XLeft, yLeft, depth + 1, nFeatures),
+            right: this._growTree(XRight, yRight, depth + 1, nFeatures)
+        };
+    }
+
+    _bestSplit(X, y, nFeatures) {
+        let bestGain = -Infinity;
+        let bestFeature = 0;
+        let bestThreshold = 0;
+
+        // 随机选择特征
+        const featureIndices = [];
+        while (featureIndices.length < nFeatures) {
+            const idx = Math.floor(Math.random() * X[0].length);
+            if (!featureIndices.includes(idx)) featureIndices.push(idx);
+        }
+
+        for (const featureIdx of featureIndices) {
+            const thresholds = [...new Set(X.map(row => row[featureIdx]))];
+            for (const threshold of thresholds) {
+                const gain = this._informationGain(y, X, featureIdx, threshold);
+                if (gain > bestGain) {
+                    bestGain = gain;
+                    bestFeature = featureIdx;
+                    bestThreshold = threshold;
+                }
+            }
+        }
+
+        return { featureIdx: bestFeature, threshold: bestThreshold };
+    }
+
+    _informationGain(parentY, X, featureIdx, threshold) {
+        const leftMask = X.map(row => row[featureIdx] <= threshold);
+        const n = parentY.length;
+        const nLeft = leftMask.filter(v => v).length;
+
+        if (nLeft === 0 || nLeft === n) return 0;
+
+        const yLeft = parentY.filter((_, i) => leftMask[i]);
+        const yRight = parentY.filter((_, i) => !leftMask[i]);
+
+        return n - (nLeft * this._giniIndex(yLeft) + (n - nLeft) * this._giniIndex(yRight));
+    }
+
+    _giniIndex(y) {
+        const counts = {};
+        y.forEach(label => counts[label] = (counts[label] || 0) + 1);
+        return 1 - Object.values(counts).reduce((sum, count) => sum + Math.pow(count / y.length, 2), 0);
+    }
+
+    _mostCommonLabel(y) {
+        const counts = {};
+        y.forEach(label => counts[label] = (counts[label] || 0) + 1);
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    predict(X) {
+        // 每棵树预测，然后投票
+        const predictions = X.map(row => {
+            const treePreds = this.trees.map(tree => this._predictTree(row, tree));
+            return this._mostCommonLabel(treePreds);
+        });
+        return predictions;
+    }
+
+    _predictTree(x, node) {
+        if (node.value !== undefined) return node.value;
+        if (x[node.feature] <= node.threshold) {
+            return this._predictTree(x, node.left);
+        }
+        return this._predictTree(x, node.right);
+    }
+}
+
+// 使用示例
+const X = [[1, 2], [2, 3], [3, 4], [5, 6], [6, 7], [7, 8]];
+const y = [0, 0, 0, 1, 1, 1];
+
+const rf = new RandomForest(nTrees = 10);
+rf.fit(X, y);
+
+console.log('预测类别:', rf.predict([[4, 5], [6, 6]]));</code></pre></div>
+                    </div>
+                    <div id="rf-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
+from collections import Counter
+
+class RandomForest:
+    def __init__(self, n_trees=100, max_depth=10, max_features=None):
+        self.n_trees = n_trees
+        self.max_depth = max_depth
+        self.max_features = max_features
+        self.trees = []
+
+    def fit(self, X, y):
+        self.n_samples, self.n_features = X.shape
+        self.max_features = self.max_features or int(np.sqrt(self.n_features))
+        
+        self.trees = []
+        for _ in range(self.n_trees):
+            # Bootstrap 采样
+            X_sample, y_sample = self._bootstrap_sample(X, y)
+            
+            # 训练决策树
+            tree = self._grow_tree(X_sample, y_sample, 0)
+            self.trees.append(tree)
+
+    def _bootstrap_sample(self, X, y):
+        indices = np.random.choice(len(X), len(X), replace=True)
+        return X[indices], y[indices]
+
+    def _grow_tree(self, X, y, depth):
+        n_samples = len(X)
+        n_labels = len(set(y))
+
+        if depth >= self.max_depth or n_labels == 1 or n_samples < 2:
+            return {'value': self._most_common_label(y)}
+
+        feature_idx, threshold = self._best_split(X, y)
+
+        left_mask = X[:, feature_idx] <= threshold
+        X_left, y_left = X[left_mask], y[left_mask]
+        X_right, y_right = X[~left_mask], y[~left_mask]
+
+        return {
+            'feature': feature_idx,
+            'threshold': threshold,
+            'left': self._grow_tree(X_left, y_left, depth + 1),
+            'right': self._grow_tree(X_right, y_right, depth + 1)
+        }
+
+    def _best_split(self, X, y):
+        best_gain = -float('inf')
+        best_feature = 0
+        best_threshold = 0
+
+        # 随机选择特征
+        feature_indices = np.random.choice(self.n_features, self.max_features, replace=False)
+
+        for feature_idx in feature_indices:
+            thresholds = set(X[:, feature_idx])
+            for threshold in thresholds:
+                gain = self._information_gain(y, X, feature_idx, threshold)
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = feature_idx
+                    best_threshold = threshold
+
+        return best_feature, best_threshold
+
+    def _information_gain(self, y, X, feature_idx, threshold):
+        left_mask = X[:, feature_idx] <= threshold
+        y_left = y[left_mask]
+        y_right = y[~left_mask]
+
+        n = len(y)
+        n_left = len(y_left)
+
+        if n_left == 0 or n_left == n:
+            return 0
+
+        return self._gini_index(y) - (n_left / n * self._gini_index(y_left) + (n - n_left) / n * self._gini_index(y_right))
+
+    def _gini_index(self, y):
+        counts = Counter(y)
+        return 1 - sum((count / len(y)) ** 2 for count in counts.values())
+
+    def _most_common_label(self, y):
+        return Counter(y).most_common(1)[0][0]
+
+    def predict(self, X):
+        # 每棵树预测，然后投票
+        predictions = [self._predict_tree(x, tree) for x in X for tree in self.trees]
+        predictions = np.array(predictions).reshape(len(X), self.n_trees)
+        return [Counter(row).most_common(1)[0][0] for row in predictions]
+
+    def _predict_tree(self, x, node):
+        if 'value' in node:
+            return node['value']
+        if x[node['feature']] <= node['threshold']:
+            return self._predict_tree(x, node['left'])
+        return self._predict_tree(x, node['right'])
+
+# 使用示例
+if __name__ == "__main__":
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+
+    X, y = make_classification(n_samples=100, n_features=4, n_informative=4, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    rf = RandomForest(n_trees=100, max_depth=5)
+    rf.fit(X_train, y_train)
+    y_pred = rf.predict(X_test)
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")</code></pre></div>
+                    </div>
+                    <div id="rf-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+type TreeNode struct {
+    feature   int
+    threshold float64
+    left      *TreeNode
+    right     *TreeNode
+    value     *int
+}
+
+type RandomForest struct {
+    nTrees        int
+    maxDepth      int
+    maxFeatures   int
+    nFeatures     int
+    trees         []*TreeNode
+}
+
+func NewRandomForest(nTrees, maxDepth int) *RandomForest {
+    rand.Seed(time.Now().UnixNano())
+    return &RandomForest{
+        nTrees:   nTrees,
+        maxDepth: maxDepth,
+    }
+}
+
+func (rf *RandomForest) Fit(X [][]float64, y []int) {
+    rf.nFeatures = len(X[0])
+    rf.maxFeatures = int(math.Sqrt(float64(rf.nFeatures)))
+    rf.trees = make([]*TreeNode, 0, rf.nTrees)
+
+    for i := 0; i < rf.nTrees; i++ {
+        XSample, ySample := rf.bootstrapSample(X, y)
+        tree := rf.growTree(XSample, ySample, 0)
+        rf.trees = append(rf.trees, tree)
+    }
+}
+
+func (rf *RandomForest) bootstrapSample(X [][]float64, y []int) ([][]float64, []int) {
+    n := len(X)
+    XSample := make([][]float64, n)
+    ySample := make([]int, n)
+    for i := 0; i < n; i++ {
+        idx := rand.Intn(n)
+        XSample[i] = X[idx]
+        ySample[i] = y[idx]
+    }
+    return XSample, ySample
+}
+
+func (rf *RandomForest) growTree(X [][]float64, y []int, depth int) *TreeNode {
+    nSamples := len(X)
+    nLabels := len(rf.uniqueLabels(y))
+
+    if depth >= rf.maxDepth || nLabels == 1 || nSamples < 2 {
+        value := rf.mostCommonLabel(y)
+        return &TreeNode{value: &value}
+    }
+
+    featureIdx, threshold := rf.bestSplit(X, y)
+
+    var XLeft, XRight [][]float64
+    var yLeft, yRight []int
+    for i, row := range X {
+        if row[featureIdx] <= threshold {
+            XLeft = append(XLeft, row)
+            yLeft = append(yLeft, y[i])
+        } else {
+            XRight = append(XRight, row)
+            yRight = append(yRight, y[i])
+        }
+    }
+
+    return &TreeNode{
+        feature:   featureIdx,
+        threshold: threshold,
+        left:      rf.growTree(XLeft, yLeft, depth+1),
+        right:     rf.growTree(XRight, yRight, depth+1),
+    }
+}
+
+func (rf *RandomForest) bestSplit(X [][]float64, y []int) (int, float64) {
+    bestGain := -1.0
+    bestFeature := 0
+    bestThreshold := 0.0
+
+    // 随机选择特征
+    featureIndices := make([]int, 0, rf.maxFeatures)
+    for len(featureIndices) < rf.maxFeatures {
+        idx := rand.Intn(rf.nFeatures)
+        found := false
+        for _, f := range featureIndices {
+            if f == idx {
+                found = true
+                break
+            }
+        }
+        if !found {
+            featureIndices = append(featureIndices, idx)
+        }
+    }
+
+    for _, featureIdx := range featureIndices {
+        thresholds := rf.uniqueThresholds(X, featureIdx)
+        for _, threshold := range thresholds {
+            gain := rf.informationGain(y, X, featureIdx, threshold)
+            if gain > bestGain {
+                bestGain = gain
+                bestFeature = featureIdx
+                bestThreshold = threshold
+            }
+        }
+    }
+
+    return bestFeature, bestThreshold
+}
+
+func (rf *RandomForest) informationGain(y []int, X [][]float64, featureIdx int, threshold float64) float64 {
+    var yLeft, yRight []int
+    for i, row := range X {
+        if row[featureIdx] <= threshold {
+            yLeft = append(yLeft, y[i])
+        } else {
+            yRight = append(yRight, y[i])
+        }
+    }
+
+    n := len(y)
+    nLeft := len(yLeft)
+
+    if nLeft == 0 || nLeft == n {
+        return 0
+    }
+
+    return float64(n)*rf.giniIndex(y) - float64(nLeft)*rf.giniIndex(yLeft) - float64(n-nLeft)*rf.giniIndex(yRight)
+}
+
+func (rf *RandomForest) giniIndex(y []int) float64 {
+    counts := make(map[int]int)
+    for _, label := range y {
+        counts[label]++
+    }
+
+    gini := 1.0
+    for _, count := range counts {
+        p := float64(count) / float64(len(y))
+        gini -= p * p
+    }
+    return gini
+}
+
+func (rf *RandomForest) uniqueLabels(y []int) []int {
+    unique := make(map[int]bool)
+    for _, label := range y {
+        unique[label] = true
+    }
+    result := make([]int, 0, len(unique))
+    for label := range unique {
+        result = append(result, label)
+    }
+    return result
+}
+
+func (rf *RandomForest) uniqueThresholds(X [][]float64, featureIdx int) []float64 {
+    unique := make(map[float64]bool)
+    for _, row := range X {
+        unique[row[featureIdx]] = true
+    }
+    result := make([]float64, 0, len(unique))
+    for threshold := range unique {
+        result = append(result, threshold)
+    }
+    return result
+}
+
+func (rf *RandomForest) mostCommonLabel(y []int) int {
+    counts := make(map[int]int)
+    for _, label := range y {
+        counts[label]++
+    }
+
+    maxCount := 0
+    maxLabel := y[0]
+    for label, count := range counts {
+        if count > maxCount {
+            maxCount = count
+            maxLabel = label
+        }
+    }
+    return maxLabel
+}
+
+func (rf *RandomForest) Predict(X [][]float64) []int {
+    predictions := make([]int, len(X))
+    for i, row := range X {
+        votes := make(map[int]int)
+        for _, tree := range rf.trees {
+            pred := rf.predictTree(row, tree)
+            votes[pred]++
+        }
+
+        maxVotes := 0
+        maxLabel := 0
+        for label, count := range votes {
+            if count > maxVotes {
+                maxVotes = count
+                maxLabel = label
+            }
+        }
+        predictions[i] = maxLabel
+    }
+    return predictions
+}
+
+func (rf *RandomForest) predictTree(x []float64, node *TreeNode) int {
+    if node.value != nil {
+        return *node.value
+    }
+
+    if x[node.feature] <= node.threshold {
+        return rf.predictTree(x, node.left)
+    }
+    return rf.predictTree(x, node.right)
+}
+
+func main() {
+    X := [][]float64{{1, 2}, {2, 3}, {3, 4}, {5, 6}, {6, 7}, {7, 8}}
+    y := []int{0, 0, 0, 1, 1, 1}
+
+    rf := NewRandomForest(10, 3)
+    rf.Fit(X, y)
+
+    preds := rf.Predict([][]float64{{4, 5}, {6, 6}})
+    fmt.Printf("预测类别：%v\n", preds)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- K 近邻 -->
+            <section id="knn" class="section-detail">
+                <h2><span>👥</span> 6. K 近邻 (K-Nearest Neighbors)</h2>
+                
+                <h3>算法原理</h3>
+                <p>KNN 是一种基于实例的懒惰学习算法。对于新样本，找到训练集中 K 个最近的邻居，通过多数投票或平均来确定预测值。</p>
+                
+                <div class="math-box">
+                    <strong>欧氏距离：</strong> d(x, y) = √Σ(xᵢ - yᵢ)²<br><br>
+                    <strong>曼哈顿距离：</strong> d(x, y) = Σ|xᵢ - yᵢ|<br><br>
+                    <strong>闵可夫斯基距离：</strong> d(x, y) = (Σ|xᵢ - yᵢ|^p)^(1/p)
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">训练时间复杂度</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">预测时间复杂度</div>
+                        <div class="value">O(n × m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(n × m)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>简单易懂，无需训练</li>
+                            <li>天然支持多分类</li>
+                            <li>对异常值不敏感</li>
+                            <li>适合复杂决策边界</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>预测速度慢</li>
+                            <li>需要特征缩放</li>
+                            <li>高维效果差</li>
+                            <li>样本不平衡敏感</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="knn-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="knn-python">Python</button>
+                        <button class="code-tab-btn" data-tab="knn-go">Go</button>
+                    </div>
+                    <div id="knn-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class KNN {
+    constructor(k = 3) {
+        this.k = k;
+        this.XTrain = [];
+        this.yTrain = [];
+    }
+
+    fit(X, y) {
+        this.XTrain = X;
+        this.yTrain = y;
+    }
+
+    predict(X) {
+        return X.map(x => this._predictOne(x));
+    }
+
+    _predictOne(x) {
+        // 计算距离
+        const distances = this.XTrain.map((xTrain, i) => ({
+            distance: this._euclideanDistance(x, xTrain),
+            label: this.yTrain[i]
+        }));
+
+        // 排序并取 K 个最近邻居
+        distances.sort((a, b) => a.distance - b.distance);
+        const kNearest = distances.slice(0, this.k);
+
+        // 多数投票
+        const votes = {};
+        kNearest.forEach(item => {
+            votes[item.label] = (votes[item.label] || 0) + 1;
+        });
+
+        return Object.entries(votes).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    _euclideanDistance(x1, x2) {
+        return Math.sqrt(x1.reduce((sum, val, i) => sum + Math.pow(val - x2[i], 2), 0));
+    }
+}
+
+// 使用示例
+const X = [[1, 2], [2, 3], [3, 4], [6, 7], [7, 8], [8, 9]];
+const y = [0, 0, 0, 1, 1, 1];
+
+const knn = new KNN(k = 3);
+knn.fit(X, y);
+
+console.log('预测类别:', knn.predict([[4, 5], [5, 6]]));</code></pre></div>
+                    </div>
+                    <div id="knn-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
+from collections import Counter
+
+class KNN:
+    def __init__(self, k=3):
+        self.k = k
+        self.XTrain = None
+        self.yTrain = None
+
+    def fit(self, X, y):
+        self.XTrain = np.array(X)
+        self.yTrain = np.array(y)
+
+    def predict(self, X):
+        return [self._predict_one(x) for x in X]
+
+    def _predict_one(self, x):
+        # 计算距离
+        distances = [self._euclidean_distance(x, xTrain) for xTrain in self.XTrain]
+        
+        # 获取 K 个最近邻居的标签
+        kIndices = np.argsort(distances)[:self.k]
+        kLabels = self.yTrain[kIndices]
+
+        # 多数投票
+        return Counter(kLabels).most_common(1)[0][0]
+
+    def _euclidean_distance(self, x1, x2):
+        return np.sqrt(np.sum((np.array(x1) - np.array(x2)) ** 2))
+
+# 使用示例
+if __name__ == "__main__":
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+
+    X, y = make_classification(n_samples=100, n_features=4, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    knn = KNN(k=5)
+    knn.fit(X_train, y_train)
+    y_pred = knn.predict(X_test)
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")</code></pre></div>
+                    </div>
+                    <div id="knn-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+    "sort"
+)
+
+type KNN struct {
+    k      int
+    XTrain [][]float64
+    yTrain []int
+}
+
+func NewKNN(k int) *KNN {
+    return &KNN{k: k}
+}
+
+func (knn *KNN) Fit(X [][]float64, y []int) {
+    knn.XTrain = X
+    knn.yTrain = y
+}
+
+func (knn *KNN) Predict(X [][]float64) []int {
+    predictions := make([]int, len(X))
+    for i, x := range X {
+        predictions[i] = knn.predictOne(x)
+    }
+    return predictions
+}
+
+func (knn *KNN) predictOne(x []float64) int {
+    type neighbor struct {
+        distance float64
+        label    int
+    }
+
+    // 计算距离
+    neighbors := make([]neighbor, len(knn.XTrain))
+    for i, xTrain := range knn.XTrain {
+        neighbors[i] = neighbor{
+            distance: knn.euclideanDistance(x, xTrain),
+            label:    knn.yTrain[i],
+        }
+    }
+
+    // 排序并取 K 个最近邻居
+    sort.Slice(neighbors, func(i, j int) bool {
+        return neighbors[i].distance < neighbors[j].distance
+    })
+
+    // 多数投票
+    votes := make(map[int]int)
+    for i := 0; i < knn.k && i < len(neighbors); i++ {
+        votes[neighbors[i].label]++
+    }
+
+    maxVotes := 0
+    maxLabel := 0
+    for label, count := range votes {
+        if count > maxVotes {
+            maxVotes = count
+            maxLabel = label
+        }
+    }
+    return maxLabel
+}
+
+func (knn *KNN) euclideanDistance(x1, x2 []float64) float64 {
+    sum := 0.0
+    for i := range x1 {
+        diff := x1[i] - x2[i]
+        sum += diff * diff
+    }
+    return math.Sqrt(sum)
+}
+
+func main() {
+    X := [][]float64{{1, 2}, {2, 3}, {3, 4}, {6, 7}, {7, 8}, {8, 9}}
+    y := []int{0, 0, 0, 1, 1, 1}
+
+    knn := NewKNN(3)
+    knn.Fit(X, y)
+
+    preds := knn.Predict([][]float64{{4, 5}, {5, 6}})
+    fmt.Printf("预测类别：%v\n", preds)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 朴素贝叶斯 -->
+            <section id="naive-bayes" class="section-detail">
+                <h2><span>📧</span> 7. 朴素贝叶斯 (Naive Bayes)</h2>
+                
+                <h3>算法原理</h3>
+                <p>朴素贝叶斯基于贝叶斯定理，假设特征之间相互独立。通过计算后验概率来进行分类，特别适合文本分类任务。</p>
+                
+                <div class="math-box">
+                    <strong>贝叶斯定理：</strong> P(Y|X) = P(X|Y) × P(Y) / P(X)<br><br>
+                    <strong>朴素假设：</strong> P(X|Y) = Π P(xᵢ|Y)<br><br>
+                    <strong>分类决策：</strong> ŷ = argmax P(Y) × Π P(xᵢ|Y)
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">训练时间复杂度</div>
+                        <div class="value">O(n × m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">预测时间复杂度</div>
+                        <div class="value">O(k × m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(k × m)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>训练预测都很快</li>
+                            <li>小样本表现好</li>
+                            <li>支持多分类</li>
+                            <li>文本分类效果好</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>特征独立假设强</li>
+                            <li>需要估计先验概率</li>
+                            <li>对输入数据敏感</li>
+                            <li>零概率问题</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="nb-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="nb-python">Python</button>
+                        <button class="code-tab-btn" data-tab="nb-go">Go</button>
+                    </div>
+                    <div id="nb-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class NaiveBayes {
+    constructor() {
+        this.classes = [];
+        this.mean = {};
+        this.var = {};
+        this.priors = {};
+    }
+
+    fit(X, y) {
+        const nSamples = X.length;
+        const nFeatures = X[0].length;
+
+        this.classes = [...new Set(y)];
+        
+        for (const cls of this.classes) {
+            const XCls = X.filter((_, i) => y[i] === cls);
+            const prior = XCls.length / nSamples;
+
+            // 计算均值和方差
+            const mean = new Array(nFeatures).fill(0);
+            const variance = new Array(nFeatures).fill(0);
+
+            for (const row of XCls) {
+                for (let j = 0; j < nFeatures; j++) {
+                    mean[j] += row[j];
+                }
+            }
+            for (let j = 0; j < nFeatures; j++) {
+                mean[j] /= XCls.length;
+            }
+
+            for (const row of XCls) {
+                for (let j = 0; j < nFeatures; j++) {
+                    variance[j] += Math.pow(row[j] - mean[j], 2);
+                }
+            }
+            for (let j = 0; j < nFeatures; j++) {
+                variance[j] /= XCls.length;
+            }
+
+            this.mean[cls] = mean;
+            this.var[cls] = variance;
+            this.priors[cls] = prior;
+        }
+    }
+
+    predict(X) {
+        return X.map(x => {
+            let maxPosterior = -Infinity;
+            let predictedClass = this.classes[0];
+
+            for (const cls of this.classes) {
+                const posterior = this._calculatePosterior(x, cls);
+                if (posterior > maxPosterior) {
+                    maxPosterior = posterior;
+                    predictedClass = cls;
+                }
+            }
+            return predictedClass;
+        });
+    }
+
+    _calculatePosterior(x, cls) {
+        let logPosterior = Math.log(this.priors[cls]);
+
+        for (let j = 0; j < x.length; j++) {
+            const mean = this.mean[cls][j];
+            const variance = this.var[cls][j];
+            
+            // 高斯概率密度函数的对数
+            logPosterior -= 0.5 * Math.log(2 * Math.PI * variance);
+            logPosterior -= Math.pow(x[j] - mean, 2) / (2 * variance);
+        }
+
+        return logPosterior;
+    }
+}
+
+// 使用示例
+const X = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [6.0, 7.0], [7.0, 8.0], [8.0, 9.0]];
+const y = [0, 0, 0, 1, 1, 1];
+
+const nb = new NaiveBayes();
+nb.fit(X, y);
+
+console.log('预测类别:', nb.predict([[4.0, 5.0], [5.0, 6.0]]));</code></pre></div>
+                    </div>
+                    <div id="nb-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
+
+class NaiveBayes:
+    def __init__(self):
+        self.classes = None
+        self.mean = {}
+        self.var = {}
+        self.priors = {}
+
+    def fit(self, X, y):
+        self.classes = np.unique(y)
+        nSamples, nFeatures = X.shape
+
+        for cls in self.classes:
+            XCls = X[y == cls]
+            self.priors[cls] = len(XCls) / nSamples
+            self.mean[cls] = np.mean(XCls, axis=0)
+            self.var[cls] = np.var(XCls, axis=0) + 1e-9  # 防止除零
+
+    def predict(self, X):
+        return [self._predict_one(x) for x in X]
+
+    def _predict_one(self, x):
+        posteriors = []
+
+        for cls in self.classes:
+            prior = np.log(self.priors[cls])
+            posterior = np.sum(np.log(self._gaussian_pdf(x, self.mean[cls], self.var[cls])))
+            posteriors.append(prior + posterior)
+
+        return self.classes[np.argmax(posteriors)]
+
+    def _gaussian_pdf(self, x, mean, var):
+        return (1 / np.sqrt(2 * np.pi * var)) * np.exp(-((x - mean) ** 2) / (2 * var))
+
+# 使用示例
+if __name__ == "__main__":
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+
+    X, y = make_classification(n_samples=100, n_features=4, n_informative=4, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    nb = NaiveBayes()
+    nb.fit(X_train, y_train)
+    y_pred = nb.predict(X_test)
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")</code></pre></div>
+                    </div>
+                    <div id="nb-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+)
+
+type NaiveBayes struct {
+    classes []int
+    mean    map[int][]float64
+    var     map[int][]float64
+    priors  map[int]float64
+}
+
+func NewNaiveBayes() *NaiveBayes {
+    return &NaiveBayes{
+        mean:   make(map[int][]float64),
+        var:    make(map[int][]float64),
+        priors: make(map[int]float64),
+    }
+}
+
+func (nb *NaiveBayes) Fit(X [][]float64, y []int) {
+    nSamples := len(X)
+    nFeatures := len(X[0])
+
+    // 获取唯一类别
+    classSet := make(map[int]bool)
+    for _, label := range y {
+        classSet[label] = true
+    }
+
+    nb.classes = make([]int, 0, len(classSet))
+    for cls := range classSet {
+        nb.classes = append(nb.classes, cls)
+    }
+
+    for _, cls := range nb.classes {
+        var XCls [][]float64
+        for i, label := range y {
+            if label == cls {
+                XCls = append(XCls, X[i])
+            }
+        }
+
+        nb.priors[cls] = float64(len(XCls)) / float64(nSamples)
+
+        // 计算均值
+        mean := make([]float64, nFeatures)
+        for _, row := range XCls {
+            for j, val := range row {
+                mean[j] += val
+            }
+        }
+        for j := range mean {
+            mean[j] /= float64(len(XCls))
+        }
+        nb.mean[cls] = mean
+
+        // 计算方差
+        variance := make([]float64, nFeatures)
+        for _, row := range XCls {
+            for j, val := range row {
+                variance[j] += (val - mean[j]) * (val - mean[j])
+            }
+        }
+        for j := range variance {
+            variance[j] /= float64(len(XCls))
+            variance[j] += 1e-9 // 防止除零
+        }
+        nb.var[cls] = variance
+    }
+}
+
+func (nb *NaiveBayes) Predict(X [][]float64) []int {
+    predictions := make([]int, len(X))
+    for i, x := range X {
+        predictions[i] = nb.predictOne(x)
+    }
+    return predictions
+}
+
+func (nb *NaiveBayes) predictOne(x []float64) int {
+    maxPosterior := -math.MaxFloat64
+    predictedClass := nb.classes[0]
+
+    for _, cls := range nb.classes {
+        posterior := math.Log(nb.priors[cls])
+
+        for j := range x {
+            posterior += math.Log(nb.gaussianPdf(x[j], nb.mean[cls][j], nb.var[cls][j]))
+        }
+
+        if posterior > maxPosterior {
+            maxPosterior = posterior
+            predictedClass = cls
+        }
+    }
+    return predictedClass
+}
+
+func (nb *NaiveBayes) gaussianPdf(x, mean, variance float64) float64 {
+    return (1 / math.Sqrt(2*math.Pi*variance)) * math.Exp(-math.Pow(x-mean, 2)/(2*variance))
+}
+
+func main() {
+    X := [][]float64{{1.0, 2.0}, {2.0, 3.0}, {3.0, 4.0}, {6.0, 7.0}, {7.0, 8.0}, {8.0, 9.0}}
+    y := []int{0, 0, 0, 1, 1, 1}
+
+    nb := NewNaiveBayes()
+    nb.Fit(X, y)
+
+    preds := nb.Predict([][]float64{{4.0, 5.0}, {5.0, 6.0}})
+    fmt.Printf("预测类别：%v\n", preds)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
