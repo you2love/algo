@@ -1038,7 +1038,7 @@ func main() {
             <!-- AI 时代的数据结构 -->
             <div class="ai-era-section">
                 <h2><span>🤖</span> AI 时代的数据结构</h2>
-                
+
                 <div class="algorithm-grid">
                     <div class="algorithm-card">
                         <h3><span class="icon">🔍</span> 向量索引</h3>
@@ -1063,6 +1063,768 @@ func main() {
                 </div>
             </div>
 
+            <!-- 线段树 -->
+            <section id="segment-tree" class="section-detail">
+                <h2><span>📊</span> 4. 线段树 (Segment Tree)</h2>
+                
+                <h3>数据结构</h3>
+                <p>线段树是一种二叉树数据结构，用于高效处理区间查询和更新操作。每个节点代表一个区间，叶子节点代表单个元素。</p>
+                
+                <div class="data-structure-visual">
+                    <h4><span>📊</span> 线段树结构示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>区间 [0,7]</strong><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,7]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;[0,3]&nbsp;&nbsp;&nbsp;&nbsp;[4,7]<br>
+                            &nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\<br>
+                            [0,1] [2,3] [4,5] [6,7]
+                        </div>
+                        <div class="structure-part">
+                            <strong>应用场景</strong><br>
+                            • 区间求和<br>
+                            • 区间最值<br>
+                            • 区间更新<br>
+                            • 区间染色
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">构建</div>
+                        <div class="value">O(n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">查询</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">更新</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间</div>
+                        <div class="value">O(n)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>区间查询高效</li>
+                            <li>支持动态更新</li>
+                            <li>实现相对简单</li>
+                            <li>应用广泛</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>空间开销较大</li>
+                            <li>只适用于可合并操作</li>
+                            <li>常数因子较大</li>
+                            <li>递归实现栈开销</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="seg-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="seg-python">Python</button>
+                        <button class="code-tab-btn" data-tab="seg-go">Go</button>
+                    </div>
+                    <div id="seg-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class SegmentTree {
+    constructor(arr) {
+        this.n = arr.length;
+        this.tree = new Array(4 * this.n).fill(0);
+        this.build(arr, 0, 0, this.n - 1);
+    }
+
+    build(arr, node, start, end) {
+        if (start === end) {
+            this.tree[node] = arr[start];
+        } else {
+            const mid = Math.floor((start + end) / 2);
+            const leftNode = 2 * node + 1;
+            const rightNode = 2 * node + 2;
+            this.build(arr, leftNode, start, mid);
+            this.build(arr, rightNode, mid + 1, end);
+            this.tree[node] = this.tree[leftNode] + this.tree[rightNode];
+        }
+    }
+
+    query(l, r) {
+        return this._query(0, 0, this.n - 1, l, r);
+    }
+
+    _query(node, start, end, l, r) {
+        if (r < start || end < l) return 0;
+        if (l <= start && end <= r) return this.tree[node];
+        const mid = Math.floor((start + end) / 2);
+        const leftSum = this._query(2 * node + 1, start, mid, l, r);
+        const rightSum = this._query(2 * node + 2, mid + 1, end, l, r);
+        return leftSum + rightSum;
+    }
+
+    update(idx, val) {
+        this._update(0, 0, this.n - 1, idx, val);
+    }
+
+    _update(node, start, end, idx, val) {
+        if (start === end) {
+            this.tree[node] = val;
+        } else {
+            const mid = Math.floor((start + end) / 2);
+            if (start <= idx && idx <= mid) {
+                this._update(2 * node + 1, start, mid, idx, val);
+            } else {
+                this._update(2 * node + 2, mid + 1, end, idx, val);
+            }
+            this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];
+        }
+    }
+}
+
+// 测试
+const arr = [1, 3, 5, 7, 9, 11];
+const st = new SegmentTree(arr);
+console.log('区间和 [1,3]:', st.query(1, 3)); // 15
+st.update(2, 10);
+console.log('更新后 [1,3]:', st.query(1, 3)); // 20</code></pre></div>
+                    </div>
+                    <div id="seg-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">class SegmentTree:
+    def __init__(self, arr):
+        self.n = len(arr)
+        self.tree = [0] * (4 * self.n)
+        self._build(arr, 0, 0, self.n - 1)
+
+    def _build(self, arr, node, start, end):
+        if start == end:
+            self.tree[node] = arr[start]
+        else:
+            mid = (start + end) // 2
+            left_node = 2 * node + 1
+            right_node = 2 * node + 2
+            self._build(arr, left_node, start, mid)
+            self._build(arr, right_node, mid + 1, end)
+            self.tree[node] = self.tree[left_node] + self.tree[right_node]
+
+    def query(self, l, r):
+        return self._query(0, 0, self.n - 1, l, r)
+
+    def _query(self, node, start, end, l, r):
+        if r < start or end < l:
+            return 0
+        if l <= start and end <= r:
+            return self.tree[node]
+        mid = (start + end) // 2
+        left_sum = self._query(2 * node + 1, start, mid, l, r)
+        right_sum = self._query(2 * node + 2, mid + 1, end, l, r)
+        return left_sum + right_sum
+
+    def update(self, idx, val):
+        self._update(0, 0, self.n - 1, idx, val)
+
+    def _update(self, node, start, end, idx, val):
+        if start == end:
+            self.tree[node] = val
+        else:
+            mid = (start + end) // 2
+            if start <= idx <= mid:
+                self._update(2 * node + 1, start, mid, idx, val)
+            else:
+                self._update(2 * node + 2, mid + 1, end, idx, val)
+            self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]
+
+# 测试
+arr = [1, 3, 5, 7, 9, 11]
+st = SegmentTree(arr)
+print(f"区间和 [1,3]: {st.query(1, 3)}")  # 15
+st.update(2, 10)
+print(f"更新后 [1,3]: {st.query(1, 3)}")  # 20</code></pre></div>
+                    </div>
+                    <div id="seg-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type SegmentTree struct {
+    n    int
+    tree []int
+}
+
+func NewSegmentTree(arr []int) *SegmentTree {
+    n := len(arr)
+    st := &SegmentTree{
+        n:    n,
+        tree: make([]int, 4*n),
+    }
+    st.build(arr, 0, 0, n-1)
+    return st
+}
+
+func (st *SegmentTree) build(arr []int, node, start, end int) {
+    if start == end {
+        st.tree[node] = arr[start]
+    } else {
+        mid := (start + end) / 2
+        leftNode := 2*node + 1
+        rightNode := 2*node + 2
+        st.build(arr, leftNode, start, mid)
+        st.build(arr, rightNode, mid+1, end)
+        st.tree[node] = st.tree[leftNode] + st.tree[rightNode]
+    }
+}
+
+func (st *SegmentTree) Query(l, r int) int {
+    return st.query(0, 0, st.n-1, l, r)
+}
+
+func (st *SegmentTree) query(node, start, end, l, r int) int {
+    if r < start || end < l {
+        return 0
+    }
+    if l <= start && end <= r {
+        return st.tree[node]
+    }
+    mid := (start + end) / 2
+    leftSum := st.query(2*node+1, start, mid, l, r)
+    rightSum := st.query(2*node+2, mid+1, end, l, r)
+    return leftSum + rightSum
+}
+
+func (st *SegmentTree) Update(idx, val int) {
+    st.update(0, 0, st.n-1, idx, val)
+}
+
+func (st *SegmentTree) update(node, start, end, idx, val int) {
+    if start == end {
+        st.tree[node] = val
+    } else {
+        mid := (start + end) / 2
+        if start <= idx && idx <= mid {
+            st.update(2*node+1, start, mid, idx, val)
+        } else {
+            st.update(2*node+2, mid+1, end, idx, val)
+        }
+        st.tree[node] = st.tree[2*node+1] + st.tree[2*node+2]
+    }
+}
+
+func main() {
+    arr := []int{1, 3, 5, 7, 9, 11}
+    st := NewSegmentTree(arr)
+    fmt.Printf("区间和 [1,3]: %d\n", st.Query(1, 3))  // 15
+    st.Update(2, 10)
+    fmt.Printf("更新后 [1,3]: %d\n", st.Query(1, 3))  // 20
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 向量索引 -->
+            <section id="vector-index" class="section-detail">
+                <h2><span>🔍</span> 5. 向量索引 (Vector Index)</h2>
+                
+                <h3>数据结构</h3>
+                <p>向量索引用于高效检索高维向量的数据结构，通过计算向量之间的相似度（如余弦相似度）来找到最相似的向量。是 AI 大模型、语义搜索、推荐系统的核心基础设施。</p>
+                
+                <div class="data-structure-visual">
+                    <h4><span>🔍</span> 向量检索流程</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>输入查询向量</strong><br>
+                            [0.1, 0.5, -0.3, ...]
+                        </div>
+                        <div class="structure-part">
+                            <strong>计算相似度</strong><br>
+                            余弦相似度 / 欧氏距离
+                        </div>
+                        <div class="structure-part">
+                            <strong>返回 TopK</strong><br>
+                            最相似的 K 个向量
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">插入</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">搜索</div>
+                        <div class="value">O(n × d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间</div>
+                        <div class="value">O(n × d)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">维度</div>
+                        <div class="value">d</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>支持语义搜索</li>
+                            <li>适用于 AI 应用</li>
+                            <li>实现简单</li>
+                            <li>可扩展到近似搜索</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>精确搜索慢</li>
+                            <li>高维计算开销大</li>
+                            <li>需要向量嵌入</li>
+                            <li>内存占用大</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="vec-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="vec-python">Python</button>
+                        <button class="code-tab-btn" data-tab="vec-go">Go</button>
+                    </div>
+                    <div id="vec-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class VectorIndex {
+    constructor() {
+        this.vectors = [];
+        this.metadata = [];
+    }
+
+    insert(id, vector, metadata = {}) {
+        this.vectors.push({ id, vector: this._normalize(vector) });
+        this.metadata.push({ id, metadata });
+    }
+
+    _normalize(vector) {
+        const norm = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
+        return norm > 0 ? vector.map(v => v / norm) : vector;
+    }
+
+    _dotProduct(a, b) {
+        return a.reduce((sum, val, i) => sum + val * b[i], 0);
+    }
+
+    search(queryVector, topK = 5) {
+        const normalized = this._normalize(queryVector);
+        const scores = this.vectors.map((item, idx) => ({
+            id: item.id,
+            score: this._dotProduct(normalized, item.vector),
+            metadata: this.metadata[idx].metadata
+        }));
+        scores.sort((a, b) => b.score - a.score);
+        return scores.slice(0, topK);
+    }
+
+    batchInsert(items) {
+        for (const { id, vector, metadata } of items) {
+            this.insert(id, vector, metadata);
+        }
+    }
+}
+
+// 测试
+const index = new VectorIndex();
+index.insert('doc1', [0.8, 0.2, 0.5], { text: 'AI 技术' });
+index.insert('doc2', [0.7, 0.3, 0.4], { text: '机器学习' });
+index.insert('doc3', [0.1, 0.9, 0.2], { text: '美食食谱' });
+
+const results = index.search([0.75, 0.25, 0.45], 2);
+console.log('搜索结果:', results);</code></pre></div>
+                    </div>
+                    <div id="vec-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
+
+class VectorIndex:
+    def __init__(self):
+        self.vectors = []
+        self.ids = []
+        self.metadata = []
+
+    def insert(self, id, vector, metadata=None):
+        normalized = self._normalize(vector)
+        self.vectors.append(normalized)
+        self.ids.append(id)
+        self.metadata.append(metadata or {})
+
+    def _normalize(self, vector):
+        arr = np.array(vector, dtype=np.float32)
+        norm = np.linalg.norm(arr)
+        return arr / norm if norm > 0 else arr
+
+    def _cosine_similarity(self, a, b):
+        return float(np.dot(a, b))
+
+    def search(self, query_vector, top_k=5):
+        if not self.vectors:
+            return []
+        query = self._normalize(query_vector)
+        scores = []
+        for i, vec in enumerate(self.vectors):
+            score = self._cosine_similarity(query, vec)
+            scores.append({
+                'id': self.ids[i],
+                'score': score,
+                'metadata': self.metadata[i]
+            })
+        scores.sort(key=lambda x: x['score'], reverse=True)
+        return scores[:top_k]
+
+    def batch_insert(self, items):
+        for item in items:
+            self.insert(item['id'], item['vector'], item.get('metadata'))
+
+# 测试
+index = VectorIndex()
+index.insert('doc1', [0.8, 0.2, 0.5], {'text': 'AI 技术'})
+index.insert('doc2', [0.7, 0.3, 0.4], {'text': '机器学习'})
+index.insert('doc3', [0.1, 0.9, 0.2], {'text': '美食食谱'})
+
+results = index.search([0.75, 0.25, 0.45], 2)
+for r in results:
+    print(f"{r['id']}: {r['score']:.4f} - {r['metadata']}")</code></pre></div>
+                    </div>
+                    <div id="vec-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+    "sort"
+)
+
+type VectorItem struct {
+    id       string
+    vector   []float64
+    metadata map[string]interface{}
+}
+
+type VectorIndex struct {
+    vectors []VectorItem
+}
+
+func NewVectorIndex() *VectorIndex {
+    return &VectorIndex{
+        vectors: make([]VectorItem, 0),
+    }
+}
+
+func (vi *VectorIndex) Insert(id string, vector []float64, metadata map[string]interface{}) {
+    normalized := vi.normalize(vector)
+    vi.vectors = append(vi.vectors, VectorItem{
+        id:       id,
+        vector:   normalized,
+        metadata: metadata,
+    })
+}
+
+func (vi *VectorIndex) normalize(vector []float64) []float64 {
+    norm := 0.0
+    for _, v := range vector {
+        norm += v * v
+    }
+    norm = math.Sqrt(norm)
+    if norm == 0 {
+        return vector
+    }
+    result := make([]float64, len(vector))
+    for i, v := range vector {
+        result[i] = v / norm
+    }
+    return result
+}
+
+func (vi *VectorIndex) dotProduct(a, b []float64) float64 {
+    sum := 0.0
+    for i := range a {
+        sum += a[i] * b[i]
+    }
+    return sum
+}
+
+type SearchResult struct {
+    ID       string
+    Score    float64
+    Metadata map[string]interface{}
+}
+
+func (vi *VectorIndex) Search(queryVector []float64, topK int) []SearchResult {
+    normalized := vi.normalize(queryVector)
+    scores := make([]SearchResult, len(vi.vectors))
+    for i, item := range vi.vectors {
+        scores[i] = SearchResult{
+            ID:       item.id,
+            Score:    vi.dotProduct(normalized, item.vector),
+            Metadata: item.metadata,
+        }
+    }
+    sort.Slice(scores, func(i, j int) bool {
+        return scores[i].Score > scores[j].Score
+    })
+    if topK > len(scores) {
+        topK = len(scores)
+    }
+    return scores[:topK]
+}
+
+func main() {
+    index := NewVectorIndex()
+    index.Insert("doc1", []float64{0.8, 0.2, 0.5}, map[string]interface{}{"text": "AI 技术"})
+    index.Insert("doc2", []float64{0.7, 0.3, 0.4}, map[string]interface{}{"text": "机器学习"})
+    index.Insert("doc3", []float64{0.1, 0.9, 0.2}, map[string]interface{}{"text": "美食食谱"})
+
+    results := index.Search([]float64{0.75, 0.25, 0.45}, 2)
+    for _, r := range results {
+        fmt.Printf("%s: %.4f - %v\n", r.ID, r.Score, r.Metadata)
+    }
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 布隆过滤器 -->
+            <section id="bloom-filter" class="section-detail">
+                <h2><span>🌸</span> 6. 布隆过滤器 (Bloom Filter)</h2>
+                
+                <h3>数据结构</h3>
+                <p>布隆过滤器是一种空间效率极高的概率型数据结构，用于判断元素是否存在于集合中。它可能产生假阳性（误判元素存在），但不会产生假阴性。</p>
+                
+                <div class="data-structure-visual">
+                    <h4><span>🌸</span> 布隆过滤器工作原理</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>添加元素</strong><br>
+                            元素 → k 个哈希函数 → k 个位置置 1
+                        </div>
+                        <div class="structure-part">
+                            <strong>查询元素</strong><br>
+                            元素 → k 个哈希函数 → 检查 k 个位置
+                        </div>
+                        <div class="structure-part">
+                            <strong>判断结果</strong><br>
+                            全为 1: 可能存在<br>
+                            有 0: 一定不存在
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">添加</div>
+                        <div class="value">O(k)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">查询</div>
+                        <div class="value">O(k)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间</div>
+                        <div class="value">O(m)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">哈希函数</div>
+                        <div class="value">k</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>空间效率极高</li>
+                            <li>查询速度快</li>
+                            <li>支持大规模数据</li>
+                            <li>无假阴性</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>可能假阳性</li>
+                            <li>不支持删除</li>
+                            <li>哈希函数选择敏感</li>
+                            <li>无法获取元素列表</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bloom-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bloom-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bloom-go">Go</button>
+                    </div>
+                    <div id="bloom-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class BloomFilter {
+    constructor(size = 1000, hashCount = 3) {
+        this.size = size;
+        this.hashCount = hashCount;
+        this.bitArray = new Array(size).fill(0);
+    }
+
+    _hash(value, seed) {
+        let hash = 0;
+        const str = String(value);
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash += seed * i;
+            hash = hash & hash;
+        }
+        return Math.abs(hash) % this.size;
+    }
+
+    add(value) {
+        for (let i = 0; i < this.hashCount; i++) {
+            const index = this._hash(value, i);
+            this.bitArray[index] = 1;
+        }
+    }
+
+    contains(value) {
+        for (let i = 0; i < this.hashCount; i++) {
+            const index = this._hash(value, i);
+            if (this.bitArray[index] === 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    addBatch(values) {
+        values.forEach(v => this.add(v));
+    }
+}
+
+// 测试
+const bf = new BloomFilter(1000, 3);
+['apple', 'banana', 'orange'].forEach(f => bf.add(f));
+
+console.log('apple:', bf.contains('apple'));     // true
+console.log('banana:', bf.contains('banana'));   // true
+console.log('grape:', bf.contains('grape'));     // false
+console.log('watermelon:', bf.contains('watermelon')); // 可能误判</code></pre></div>
+                    </div>
+                    <div id="bloom-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import hashlib
+
+class BloomFilter:
+    def __init__(self, size=1000, hash_count=3):
+        self.size = size
+        self.hash_count = hash_count
+        self.bit_array = [0] * size
+
+    def _hash(self, value, seed):
+        key = f"{seed}:{value}".encode()
+        hash_val = int(hashlib.md5(key).hexdigest(), 16)
+        return hash_val % self.size
+
+    def add(self, value):
+        for i in range(self.hash_count):
+            index = self._hash(value, i)
+            self.bit_array[index] = 1
+
+    def contains(self, value):
+        for i in range(self.hash_count):
+            index = self._hash(value, i)
+            if self.bit_array[index] == 0:
+                return False
+        return True
+
+    def add_batch(self, values):
+        for v in values:
+            self.add(v)
+
+# 测试
+bf = BloomFilter(1000, 3)
+for fruit in ['apple', 'banana', 'orange']:
+    bf.add(fruit)
+
+print('apple:', bf.contains('apple'))      # True
+print('banana:', bf.contains('banana'))    # True
+print('grape:', bf.contains('grape'))      # False
+print('watermelon:', bf.contains('watermelon'))  # 可能误判</code></pre></div>
+                    </div>
+                    <div id="bloom-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "crypto/md5"
+    "encoding/binary"
+    "fmt"
+)
+
+type BloomFilter struct {
+    size      int
+    hashCount int
+    bitArray  []bool
+}
+
+func NewBloomFilter(size, hashCount int) *BloomFilter {
+    return &BloomFilter{
+        size:      size,
+        hashCount: hashCount,
+        bitArray:  make([]bool, size),
+    }
+}
+
+func (bf *BloomFilter) hash(value string, seed uint32) int {
+    data := fmt.Sprintf("%d:%s", seed, value)
+    hash := md5.Sum([]byte(data))
+    hashVal := binary.LittleEndian.Uint32(hash[:4])
+    return int(hashVal) % bf.size
+}
+
+func (bf *BloomFilter) Add(value string) {
+    for i := 0; i < bf.hashCount; i++ {
+        index := bf.hash(value, uint32(i))
+        bf.bitArray[index] = true
+    }
+}
+
+func (bf *BloomFilter) Contains(value string) bool {
+    for i := 0; i < bf.hashCount; i++ {
+        index := bf.hash(value, uint32(i))
+        if !bf.bitArray[index] {
+            return false
+        }
+    }
+    return true
+}
+
+func main() {
+    bf := NewBloomFilter(1000, 3)
+    fruits := []string{"apple", "banana", "orange"}
+    for _, fruit := range fruits {
+        bf.Add(fruit)
+    }
+
+    fmt.Println("apple:", bf.Contains("apple"))      // true
+    fmt.Println("banana:", bf.Contains("banana"))    // true
+    fmt.Println("grape:", bf.Contains("grape"))      // false
+    fmt.Println("watermelon:", bf.Contains("watermelon")) // 可能误判
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
             <!-- 算法选择指南 -->
             <div class="info-card warning">
                 <div class="info-card-title">
@@ -1076,8 +1838,9 @@ func main() {
                         <li><strong>快速查找：</strong>二叉搜索树、哈希表</li>
                         <li><strong>优先级队列：</strong>堆（TopK 问题）</li>
                         <li><strong>字符串前缀：</strong>字典树（自动补全）</li>
-                        <li><strong>高维向量检索：</strong>向量索引（AI 应用）</li>
-                        <li><strong>大规模去重：</strong>布隆过滤器（缓存穿透）</li>
+                        <li><strong>区间查询更新：</strong>线段树（区间求和、最值）</li>
+                        <li><strong>高维向量检索：</strong>向量索引（AI 应用、语义搜索）</li>
+                        <li><strong>大规模去重：</strong>布隆过滤器（缓存穿透、URL 去重）</li>
                     </ul>
                 </div>
             </div>
