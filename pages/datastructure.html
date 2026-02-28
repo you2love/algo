@@ -1177,6 +1177,1023 @@ console.log(hashTable.get('age')); // undefined
                 </div>
             </div>
 
+            <h3>堆 (Heap) / 优先队列</h3>
+            <div class="algorithm-content">
+                <p>堆是一种特殊的完全二叉树，分为最大堆和最小堆。优先队列是其典型应用。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="heap-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="heap-python">Python</button>
+                    </div>
+                    <div id="heap-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    push(val) {
+        this.heap.push(val);
+        this._bubbleUp(this.heap.length - 1);
+    }
+
+    pop() {
+        if (this.heap.length === 0) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+        
+        const min = this.heap[0];
+        this.heap[0] = this.heap.pop();
+        this._bubbleDown(0);
+        return min;
+    }
+
+    peek() {
+        return this.heap[0] || null;
+    }
+
+    _bubbleUp(index) {
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            if (this.heap[parentIndex] <= this.heap[index]) break;
+            [this.heap[parentIndex], this.heap[index]] = 
+            [this.heap[index], this.heap[parentIndex]];
+            index = parentIndex;
+        }
+    }
+
+    _bubbleDown(index) {
+        const length = this.heap.length;
+        while (true) {
+            const leftChild = 2 * index + 1;
+            const rightChild = 2 * index + 2;
+            let smallest = index;
+
+            if (leftChild < length && this.heap[leftChild] < this.heap[smallest]) {
+                smallest = leftChild;
+            }
+            if (rightChild < length && this.heap[rightChild] < this.heap[smallest]) {
+                smallest = rightChild;
+            }
+            if (smallest === index) break;
+            [this.heap[index], this.heap[smallest]] = 
+            [this.heap[smallest], this.heap[index]];
+            index = smallest;
+        }
+    }
+}
+
+// 测试
+const heap = new MinHeap();
+[5, 3, 8, 1, 2].forEach(v => heap.push(v));
+console.log(heap.pop()); // 1
+console.log(heap.pop()); // 2
+console.log(heap.peek()); // 3
+                        </code></pre></div>
+                    </div>
+                    <div id="heap-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import heapq
+
+class MinHeap:
+    def __init__(self):
+        self.heap = []
+
+    def push(self, val):
+        heapq.heappush(self.heap, val)
+
+    def pop(self):
+        return heapq.heappop(self.heap) if self.heap else None
+
+    def peek(self):
+        return self.heap[0] if self.heap else None
+
+    def __len__(self):
+        return len(self.heap)
+
+# 测试
+heap = MinHeap()
+for v in [5, 3, 8, 1, 2]:
+    heap.push(v)
+print(heap.pop())  # 1
+print(heap.pop())  # 2
+print(heap.peek()) # 3
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>字典树 (Trie / Prefix Tree)</h3>
+            <div class="algorithm-content">
+                <p>用于高效存储和检索字符串集合的树形结构，特别适用于自动补全和拼写检查。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="trie-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="trie-python">Python</button>
+                    </div>
+                    <div id="trie-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class TrieNode {
+    constructor() {
+        this.children = {};
+        this.isEndOfWord = false;
+    }
+}
+
+class Trie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = new TrieNode();
+            }
+            node = node.children[char];
+        }
+        node.isEndOfWord = true;
+    }
+
+    search(word) {
+        const node = this._findNode(word);
+        return node ? node.isEndOfWord : false;
+    }
+
+    startsWith(prefix) {
+        return this._findNode(prefix) !== null;
+    }
+
+    _findNode(prefix) {
+        let node = this.root;
+        for (const char of prefix) {
+            if (!node.children[char]) return null;
+            node = node.children[char];
+        }
+        return node;
+    }
+
+    // 自动补全
+    autoComplete(prefix) {
+        const node = this._findNode(prefix);
+        if (!node) return [];
+        
+        const results = [];
+        this._dfs(node, prefix, results);
+        return results;
+    }
+
+    _dfs(node, prefix, results) {
+        if (node.isEndOfWord) results.push(prefix);
+        for (const [char, child] of Object.entries(node.children)) {
+            this._dfs(child, prefix + char, results);
+        }
+    }
+}
+
+// 测试
+const trie = new Trie();
+['apple', 'app', 'application', 'apply'].forEach(w => trie.insert(w));
+console.log(trie.search('app')); // true
+console.log(trie.startsWith('appl')); // true
+console.log(trie.autoComplete('app')); // ['app', 'apple', 'application', 'apply']
+                        </code></pre></div>
+                    </div>
+                    <div id="trie-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end_of_word = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end_of_word = True
+
+    def search(self, word: str) -> bool:
+        node = self._find_node(word)
+        return node.is_end_of_word if node else False
+
+    def startsWith(self, prefix: str) -> bool:
+        return self._find_node(prefix) is not None
+
+    def _find_node(self, prefix: str):
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        return node
+
+    def autocomplete(self, prefix: str) -> list:
+        node = self._find_node(prefix)
+        if not node:
+            return []
+        results = []
+        self._dfs(node, prefix, results)
+        return results
+
+    def _dfs(self, node, prefix, results):
+        if node.is_end_of_word:
+            results.append(prefix)
+        for char, child in node.children.items():
+            self._dfs(child, prefix + char, results)
+
+# 测试
+trie = Trie()
+for w in ['apple', 'app', 'application', 'apply']:
+    trie.insert(w)
+print(trie.search('app'))  # True
+print(trie.startsWith('appl'))  # True
+print(trie.autocomplete('app'))  # ['app', 'apple', 'application', 'apply']
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>AI 时代的数据结构</h2>
+
+            <h3>向量索引 (Vector Index / ANN)</h3>
+            <div class="algorithm-content">
+                <p>用于高效检索高维向量的数据结构，是 AI 大模型、语义搜索、推荐系统的核心基础设施。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="vector-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="vector-python">Python</button>
+                    </div>
+                    <div id="vector-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+// 简化的向量索引实现 - 余弦相似度搜索
+class VectorIndex {
+    constructor() {
+        this.vectors = [];
+        this.metadata = [];
+    }
+
+    // 添加向量
+    insert(id, vector, metadata = {}) {
+        this.vectors.push({ id, vector: this._normalize(vector) });
+        this.metadata.push({ id, metadata });
+    }
+
+    // 向量归一化
+    _normalize(vector) {
+        const norm = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
+        return norm > 0 ? vector.map(v => v / norm) : vector;
+    }
+
+    // 点积计算余弦相似度
+    _dotProduct(a, b) {
+        return a.reduce((sum, val, i) => sum + val * b[i], 0);
+    }
+
+    // 近似最近邻搜索
+    search(queryVector, topK = 5) {
+        const normalized = this._normalize(queryVector);
+        const scores = this.vectors.map((item, idx) => ({
+            id: item.id,
+            score: this._dotProduct(normalized, item.vector),
+            metadata: this.metadata[idx].metadata
+        }));
+
+        // 按相似度排序
+        scores.sort((a, b) => b.score - a.score);
+        return scores.slice(0, topK);
+    }
+
+    // 批量插入
+    batchInsert(items) {
+        for (const { id, vector, metadata } of items) {
+            this.insert(id, vector, metadata);
+        }
+    }
+}
+
+// 测试
+const index = new VectorIndex();
+index.insert('doc1', [0.8, 0.2, 0.5], { text: 'AI 技术' });
+index.insert('doc2', [0.7, 0.3, 0.4], { text: '机器学习' });
+index.insert('doc3', [0.1, 0.9, 0.2], { text: '美食食谱' });
+
+const results = index.search([0.75, 0.25, 0.45], 2);
+console.log(results);
+// [{id: 'doc2', score: 0.99, metadata: {...}}, ...]
+                        </code></pre></div>
+                    </div>
+                    <div id="vector-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from typing import List, Dict, Any
+
+class VectorIndex:
+    def __init__(self):
+        self.vectors = []
+        self.ids = []
+        self.metadata = []
+
+    def insert(self, id: str, vector: List[float], metadata: Dict[str, Any] = None):
+        """添加向量到索引"""
+        normalized = self._normalize(vector)
+        self.vectors.append(normalized)
+        self.ids.append(id)
+        self.metadata.append(metadata or {})
+
+    def _normalize(self, vector: List[float]) -> np.ndarray:
+        """向量归一化"""
+        arr = np.array(vector, dtype=np.float32)
+        norm = np.linalg.norm(arr)
+        return arr / norm if norm > 0 else arr
+
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """计算余弦相似度"""
+        return float(np.dot(a, b))
+
+    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
+        """近似最近邻搜索"""
+        if not self.vectors:
+            return []
+
+        query = self._normalize(query_vector)
+        scores = []
+
+        for i, vec in enumerate(self.vectors):
+            score = self._cosine_similarity(query, vec)
+            scores.append({
+                'id': self.ids[i],
+                'score': score,
+                'metadata': self.metadata[i]
+            })
+
+        # 按相似度排序
+        scores.sort(key=lambda x: x['score'], reverse=True)
+        return scores[:top_k]
+
+    def batch_insert(self, items: List[Dict]):
+        """批量插入"""
+        for item in items:
+            self.insert(item['id'], item['vector'], item.get('metadata'))
+
+# 测试
+if __name__ == "__main__":
+    index = VectorIndex()
+    index.insert('doc1', [0.8, 0.2, 0.5], {'text': 'AI 技术'})
+    index.insert('doc2', [0.7, 0.3, 0.4], {'text': '机器学习'})
+    index.insert('doc3', [0.1, 0.9, 0.2], {'text': '美食食谱'})
+
+    results = index.search([0.75, 0.25, 0.45], 2)
+    for r in results:
+        print(f"{r['id']}: {r['score']:.4f} - {r['metadata']}")
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>布隆过滤器 (Bloom Filter)</h3>
+            <div class="algorithm-content">
+                <p>空间效率极高的概率型数据结构，用于判断元素是否存在于集合中。适用于大规模数据去重和缓存穿透防护。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bloom-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bloom-python">Python</button>
+                    </div>
+                    <div id="bloom-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class BloomFilter {
+    constructor(size = 1000, hashCount = 3) {
+        this.size = size;
+        this.hashCount = hashCount;
+        this.bitArray = new Array(size).fill(0);
+    }
+
+    // 多个哈希函数
+    _hash(value, seed) {
+        let hash = 0;
+        const str = String(value);
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash += seed * i;
+            hash = hash & hash; // 转为 32 位整数
+        }
+        return Math.abs(hash) % this.size;
+    }
+
+    // 添加元素
+    add(value) {
+        for (let i = 0; i < this.hashCount; i++) {
+            const index = this._hash(value, i);
+            this.bitArray[index] = 1;
+        }
+    }
+
+    // 检查元素是否存在
+    contains(value) {
+        for (let i = 0; i < this.hashCount; i++) {
+            const index = this._hash(value, i);
+            if (this.bitArray[index] === 0) {
+                return false; // 一定不存在
+            }
+        }
+        return true; // 可能存在（有假阳性）
+    }
+
+    // 批量添加
+    addBatch(values) {
+        values.forEach(v => this.add(v));
+    }
+}
+
+// 测试
+const bf = new BloomFilter(1000, 3);
+['apple', 'banana', 'orange'].forEach(f => bf.add(f));
+
+console.log(bf.contains('apple'));    // true
+console.log(bf.contains('banana'));   // true
+console.log(bf.contains('grape'));    // false (一定不存在)
+console.log(bf.contains('watermelon'));// 可能误判为 true
+                        </code></pre></div>
+                    </div>
+                    <div id="bloom-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import hashlib
+from typing import Any
+
+class BloomFilter:
+    def __init__(self, size: int = 1000, hash_count: int = 3):
+        self.size = size
+        self.hash_count = hash_count
+        self.bit_array = [0] * size
+
+    def _hash(self, value: Any, seed: int) -> int:
+        """生成多个哈希值"""
+        key = f"{seed}:{value}".encode()
+        hash_val = int(hashlib.md5(key).hexdigest(), 16)
+        return hash_val % self.size
+
+    def add(self, value: Any) -> None:
+        """添加元素"""
+        for i in range(self.hash_count):
+            index = self._hash(value, i)
+            self.bit_array[index] = 1
+
+    def contains(self, value: Any) -> bool:
+        """检查元素是否存在"""
+        for i in range(self.hash_count):
+            index = self._hash(value, i)
+            if self.bit_array[index] == 0:
+                return False  # 一定不存在
+        return True  # 可能存在（有假阳性）
+
+    def add_batch(self, values) -> None:
+        """批量添加"""
+        for v in values:
+            self.add(v)
+
+# 测试
+if __name__ == "__main__":
+    bf = BloomFilter(1000, 3)
+    for fruit in ['apple', 'banana', 'orange']:
+        bf.add(fruit)
+
+    print(bf.contains('apple'))     # True
+    print(bf.contains('banana'))    # True
+    print(bf.contains('grape'))     # False
+    print(bf.contains('watermelon')) # 可能误判
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>跳表 (Skip List)</h3>
+            <div class="algorithm-content">
+                <p>基于链表的高效搜索数据结构，通过多层索引实现 O(log n) 的查找复杂度。Redis 的有序集合使用跳表实现。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="skiplist-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="skiplist-python">Python</button>
+                    </div>
+                    <div id="skiplist-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class SkipNode {
+    constructor(level, value, score) {
+        this.value = value;
+        this.score = score;
+        this.forward = new Array(level).fill(null);
+    }
+}
+
+class SkipList {
+    constructor(maxLevel = 16, probability = 0.5) {
+        this.maxLevel = maxLevel;
+        this.probability = probability;
+        this.header = new SkipNode(maxLevel, null, -Infinity);
+        this.level = 1;
+    }
+
+    // 随机生成层数
+    _randomLevel() {
+        let lvl = 1;
+        while (Math.random() < this.probability && lvl < this.maxLevel) {
+            lvl++;
+        }
+        return lvl;
+    }
+
+    // 插入元素
+    insert(score, value) {
+        const update = new Array(this.maxLevel).fill(null);
+        let current = this.header;
+
+        // 找到插入位置
+        for (let i = this.level - 1; i >= 0; i--) {
+            while (current.forward[i] && current.forward[i].score < score) {
+                current = current.forward[i];
+            }
+            update[i] = current;
+        }
+
+        // 检查是否已存在
+        if (current.forward[0] && current.forward[0].score === score) {
+            current.forward[0].value = value;
+            return;
+        }
+
+        // 创建新节点
+        const newLevel = this._randomLevel();
+        if (newLevel > this.level) {
+            for (let i = this.level; i < newLevel; i++) {
+                update[i] = this.header;
+            }
+            this.level = newLevel;
+        }
+
+        const newNode = new SkipNode(newLevel, value, score);
+        for (let i = 0; i < newLevel; i++) {
+            newNode.forward[i] = update[i].forward[i];
+            update[i].forward[i] = newNode;
+        }
+    }
+
+    // 查找元素
+    search(score) {
+        let current = this.header;
+        for (let i = this.level - 1; i >= 0; i--) {
+            while (current.forward[i] && current.forward[i].score < score) {
+                current = current.forward[i];
+            }
+        }
+        current = current.forward[0];
+        return current && current.score === score ? current.value : null;
+    }
+
+    // 范围查询
+    rangeSearch(minScore, maxScore) {
+        const result = [];
+        let current = this.header;
+
+        for (let i = this.level - 1; i >= 0; i--) {
+            while (current.forward[i] && current.forward[i].score < minScore) {
+                current = current.forward[i];
+            }
+        }
+
+        current = current.forward[0];
+        while (current && current.score <= maxScore) {
+            result.push({ score: current.score, value: current.value });
+            current = current.forward[0];
+        }
+
+        return result;
+    }
+}
+
+// 测试
+const sl = new SkipList();
+sl.insert(85, 'Alice');
+sl.insert(92, 'Bob');
+sl.insert(78, 'Charlie');
+sl.insert(95, 'David');
+
+console.log(sl.search(92)); // 'Bob'
+console.log(sl.rangeSearch(80, 95)); // [{score: 85, value: 'Alice'}, ...]
+                        </code></pre></div>
+                    </div>
+                    <div id="skiplist-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import random
+from typing import Any, List, Dict
+
+class SkipNode:
+    def __init__(self, level: int, value: Any, score: float):
+        self.value = value
+        self.score = score
+        self.forward: List['SkipNode'] = [None] * level
+
+class SkipList:
+    def __init__(self, max_level: int = 16, probability: float = 0.5):
+        self.max_level = max_level
+        self.probability = probability
+        self.header = SkipNode(max_level, None, float('-inf'))
+        self.level = 1
+
+    def _random_level(self) -> int:
+        lvl = 1
+        while random.random() < self.probability and lvl < self.max_level:
+            lvl += 1
+        return lvl
+
+    def insert(self, score: float, value: Any) -> None:
+        update = [None] * self.max_level
+        current = self.header
+
+        for i in range(self.level - 1, -1, -1):
+            while current.forward[i] and current.forward[i].score < score:
+                current = current.forward[i]
+            update[i] = current
+
+        if current.forward[0] and current.forward[0].score == score:
+            current.forward[0].value = value
+            return
+
+        new_level = self._random_level()
+        if new_level > self.level:
+            for i in range(self.level, new_level):
+                update[i] = self.header
+            self.level = new_level
+
+        new_node = SkipNode(new_level, value, score)
+        for i in range(new_level):
+            new_node.forward[i] = update[i].forward[i]
+            update[i].forward[i] = new_node
+
+    def search(self, score: float) -> Any:
+        current = self.header
+        for i in range(self.level - 1, -1, -1):
+            while current.forward[i] and current.forward[i].score < score:
+                current = current.forward[i]
+        current = current.forward[0]
+        return current.value if current and current.score == score else None
+
+    def range_search(self, min_score: float, max_score: float) -> List[Dict]:
+        result = []
+        current = self.header
+
+        for i in range(self.level - 1, -1, -1):
+            while current.forward[i] and current.forward[i].score < min_score:
+                current = current.forward[i]
+
+        current = current.forward[0]
+        while current and current.score <= max_score:
+            result.append({'score': current.score, 'value': current.value})
+            current = current.forward[0]
+
+        return result
+
+# 测试
+if __name__ == "__main__":
+    sl = SkipList()
+    sl.insert(85, 'Alice')
+    sl.insert(92, 'Bob')
+    sl.insert(78, 'Charlie')
+    sl.insert(95, 'David')
+
+    print(sl.search(92))  # 'Bob'
+    print(sl.range_search(80, 95))
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>线段树 (Segment Tree)</h3>
+            <div class="algorithm-content">
+                <p>用于高效处理区间查询和更新操作的数据结构，广泛应用于计算几何和区间统计问题。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="seg-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="seg-python">Python</button>
+                    </div>
+                    <div id="seg-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class SegmentTree {
+    constructor(arr) {
+        this.n = arr.length;
+        this.tree = new Array(4 * this.n).fill(0);
+        this.build(arr, 0, 0, this.n - 1);
+    }
+
+    build(arr, node, start, end) {
+        if (start === end) {
+            this.tree[node] = arr[start];
+        } else {
+            const mid = Math.floor((start + end) / 2);
+            const leftNode = 2 * node + 1;
+            const rightNode = 2 * node + 2;
+            this.build(arr, leftNode, start, mid);
+            this.build(arr, rightNode, mid + 1, end);
+            this.tree[node] = this.tree[leftNode] + this.tree[rightNode];
+        }
+    }
+
+    // 区间查询
+    query(l, r) {
+        return this._query(0, 0, this.n - 1, l, r);
+    }
+
+    _query(node, start, end, l, r) {
+        if (r < start || end < l) return 0;
+        if (l <= start && end <= r) return this.tree[node];
+        
+        const mid = Math.floor((start + end) / 2);
+        const leftSum = this._query(2 * node + 1, start, mid, l, r);
+        const rightSum = this._query(2 * node + 2, mid + 1, end, l, r);
+        return leftSum + rightSum;
+    }
+
+    // 单点更新
+    update(idx, val) {
+        this._update(0, 0, this.n - 1, idx, val);
+    }
+
+    _update(node, start, end, idx, val) {
+        if (start === end) {
+            this.tree[node] = val;
+        } else {
+            const mid = Math.floor((start + end) / 2);
+            if (start <= idx && idx <= mid) {
+                this._update(2 * node + 1, start, mid, idx, val);
+            } else {
+                this._update(2 * node + 2, mid + 1, end, idx, val);
+            }
+            this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];
+        }
+    }
+}
+
+// 测试
+const arr = [1, 3, 5, 7, 9, 11];
+const st = new SegmentTree(arr);
+console.log(st.query(1, 3)); // 3+5+7=15
+st.update(2, 10); // arr[2] = 10
+console.log(st.query(1, 3)); // 3+10+7=20
+                        </code></pre></div>
+                    </div>
+                    <div id="seg-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from typing import List
+
+class SegmentTree:
+    def __init__(self, arr: List[int]):
+        self.n = len(arr)
+        self.tree = [0] * (4 * self.n)
+        self._build(arr, 0, 0, self.n - 1)
+
+    def _build(self, arr: List[int], node: int, start: int, end: int):
+        if start == end:
+            self.tree[node] = arr[start]
+        else:
+            mid = (start + end) // 2
+            left_node = 2 * node + 1
+            right_node = 2 * node + 2
+            self._build(arr, left_node, start, mid)
+            self._build(arr, right_node, mid + 1, end)
+            self.tree[node] = self.tree[left_node] + self.tree[right_node]
+
+    def query(self, l: int, r: int) -> int:
+        return self._query(0, 0, self.n - 1, l, r)
+
+    def _query(self, node: int, start: int, end: int, l: int, r: int) -> int:
+        if r < start or end < l:
+            return 0
+        if l <= start and end <= r:
+            return self.tree[node]
+        
+        mid = (start + end) // 2
+        left_sum = self._query(2 * node + 1, start, mid, l, r)
+        right_sum = self._query(2 * node + 2, mid + 1, end, l, r)
+        return left_sum + right_sum
+
+    def update(self, idx: int, val: int) -> None:
+        self._update(0, 0, self.n - 1, idx, val)
+
+    def _update(self, node: int, start: int, end: int, idx: int, val: int):
+        if start == end:
+            self.tree[node] = val
+        else:
+            mid = (start + end) // 2
+            if start <= idx <= mid:
+                self._update(2 * node + 1, start, mid, idx, val)
+            else:
+                self._update(2 * node + 2, mid + 1, end, idx, val)
+            self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]
+
+# 测试
+arr = [1, 3, 5, 7, 9, 11]
+st = SegmentTree(arr)
+print(st.query(1, 3))  # 15 (3+5+7)
+st.update(2, 10)
+print(st.query(1, 3))  # 20 (3+10+7)
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>LRU 缓存 (Least Recently Used Cache)</h3>
+            <div class="algorithm-content">
+                <p>最近最少使用缓存，结合哈希表和双向链表实现 O(1) 的访问和更新。广泛应用于缓存系统和内存管理。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="lru-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="lru-python">Python</button>
+                    </div>
+                    <div id="lru-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+class LRUCache {
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.cache = new Map();
+    }
+
+    get(key) {
+        if (!this.cache.has(key)) return -1;
+        
+        const value = this.cache.get(key);
+        this.cache.delete(key);
+        this.cache.set(key, value); // 移到末尾（最近使用）
+        return value;
+    }
+
+    put(key, value) {
+        if (this.cache.has(key)) {
+            this.cache.delete(key);
+        } else if (this.cache.size >= this.capacity) {
+            // 删除最久未使用的（第一个）
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+        this.cache.set(key, value);
+    }
+
+    // 查看缓存状态
+    status() {
+        return Array.from(this.cache.entries());
+    }
+}
+
+// 测试
+const cache = new LRUCache(2);
+cache.put(1, 'A');
+cache.put(2, 'B');
+console.log(cache.get(1)); // 'A'
+cache.put(3, 'C'); // 淘汰 key=2
+console.log(cache.get(2)); // -1
+console.log(cache.status()); // [[1, 'A'], [3, 'C']]
+                        </code></pre></div>
+                    </div>
+                    <div id="lru-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = OrderedDict()
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        self.cache.move_to_end(key)  # 移到末尾（最近使用）
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        elif len(self.cache) >= self.capacity:
+            self.cache.popitem(last=False)  # 删除最久未使用的
+        self.cache[key] = value
+
+    def status(self):
+        return list(self.cache.items())
+
+# 测试
+cache = LRUCache(2)
+cache.put(1, 'A')
+cache.put(2, 'B')
+print(cache.get(1))  # 'A'
+cache.put(3, 'C')  # 淘汰 key=2
+print(cache.get(2))  # -1
+print(cache.status())  # [(1, 'A'), (3, 'C')]
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>数据结构对比</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>数据结构</th>
+                    <th>查找</th>
+                    <th>插入</th>
+                    <th>删除</th>
+                    <th>空间</th>
+                    <th>典型应用</th>
+                </tr>
+                <tr>
+                    <td>数组</td>
+                    <td>O(n)</td>
+                    <td>O(n)</td>
+                    <td>O(n)</td>
+                    <td>O(n)</td>
+                    <td>随机访问、批量处理</td>
+                </tr>
+                <tr>
+                    <td>链表</td>
+                    <td>O(n)</td>
+                    <td>O(1)</td>
+                    <td>O(1)</td>
+                    <td>O(n)</td>
+                    <td>频繁插入删除</td>
+                </tr>
+                <tr>
+                    <td>哈希表</td>
+                    <td>O(1)</td>
+                    <td>O(1)</td>
+                    <td>O(1)</td>
+                    <td>O(n)</td>
+                    <td>快速查找、去重</td>
+                </tr>
+                <tr>
+                    <td>二叉搜索树</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                    <td>有序数据维护</td>
+                </tr>
+                <tr>
+                    <td>堆</td>
+                    <td>O(n)</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                    <td>优先队列、TopK</td>
+                </tr>
+                <tr>
+                    <td>Trie</td>
+                    <td>O(m)</td>
+                    <td>O(m)</td>
+                    <td>O(m)</td>
+                    <td>O(n*m)</td>
+                    <td>自动补全、拼写检查</td>
+                </tr>
+                <tr>
+                    <td>向量索引</td>
+                    <td>O(n*d)</td>
+                    <td>O(1)</td>
+                    <td>-</td>
+                    <td>O(n*d)</td>
+                    <td>语义搜索、推荐系统</td>
+                </tr>
+                <tr>
+                    <td>布隆过滤器</td>
+                    <td>O(k)</td>
+                    <td>O(k)</td>
+                    <td>-</td>
+                    <td>O(m)</td>
+                    <td>大规模去重、缓存穿透</td>
+                </tr>
+                <tr>
+                    <td>跳表</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                    <td>有序集合、范围查询</td>
+                </tr>
+                <tr>
+                    <td>线段树</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td>O(n)</td>
+                    <td>区间查询、区间更新</td>
+                </tr>
+                <tr>
+                    <td>LRU 缓存</td>
+                    <td>O(1)</td>
+                    <td>O(1)</td>
+                    <td>O(1)</td>
+                    <td>O(capacity)</td>
+                    <td>缓存系统、内存管理</td>
+                </tr>
+            </table>
+
         </div>
     </section>
 
