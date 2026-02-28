@@ -299,6 +299,7 @@ class GMM:
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="gmm-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="gmm-python">Python</button>
+                        <button class="code-tab-btn" data-tab="gmm-go">Go</button>
                     </div>
                     <div id="gmm-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -515,7 +516,163 @@ print("聚类标签:", gmm.predict(data))
 print("概率:", gmm.predict_proba([[3, 3]]))
                         </code></pre></div>
                     </div>
-                </div>
+                                    </div>
+                    <div id="gmm-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+    "time"
+)
+
+type GMM struct {
+    k           int
+    maxIter     int
+    weights     []float64
+    means       [][]float64
+    covariances [][][]float64
+}
+
+func NewGMM(k, maxIter int) *GMM {
+    return &GMM{
+        k:       k,
+        maxIter: maxIter,
+    }
+}
+
+func (g *GMM) gaussian(x, mean, cov []float64) float64 {
+    d := len(x)
+    var logDet float64
+    for i := 0; i < d; i++ {
+        logDet += math.Log(cov[i][i] + 1e-10)
+    }
+
+    var mahalanobis float64
+    for i := 0; i < d; i++ {
+        diff := x[i] - mean[i]
+        mahalanobis += (diff * diff) / (cov[i][i] + 1e-10)
+    }
+
+    normConst := float64(d)*math.Log(2*math.PI) + logDet
+    return math.Exp(-0.5 * (mahalanobis + normConst))
+}
+
+func (g *GMM) Fit(data [][]float64) {
+    rand.Seed(time.Now().UnixNano())
+    n := len(data)
+    d := len(data[0])
+
+    // 初始化
+    g.weights = make([]float64, g.k)
+    g.means = make([][]float64, g.k)
+    g.covariances = make([][][]float64, g.k)
+
+    for i := 0; i < g.k; i++ {
+        g.weights[i] = 1.0 / float64(g.k)
+        g.means[i] = make([]float64, d)
+        for j := 0; j < d; j++ {
+            g.means[i][j] = data[rand.Intn(n)][j]
+        }
+        g.covariances[i] = make([][]float64, d)
+        for j := 0; j < d; j++ {
+            g.covariances[i][j] = make([]float64, d)
+            if j == j {
+                g.covariances[i][j][j] = 1.0
+            }
+        }
+    }
+
+    // EM 算法
+    responsibilities := make([][]float64, n)
+    for i := range responsibilities {
+        responsibilities[i] = make([]float64, g.k)
+    }
+
+    for iter := 0; iter < g.maxIter; iter++ {
+        // E 步
+        for i := 0; i < n; i++ {
+            sum := 0.0
+            for j := 0; j < g.k; j++ {
+                responsibilities[i][j] = g.weights[j] * g.gaussian(data[i], g.means[j], g.covariances[j])
+                sum += responsibilities[i][j]
+            }
+            if sum > 0 {
+                for j := 0; j < g.k; j++ {
+                    responsibilities[i][j] /= sum
+                }
+            }
+        }
+
+        // M 步
+        for j := 0; j < g.k; j++ {
+            var totalResp float64
+            for i := 0; i < n; i++ {
+                totalResp += responsibilities[i][j]
+            }
+
+            g.weights[j] = totalResp / float64(n)
+
+            // 更新均值
+            for p := 0; p < d; p++ {
+                var sum float64
+                for i := 0; i < n; i++ {
+                    sum += responsibilities[i][j] * data[i][p]
+                }
+                if totalResp > 0 {
+                    g.means[j][p] = sum / totalResp
+                }
+            }
+
+            // 更新协方差（对角线）
+            for p := 0; p < d; p++ {
+                var sum float64
+                for i := 0; i < n; i++ {
+                    diff := data[i][p] - g.means[j][p]
+                    sum += responsibilities[i][j] * diff * diff
+                }
+                if totalResp > 0 {
+                    g.covariances[j][p][p] = sum/totalResp + 1e-10
+                }
+            }
+        }
+    }
+}
+
+func (g *GMM) Predict(data [][]float64) []int {
+    predictions := make([]int, len(data))
+    for i, x := range data {
+        maxProb := -1.0
+        label := 0
+        for j := 0; j < g.k; j++ {
+            prob := g.weights[j] * g.gaussian(x, g.means[j], g.covariances[j])
+            if prob > maxProb {
+                maxProb = prob
+                label = j
+            }
+        }
+        predictions[i] = label
+    }
+    return predictions
+}
+
+func main() {
+    data := [][]float64{
+        {1, 2}, {1, 4}, {1, 0}, {4, 2}, {4, 4}, {4, 0},
+        {8, 2}, {8, 4}, {8, 0},
+    }
+
+    gmm := NewGMM(3, 100)
+    gmm.Fit(data)
+
+    predictions := gmm.Predict(data)
+    fmt.Printf("聚类标签：%v
+", predictions)
+}
+                        </code></pre></div>
+                    </div>
+                </div></div>
 
                 <h3>GMM vs K-Means</h3>
                 <div class="algorithm-content">

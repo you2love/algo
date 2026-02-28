@@ -196,6 +196,7 @@
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="nb-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="nb-python">Python</button>
+                        <button class="code-tab-btn" data-tab="nb-go">Go</button>
                     </div>
                     <div id="nb-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -527,7 +528,133 @@ print("预测:", nb.predict(test))
 print("概率:", nb.predict_proba(test))
                         </code></pre></div>
                     </div>
-                </div>
+                                    </div>
+                    <div id="nb-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+)
+
+type NaiveBayes struct {
+    alpha            float64
+    classPriors      map[string]float64
+    conditionalMeans map[string]map[int]float64
+    conditionalVars  map[string]map[int]float64
+    classes          []string
+}
+
+func NewNaiveBayes(alpha float64) *NaiveBayes {
+    return &NaiveBayes{
+        alpha:            alpha,
+        classPriors:      make(map[string]float64),
+        conditionalMeans: make(map[string]map[int]float64),
+        conditionalVars:  make(map[string]map[int]float64),
+    }
+}
+
+func (nb *NaiveBayes) Fit(X [][]float64, y []string) {
+    n := len(X)
+    d := len(X[0])
+
+    // 统计每个类别的样本数
+    classCounts := make(map[string]int)
+    for _, label := range y {
+        classCounts[label]++
+    }
+
+    // 计算先验概率
+    nb.classes = make([]string, 0, len(classCounts))
+    for class, count := range classCounts {
+        nb.classPriors[class] = float64(count) / float64(n)
+        nb.classes = append(nb.classes, class)
+        nb.conditionalMeans[class] = make(map[int]float64)
+        nb.conditionalVars[class] = make(map[int]float64)
+    }
+
+    // 计算每个类别每个特征的均值和方差
+    for _, class := range nb.classes {
+        for j := 0; j < d; j++ {
+            var sum float64
+            count := 0
+            for i := 0; i < n; i++ {
+                if y[i] == class {
+                    sum += X[i][j]
+                    count++
+                }
+            }
+            mean := sum / float64(count)
+            nb.conditionalMeans[class][j] = mean
+
+            // 计算方差
+            var varSum float64
+            for i := 0; i < n; i++ {
+                if y[i] == class {
+                    diff := X[i][j] - mean
+                    varSum += diff * diff
+                }
+            }
+            nb.conditionalVars[class][j] = varSum / float64(count-1) + 1e-10
+        }
+    }
+}
+
+func (nb *NaiveBayes) gaussianPDF(x, mean, variance float64) float64 {
+    coeff := 1.0 / math.Sqrt(2*math.Pi*variance)
+    exponent := -math.Pow(x-mean, 2) / (2 * variance)
+    return coeff * math.Exp(exponent)
+}
+
+func (nb *NaiveBayes) Predict(X [][]float64) []string {
+    predictions := make([]string, len(X))
+    for i, x := range X {
+        predictions[i] = nb.predictSingle(x)
+    }
+    return predictions
+}
+
+func (nb *NaiveBayes) predictSingle(x []float64) string {
+    var bestClass string
+    bestLogProb := math.Inf(-1)
+
+    for _, class := range nb.classes {
+        logProb := math.Log(nb.classPriors[class])
+
+        for j, val := range x {
+            mean := nb.conditionalMeans[class][j]
+            variance := nb.conditionalVars[class][j]
+            prob := nb.gaussianPDF(val, mean, variance)
+            logProb += math.Log(prob + 1e-10)
+        }
+
+        if logProb > bestLogProb {
+            bestLogProb = logProb
+            bestClass = class
+        }
+    }
+
+    return bestClass
+}
+
+func main() {
+    X := [][]float64{
+        {1, 2}, {1, 4}, {1, 0}, {4, 2}, {4, 4}, {4, 0},
+        {8, 2}, {8, 4}, {8, 0}, {1, 5}, {4, 5},
+    }
+    y := []string{"A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B"}
+
+    nb := NewNaiveBayes(1)
+    nb.Fit(X, y)
+
+    test := [][]float64{{3, 3}, {5, 3}}
+    predictions := nb.Predict(test)
+    fmt.Printf("预测：%v
+", predictions)
+}
+                        </code></pre></div>
+                    </div>
+                </div></div>
 
                 <h3>朴素贝叶斯的优缺点</h3>
                 <div class="algorithm-content">

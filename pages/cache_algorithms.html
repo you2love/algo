@@ -186,6 +186,7 @@
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="lru-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="lru-python">Python</button>
+                        <button class="code-tab-btn" data-tab="lru-go">Go</button>
                     </div>
                     <div id="lru-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -337,6 +338,75 @@ lru.put(4, 'D')    # 淘汰2
 print(lru.get(2))  # -1
                         </code></pre></div>
                     </div>
+                    <div id="lru-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "container/list"
+    "fmt"
+)
+
+type LRUCache struct {
+    capacity int
+    cache    map[int]*list.Element
+    lruList  *list.List
+}
+
+type entry struct {
+    key   int
+    value interface{}
+}
+
+func NewLRUCache(capacity int) *LRUCache {
+    return &LRUCache{
+        capacity: capacity,
+        cache:    make(map[int]*list.Element),
+        lruList:  list.New(),
+    }
+}
+
+func (c *LRUCache) Get(key int) interface{} {
+    if elem, ok := c.cache[key]; ok {
+        c.lruList.MoveToFront(elem)
+        return elem.Value.(*entry).value
+    }
+    return -1
+}
+
+func (c *LRUCache) Put(key int, value interface{}) {
+    if elem, ok := c.cache[key]; ok {
+        c.lruList.MoveToFront(elem)
+        elem.Value.(*entry).value = value
+        return
+    }
+
+    if c.lruList.Len() >= c.capacity {
+        back := c.lruList.Back()
+        if back != nil {
+            evict := back.Value.(*entry)
+            delete(c.cache, evict.key)
+            c.lruList.Remove(back)
+        }
+    }
+
+    newEntry := &entry{key: key, value: value}
+    elem := c.lruList.PushFront(newEntry)
+    c.cache[key] = elem
+}
+
+func main() {
+    lru := NewLRUCache(3)
+    lru.Put(1, "A")
+    lru.Put(2, "B")
+    lru.Put(3, "C")
+    fmt.Println(lru.Get(1)) // A
+    lru.Put(4, "D")         // 淘汰 2
+    fmt.Println(lru.Get(2)) // -1
+    fmt.Println(lru.Get(3)) // C
+}
+                        </code></pre></div>
+                    </div>
                 </div>
 
                 <h3>LRU的优缺点</h3>
@@ -439,6 +509,7 @@ print(lru.get(2))  # -1
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="lfu-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="lfu-python">Python</button>
+                        <button class="code-tab-btn" data-tab="lfu-go">Go</button>
                     </div>
                     <div id="lfu-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -598,6 +669,121 @@ lfu.put(4, 'D')  # 淘汰C（频率1，最低）
 print(lfu.get(3))  # -1
                         </code></pre></div>
                     </div>
+                    <div id="lfu-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "container/list"
+    "fmt"
+)
+
+type LFUCache struct {
+    capacity  int
+    minFreq   int
+    size      int
+    cache     map[int]*list.Element
+    freqMap   map[int]*list.List
+}
+
+type lfuEntry struct {
+    key   int
+    value interface{}
+    freq  int
+}
+
+func NewLFUCache(capacity int) *LFUCache {
+    return &LFUCache{
+        capacity: capacity,
+        minFreq:  0,
+        size:     0,
+        cache:    make(map[int]*list.Element),
+        freqMap:  make(map[int]*list.List),
+    }
+}
+
+func (c *LFUCache) Get(key int) interface{} {
+    if elem, ok := c.cache[key]; ok {
+        c.updateFreq(elem)
+        return elem.Value.(*lfuEntry).value
+    }
+    return -1
+}
+
+func (c *LFUCache) Put(key int, value interface{}) {
+    if c.capacity <= 0 {
+        return
+    }
+
+    if elem, ok := c.cache[key]; ok {
+        elem.Value.(*lfuEntry).value = value
+        c.updateFreq(elem)
+        return
+    }
+
+    if c.size >= c.capacity {
+        c.evict()
+    }
+
+    entry := &lfuEntry{key: key, value: value, freq: 1}
+    if c.freqMap[1] == nil {
+        c.freqMap[1] = list.New()
+    }
+    elem := c.freqMap[1].PushBack(entry)
+    c.cache[key] = elem
+    c.minFreq = 1
+    c.size++
+}
+
+func (c *LFUCache) updateFreq(elem *list.Element) {
+    entry := elem.Value.(*lfuEntry)
+    oldFreq := entry.freq
+
+    c.freqMap[oldFreq].Remove(elem)
+    if c.freqMap[oldFreq].Len() == 0 {
+        delete(c.freqMap, oldFreq)
+        if c.minFreq == oldFreq {
+            c.minFreq++
+        }
+    }
+
+    entry.freq++
+    newFreq := entry.freq
+    if c.freqMap[newFreq] == nil {
+        c.freqMap[newFreq] = list.New()
+    }
+    newElem := c.freqMap[newFreq].PushBack(entry)
+    c.cache[entry.key] = newElem
+}
+
+func (c *LFUCache) evict() {
+    if c.freqMap[c.minFreq] == nil {
+        return
+    }
+    front := c.freqMap[c.minFreq].Front()
+    if front != nil {
+        entry := front.Value.(*lfuEntry)
+        c.freqMap[c.minFreq].Remove(front)
+        if c.freqMap[c.minFreq].Len() == 0 {
+            delete(c.freqMap, c.minFreq)
+        }
+        delete(c.cache, entry.key)
+        c.size--
+    }
+}
+
+func main() {
+    lfu := NewLFUCache(3)
+    lfu.Put(1, "A")
+    lfu.Put(2, "B")
+    lfu.Put(3, "C")
+    fmt.Println(lfu.Get(1)) // A
+    fmt.Println(lfu.Get(2)) // B
+    lfu.Put(4, "D")         // 淘汰 C（频率 1，最低）
+    fmt.Println(lfu.Get(3)) // -1
+}
+                        </code></pre></div>
+                    </div>
                 </div>
 
                 <h3>LFU的应用场景</h3>
@@ -674,6 +860,7 @@ print(lfu.get(3))  # -1
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="fifo-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="fifo-python">Python</button>
+                        <button class="code-tab-btn" data-tab="fifo-go">Go</button>
                     </div>
                     <div id="fifo-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -772,7 +959,77 @@ class FIFOCache:
 fifo = FIFOCache(3)
 sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
 print(fifo.access(sequence))  # 缺页10次
+                        </code></pre>                    </div>
+                    <div id="fifo-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type FIFOCache struct {
+    capacity int
+    cache    map[int]bool
+    queue    []int
+}
+
+func NewFIFOCache(capacity int) *FIFOCache {
+    return &FIFOCache{
+        capacity: capacity,
+        cache:    make(map[int]bool),
+        queue:    make([]int, 0),
+    }
+}
+
+func (c *FIFOCache) Get(key int) int {
+    if c.cache[key] {
+        return 1
+    }
+    return -1
+}
+
+func (c *FIFOCache) Put(key int, value interface{}) {
+    if c.capacity <= 0 {
+        return
+    }
+
+    if c.cache[key] {
+        return
+    }
+
+    if len(c.cache) >= c.capacity {
+        evictKey := c.queue[0]
+        c.queue = c.queue[1:]
+        delete(c.cache, evictKey)
+    }
+
+    c.cache[key] = true
+    c.queue = append(c.queue, key)
+}
+
+func (c *FIFOCache) Access(sequence []int) (hits, misses int, hitRate float64) {
+    hits = 0
+    misses = 0
+    for _, key := range sequence {
+        if c.Get(key) == 1 {
+            hits++
+        } else {
+            misses++
+            c.Put(key, nil)
+        }
+    }
+    hitRate = float64(hits) / float64(len(sequence))
+    return
+}
+
+func main() {
+    fifo := NewFIFOCache(3)
+    sequence := []int{1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5}
+    hits, misses, hitRate := fifo.Access(sequence)
+    fmt.Printf("Hits: %d, Misses: %d, Hit Rate: %.2f\n", hits, misses, hitRate)
+}
                         </code></pre></div>
+                    </div>
+                </div></div>
                     </div>
                 </div>
 

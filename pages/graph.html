@@ -710,6 +710,7 @@ func main() {
                             <div class="code-tab-header">
                                 <button class="code-tab-btn active" data-tab="floyd-js">JavaScript</button>
                                 <button class="code-tab-btn" data-tab="floyd-python">Python</button>
+                                <button class="code-tab-btn" data-tab="floyd-go">Go</button>
                             </div>
                             <div id="floyd-js" class="code-tab-content active">
                                 <div class="code-block line-numbers"><pre><code class="language-javascript">function floydWarshall(graph) {
@@ -784,7 +785,64 @@ graph = [
 
 result = floyd_warshall(graph)
 for row in result:
-    print(row)</code></pre></div>
+    print(row)</code></pre>                            </div>
+                            <div id="floyd-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+)
+
+const INF = math.MaxInt32
+
+func floydWarshall(graph [][]int) [][]int {
+    n := len(graph)
+    dist := make([][]int, n)
+    for i := range dist {
+        dist[i] = make([]int, n)
+        copy(dist[i], graph[i])
+    }
+
+    // Floyd-Warshall 核心
+    for k := 0; k < n; k++ {
+        for i := 0; i < n; i++ {
+            for j := 0; j < n; j++ {
+                if dist[i][k] != INF && dist[k][j] != INF {
+                    if dist[i][k]+dist[k][j] < dist[i][j] {
+                        dist[i][j] = dist[i][k] + dist[k][j]
+                    }
+                }
+            }
+        }
+    }
+
+    return dist
+}
+
+func main() {
+    graph := [][]int{
+        {0, 3, INF, 7},
+        {INF, 0, 2, INF},
+        {INF, INF, 0, 1},
+        {2, INF, INF, 0},
+    }
+
+    result := floydWarshall(graph)
+    for _, row := range result {
+        for _, val := range row {
+            if val == INF {
+                fmt.Print("INF ")
+            } else {
+                fmt.Printf("%d ", val)
+            }
+        }
+        fmt.Println()
+    }
+}
+                        </code></pre></div>
+                    </div>
+                </div></div>
                             </div>
                         </div>
                     </section>

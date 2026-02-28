@@ -454,6 +454,7 @@ flowchart LR
                             <div class="code-tab-header">
                                 <button class="code-tab-btn active" data-tab="bp-js">JavaScript</button>
                                 <button class="code-tab-btn" data-tab="bp-python">Python</button>
+                                <button class="code-tab-btn" data-tab="bp-go">Go</button>
                                 <button class="code-tab-btn" data-tab="bp-pytorch">PyTorch</button>
                             </div>
                             <div id="bp-js" class="code-tab-content active">
@@ -649,7 +650,181 @@ Y = np.array([[1, 0, 0, 1],
               [0, 1, 0, 0],
               [0, 0, 1, 0]]).T
 nn.train(X, Y, epochs=1000, learning_rate=0.1)</code></pre></div>
-                            </div>
+                            </div>                            </div>
+                            <div id="bp-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+    "time"
+)
+
+type NeuralNetwork struct {
+    layers     int
+    weights    [][][]float64
+    biases     [][]float64
+    activations [][]float64
+    zValues    [][]float64
+}
+
+func NewNeuralNetwork(layerSizes []int) *NeuralNetwork {
+    rand.Seed(time.Now().UnixNano())
+    nn := &NeuralNetwork{
+        layers: len(layerSizes) - 1,
+    }
+
+    // 初始化权重和偏置
+    for i := 0; i < nn.layers; i++ {
+        w := make([][]float64, layerSizes[i+1])
+        for j := range w {
+            w[j] = make([]float64, layerSizes[i])
+            for k := range w[j] {
+                w[j][k] = rand.NormFloat64() * 0.1
+            }
+        }
+        nn.weights = append(nn.weights, w)
+
+        b := make([]float64, layerSizes[i+1])
+        for j := range b {
+            b[j] = rand.NormFloat64() * 0.1
+        }
+        nn.biases = append(nn.biases, b)
+    }
+
+    return nn
+}
+
+func (nn *NeuralNetwork) relu(x float64) float64 {
+    if x > 0 {
+        return x
+    }
+    return 0
+}
+
+func (nn *NeuralNetwork) reluDerivative(x float64) float64 {
+    if x > 0 {
+        return 1
+    }
+    return 0
+}
+
+func (nn *NeuralNetwork) Forward(input []float64) []float64 {
+    nn.activations = [][]float64{input}
+    nn.zValues = [][]float64{}
+
+    current := input
+    for i := 0; i < nn.layers; i++ {
+        z := nn.matmul(nn.weights[i], current)
+        // 加偏置
+        for j := range z {
+            z[j] += nn.biases[i][j]
+        }
+        nn.zValues = append(nn.zValues, z)
+
+        // ReLU 激活
+        current = make([]float64, len(z))
+        for j, v := range z {
+            current[j] = nn.relu(v)
+        }
+        nn.activations = append(nn.activations, current)
+    }
+
+    return current
+}
+
+func (nn *NeuralNetwork) matmul(matrix [][]float64, vector []float64) []float64 {
+    result := make([]float64, len(matrix))
+    for i, row := range matrix {
+        sum := 0.0
+        for j, val := range row {
+            sum += val * vector[j]
+        }
+        result[i] = sum
+    }
+    return result
+}
+
+func (nn *NeuralNetwork) Backward(target []float64, learningRate float64) {
+    m := len(target)
+    var delta []float64
+
+    // 从输出层开始反向传播
+    for i := nn.layers - 1; i >= 0; i-- {
+        if i == nn.layers-1 {
+            // 输出层误差
+            delta = make([]float64, len(nn.activations[i+1]))
+            for j := range delta {
+                delta[j] = nn.activations[i+1][j] - target[j]
+            }
+        } else {
+            // 隐藏层误差
+            newDelta := make([]float64, len(nn.zValues[i]))
+            for j := range newDelta {
+                sum := 0.0
+                for k := range delta {
+                    sum += nn.weights[i+1][k][j] * delta[k]
+                }
+                newDelta[j] = sum * nn.reluDerivative(nn.zValues[i][j])
+            }
+            delta = newDelta
+        }
+
+        // 更新权重和偏置
+        for j := range nn.weights[i] {
+            for k := range nn.weights[i][j] {
+                nn.weights[i][j][k] -= learningRate * delta[j] * nn.activations[i][k] / float64(m)
+            }
+            nn.biases[i][j] -= learningRate * delta[j] / float64(m)
+        }
+    }
+}
+
+func (nn *NeuralNetwork) Train(X [][]float64, Y [][]float64, epochs int, learningRate float64) {
+    for epoch := 0; epoch < epochs; epoch++ {
+        totalLoss := 0.0
+
+        for i := range X {
+            output := nn.Forward(X[i])
+
+            // 计算交叉熵损失
+            for j := range Y[i] {
+                if Y[i][j] > 0 {
+                    totalLoss -= Y[i][j] * math.Log(math.Max(output[j], 1e-10))
+                }
+            }
+
+            nn.Backward(Y[i], learningRate)
+        }
+
+        if epoch%100 == 0 {
+            fmt.Printf("Epoch %d: Loss = %.4f
+", epoch, totalLoss/float64(len(X)))
+        }
+    }
+}
+
+func main() {
+    nn := NewNeuralNetwork([]int{4, 6, 4, 3})
+
+    X := [][]float64{
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
+    }
+    Y := [][]float64{
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1},
+        {1, 0, 0},
+    }
+
+    nn.Train(X, Y, 1000, 0.1)
+}
+                        </code></pre></div>
+                    </div>
                             <div id="bp-pytorch" class="code-tab-content">
                                 <div class="code-block line-numbers"><pre><code class="language-python">import torch
 import torch.nn as nn

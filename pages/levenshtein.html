@@ -198,6 +198,7 @@
                 <div class="code-tab-header">
                     <button class="code-tab-btn active" data-tab="edit-js">JavaScript</button>
                     <button class="code-tab-btn" data-tab="edit-python">Python</button>
+                    <button class="code-tab-btn" data-tab="edit-go">Go</button>
                 </div>
                 <div id="edit-js" class="code-tab-content active">
                     <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -276,6 +277,68 @@ print(min_distance("kitten", "sitting"))  # 3
 print(min_distance("horse", "ros"))       # 3
 print(min_distance("", ""))               # 0
                     </code></pre></div>
+                </div>
+                <div id="edit-go" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+func minDistance(word1, word2 string) int {
+    m, n := len(word1), len(word2)
+
+    // 空间优化：使用一维数组
+    dp := make([]int, n+1)
+
+    // 初始化
+    for j := 0; j <= n; j++ {
+        dp[j] = j
+    }
+
+    for i := 1; i <= m; i++ {
+        prev := dp[0] // 保存 dp[i-1][j-1]
+        dp[0] = i
+
+        for j := 1; j <= n; j++ {
+            temp := dp[j] // 保存当前 dp[i-1][j]
+
+            if word1[i-1] == word2[j-1] {
+                dp[j] = prev
+            } else {
+                // 删除、插入、替换取最小值
+                minVal := dp[j]
+                if dp[j-1] < minVal {
+                    minVal = dp[j-1]
+                }
+                if prev < minVal {
+                    minVal = prev
+                }
+                dp[j] = minVal + 1
+            }
+
+            prev = temp
+        }
+    }
+
+    return dp[n]
+}
+
+func min(a, b, c int) int {
+    minVal := a
+    if b < minVal {
+        minVal = b
+    }
+    if c < minVal {
+        minVal = c
+    }
+    return minVal
+}
+
+func main() {
+    fmt.Println(minDistance("kitten", "sitting")) // 3
+    fmt.Println(minDistance("horse", "ros"))      // 3
+    fmt.Println(minDistance("", ""))              // 0
+}
+                        </code></pre></div>
                 </div>
             </div>
 
