@@ -539,7 +539,7 @@ body {
 /* 主内容区右侧偏移 */
 .content {
     margin-left: 260px;
-    padding: 80px 40px 40px;
+    padding: 100px 40px 40px;
     max-width: calc(100% - 260px);
 }
 

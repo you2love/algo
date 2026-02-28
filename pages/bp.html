@@ -233,21 +233,22 @@
 
                         <div class="state-transition-diagram">
                             <div class="mermaid">
-sequenceDiagram
-    participant 输入层
-    participant 隐藏层
-    participant 输出层
-    participant 损失函数
-    participant 反向传播
-
-    输入层->>隐藏层：前向传播
-    隐藏层->>输出层：前向传播
-    输出层->>损失函数：计算 Loss
-    损失函数->>反向传播：计算梯度
-    反向传播->>输出层：∂L/∂W₃
-    反向传播->>隐藏层：∂L/∂W₂
-    反向传播->>输入层：∂L/∂W₁
-    Note over 输入层，反向传播：一次迭代完成
+flowchart LR
+    A[输入层] -->|前向传播 | B[隐藏层]
+    B -->|前向传播 | C[输出层]
+    C -->|计算 Loss| D[损失函数]
+    D -->|计算梯度 | E[反向传播]
+    E -->|∂L/∂W₃| C
+    E -->|∂L/∂W₂| B
+    E -->|∂L/∂W₁| A
+    
+    subgraph 一次迭代
+        A
+        B
+        C
+        D
+        E
+    end
                             </div>
                         </div>
                     </section>
@@ -742,31 +743,10 @@ for epoch in range(1000):
                             </tbody>
                         </table>
                     </section>
-
-                    <div class="info-card success mt-4">
-                        <div class="info-card-title"><span>✅</span> 学习建议</div>
-                        <div class="info-card-content">
-                            <ul style="margin: 16px 0 0 20px; line-height: 2;">
-                                <li>理解链式法则和梯度计算的数学原理</li>
-                                <li>掌握常见激活函数的特点和适用场景</li>
-                                <li>了解不同优化算法的优缺点</li>
-                                <li>通过实践框架 (PyTorch/TensorFlow) 加深理解</li>
-                                <li>注意梯度消失和梯度爆炸问题</li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 AlgoGuide. 保留所有权利。</p>
-            </div>
-        </div>
-    </footer>
 
     <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
