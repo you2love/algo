@@ -729,6 +729,7 @@ body {
     display: flex;
     background: var(--code-bg);
     border-bottom: 1px solid #4a5568;
+    align-items: center;
 }
 
 .code-tab-btn {
@@ -753,6 +754,35 @@ body {
     border-bottom-color: var(--accent-color);
 }
 
+/* 代码块折叠按钮 */
+.code-fold-btn {
+    margin-left: auto;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.code-fold-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+.code-fold-btn .fold-icon {
+    transition: transform var(--transition-fast);
+}
+
+.code-fold-btn.collapsed .fold-icon {
+    transform: rotate(-90deg);
+}
+
 .code-tab-content {
     display: none;
     background: var(--code-bg);
@@ -762,6 +792,22 @@ body {
     display: block;
 }
 
+.code-tab-content.collapsed .code-block {
+    max-height: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.code-tab-content.collapsed .code-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, var(--code-bg));
+}
+
 .code-block {
     background: var(--code-bg);
     color: var(--code-text);
@@ -769,6 +815,7 @@ body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     font-size: 0.9rem;
     line-height: 1.6;
+    transition: max-height 0.3s ease;
 }
 
 .code-block pre {

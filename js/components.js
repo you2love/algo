@@ -80,6 +80,57 @@ function initCodeTabs() {
 }
 
 // ===================================
+// 代码块折叠功能
+// ===================================
+function initCodeFold() {
+    document.querySelectorAll('.code-tabs').forEach(tabContainer => {
+        const tabHeader = tabContainer.querySelector('.code-tab-header');
+        if (!tabHeader) return;
+
+        // 检查是否已存在折叠按钮
+        if (tabContainer.querySelector('.code-fold-btn')) return;
+
+        // 创建折叠按钮
+        const foldBtn = document.createElement('button');
+        foldBtn.className = 'code-fold-btn';
+        foldBtn.innerHTML = '<span class="fold-icon">▼</span> <span class="fold-text">折叠</span>';
+        tabHeader.appendChild(foldBtn);
+
+        // 获取第一个激活的标签内容
+        const activeContent = tabContainer.querySelector('.code-tab-content.active');
+
+        // 为每个代码内容添加折叠功能
+        tabContainer.querySelectorAll('.code-tab-content').forEach(content => {
+            const codeBlock = content.querySelector('.code-block');
+            if (!codeBlock) return;
+
+            // 检查代码是否超过可折叠的行数
+            const lines = codeBlock.querySelectorAll('span:not([class])').length || 
+                          codeBlock.textContent.split('\n').length;
+            
+            if (lines > 10) {
+                // 默认展开状态
+                content.dataset.canFold = 'true';
+            }
+        });
+
+        // 折叠/展开点击事件
+        foldBtn.addEventListener('click', function() {
+            const activeContent = tabContainer.querySelector('.code-tab-content.active');
+            if (!activeContent || !activeContent.dataset.canFold) return;
+
+            const isCollapsed = activeContent.classList.toggle('collapsed');
+            foldBtn.classList.toggle('collapsed', isCollapsed);
+            
+            const foldText = foldBtn.querySelector('.fold-text');
+            if (foldText) {
+                foldText.textContent = isCollapsed ? '展开' : '折叠';
+            }
+        });
+    });
+}
+
+// ===================================
 // 目录导航高亮
 // ===================================
 function initTOCHighlight() {
@@ -649,6 +700,7 @@ function renderKnowledgeGraph(containerId, nodes, links) {
 // ===================================
 document.addEventListener('DOMContentLoaded', function() {
     initCodeTabs();
+    initCodeFold();
     initTOCHighlight();
     initSmoothScroll();
     initNavbarScroll();

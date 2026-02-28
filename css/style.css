@@ -379,6 +379,7 @@ body {
     gap: 0;
     margin-bottom: 0;
     border-bottom: 1px solid #30363d;
+    align-items: center;
 }
 
 .code-tab-btn {
@@ -415,6 +416,35 @@ body {
     border-bottom: 2px solid #0d1117;
 }
 
+/* 代码块折叠按钮 */
+.code-fold-btn {
+    margin-left: auto;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #8b949e;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.code-fold-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #c9d1d9;
+}
+
+.code-fold-btn .fold-icon {
+    transition: transform 0.2s ease;
+}
+
+.code-fold-btn.collapsed .fold-icon {
+    transform: rotate(-90deg);
+}
+
 .code-tab-content {
     display: none;
     background: #0d1117;
@@ -426,6 +456,22 @@ body {
 
 .code-tab-content.active {
     display: block;
+}
+
+.code-tab-content.collapsed .code-block {
+    max-height: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.code-tab-content.collapsed .code-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, #0d1117);
 }
 
 .code-tab-content .code-block {
