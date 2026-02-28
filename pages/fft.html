@@ -3,334 +3,674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快速傅里叶变换 (FFT) - 算法学习指南</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>快速傅里叶变换 (FFT) - 信号处理核心 2026</title>
+    <meta name="description" content="全面掌握快速傅里叶变换算法：DFT 原理、蝶形运算、时域频域转换，配备详细推导和代码实现">
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+    <style>
+        /* 页面专属样式 */
+        .algorithm-intro {
+            background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: var(--border-radius-lg);
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        .algorithm-intro h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            border: none;
+            padding: 0;
+        }
+
+        .algorithm-intro p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .algorithm-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .algorithm-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .algorithm-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .algorithm-card .icon {
+            font-size: 1.8rem;
+        }
+
+        .algorithm-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .complexity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .complexity-item {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .complexity-item:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-secondary);
+        }
+
+        .complexity-item .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .complexity-item .value {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-item {
+            background: var(--bg-secondary);
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .feature-item strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .feature-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .section-detail {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            margin: 40px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-detail h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-detail h3 {
+            color: var(--text-primary);
+            margin: 24px 0 16px;
+            font-size: 1.3rem;
+        }
+
+        .math-box {
+            background: var(--code-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            color: var(--code-text);
+            overflow-x: auto;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .pros {
+            background: rgba(72, 187, 120, 0.1);
+            border: 2px solid var(--success-color);
+        }
+
+        .cons {
+            background: rgba(245, 101, 101, 0.1);
+            border: 2px solid var(--error-color);
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pros h4 {
+            color: var(--success-color);
+        }
+
+        .cons h4 {
+            color: var(--error-color);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .comparison-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .comparison-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comparison-card li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .comparison-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .visual-demo {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--code-text);
+            overflow-x: auto;
+        }
+
+        .visual-demo p {
+            margin: 8px 0;
+            white-space: pre;
+        }
+
+        .butterfly-diagram {
+            background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 24px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .butterfly-diagram h4 {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .fft-stages {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stage {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .performance-comparison {
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .performance-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            margin-top: 20px;
+            height: 200px;
+        }
+
+        .perf-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary-color), var(--accent-color));
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            min-height: 20px;
+        }
+
+        .perf-bar span {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .perf-bar .value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            
+            .algorithm-intro {
+                padding: 40px 20px;
+            }
+            
+            .algorithm-intro h1 {
+                font-size: 1.8rem;
+            }
+            
+            .performance-bars {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .perf-bar {
+                min-height: 40px;
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo"></h1>
+            <a href="/" class="logo">AlgoGuide 2026</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#resources">学习资源</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
             </ul>
         </div>
     </nav>
 
-    <nav class="sidebar">
-        <h2>快速傅里叶变换</h2>
-        <ul>
-            <li><a href="#overview">1. 概述</a></li>
-            <li><a href="#dft">2. 离散傅里叶变换 (DFT)</a></li>
-            <li><a href="#fft-principle">3. FFT原理</a></li>
-            <li><a href="#butterfly">4. 蝶形运算</a></li>
-            <li><a href="#implementation">5. 代码实现</a></li>
-            <li><a href="#applications">6. 应用场景</a></li>
-            <li><a href="#inverse">7. 逆FFT</a></li>
-            <li><a href="#comparison">8. 算法对比</a></li>
-        </ul>
-    </nav>
-
-    <main class="content">
-        <h1>快速傅里叶变换 (Fast Fourier Transform)</h1>
-        <p>快速傅里叶变换是数字信号处理领域最核心的算法之一，用于高效计算离散傅里叶变换。</p>
-
-        <section id="overview">
-            <h2>1. 概述</h2>
-            
-            <h3>什么是傅里叶变换？</h3>
-            <p>傅里叶变换是一种将信号从时域转换到频域的数学变换。任何周期信号都可以表示为不同频率正弦波的叠加。</p>
-            
-            <div class="formula">
-                f(t) = A₀ + Σ[Aₙcos(nω₀t) + Bₙsin(nω₀t)]
+    <main class="algorithm-detail">
+        <div class="container">
+            <!-- 页面介绍 -->
+            <div class="algorithm-intro">
+                <h1>🌊 快速傅里叶变换 (FFT)</h1>
+                <p>将信号从时域转换到频域，O(n log n) 高效计算，数字信号处理的核心算法</p>
             </div>
 
-            <h3>为什么需要FFT？</h3>
-            <p>直接计算DFT的时间复杂度为O(n²)，而FFT将其降低到O(nlogn)，这使得实时信号处理成为可能。</p>
-            
-            <table class="comparison-table">
-                <tr>
-                    <th>方法</th>
-                    <th>时间复杂度</th>
-                    <th>1000点计算量</th>
-                    <th>100万点计算量</th>
-                </tr>
-                <tr>
-                    <td>直接DFT</td>
-                    <td>O(n²)</td>
-                    <td>100万次</td>
-                    <td>10¹²次</td>
-                </tr>
-                <tr>
-                    <td>FFT</td>
-                    <td>O(nlogn)</td>
-                    <td>约1万次</td>
-                    <td>约2000万次</td>
-                </tr>
-            </table>
-
-            <h3>历史背景</h3>
-            <p>FFT最早由Cooley和Tukey于1965年发表，但实际上Gauss在1805年就提出了类似的思想。</p>
-        </section>
-
-        <section id="dft">
-            <h2>2. 离散傅里叶变换 (DFT)</h2>
-            
-            <h3>DFT定义</h3>
-            <p>对于长度为N的离散序列x[n]，其DFT定义为：</p>
-            
-            <div class="formula">
-                X[k] = Σ_{n=0}^{N-1} x[n] · e^(-j2πkn/N), k = 0, 1, ..., N-1
-            </div>
-            
-            <p>使用旋转因子表示：</p>
-            
-            <div class="formula">
-                X[k] = Σ_{n=0}^{N-1} x[n] · W_N^{kn}
-            </div>
-            
-            <p>其中旋转因子：</p>
-            
-            <div class="formula">
-                W_N = e^(-j2π/N) = cos(2π/N) - j·sin(2π/N)
+            <!-- 算法概览卡片 -->
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <h3><span class="icon">📊</span> DFT</h3>
+                    <p>离散傅里叶变换，将离散序列转换为频域表示。计算复杂度 O(n²)。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">⚡</span> FFT</h3>
+                    <p>快速傅里叶变换，利用对称性加速 DFT。计算复杂度 O(n log n)。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">🦋</span> 蝶形运算</h3>
+                    <p>FFT 的基本计算单元，完成两个复数的加权加减运算。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">🔄</span> 逆 FFT</h3>
+                    <p>将频域信号转换回时域，实现信号的完整变换循环。</p>
+                </div>
             </div>
 
-            <h3>旋转因子的性质</h3>
-            <table class="comparison-table">
-                <tr>
-                    <th>性质</th>
-                    <th>公式</th>
-                    <th>说明</th>
-                </tr>
-                <tr>
-                    <td>周期性</td>
-                    <td>W_N^{k+N} = W_N^k</td>
-                    <td>周期为N</td>
-                </tr>
-                <tr>
-                    <td>对称性</td>
-                    <td>W_N^{k+N/2} = -W_N^k</td>
-                    <td>共轭对称</td>
-                </tr>
-                <tr>
-                    <td>可约性</td>
-                    <td>W_N^{kn} = W_{N/d}^{k'n}</td>
-                    <td>因子分解</td>
-                </tr>
-                <tr>
-                    <td>逆变换</td>
-                    <td>(W_N^{kn})* = W_N^{-kn}</td>
-                    <td>共轭关系</td>
-                </tr>
-            </table>
-
-            <h3>DFT示例</h3>
-            <p>对简单序列x[n] = [1, 1, 1, 1]（直流信号）进行DFT：</p>
-            
-            <div class="formula">
-                X[0] = 1+1+1+1 = 4（直流分量）<br>
-                X[1] = 1-j+(-1)+j = 0<br>
-                X[2] = 1+(-1)+1+(-1) = 0<br>
-                X[3] = 1+j+(-1)+(-j) = 0
+            <!-- FFT 核心概念 -->
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>💡</span> FFT 核心思想
+                </div>
+                <div class="info-card-content">
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <strong>🎯 分治策略</strong>
+                            <p>将长序列 DFT 分解为短序列 DFT 计算</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>🔄 旋转因子</strong>
+                            <p>利用周期性和对称性减少重复计算</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>🦋 蝶形运算</strong>
+                            <p>基本计算单元，高效并行化</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>📈 时频转换</strong>
+                            <p>时域信号 ↔ 频域频谱</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <h3>Python实现DFT</h3>
-            <div class="code-block">
-                <div class="code-header">Python</div>
-                <pre><code class="language-python">import numpy as np
-import cmath
-
-def dft(x):
-    """直接计算离散傅里叶变换"""
-    n = len(x)
-    X = []
-    
-    for k in range(n):
-        sum_val = 0j
-        for n_val in range(n):
-            angle = -2 * np.pi * k * n_val / n
-            sum_val += x[n_val] * complex(np.cos(angle), np.sin(angle))
-        X.append(sum_val)
-    
-    return X
-
-def idft(X):
-    """计算逆离散傅里叶变换"""
-    n = len(X)
-    x = []
-    
-    for k in range(n):
-        sum_val = 0j
-        for n_val in range(n):
-            angle = 2 * np.pi * k * n_val / n
-            sum_val += X[n_val] * complex(np.cos(angle), np.sin(angle))
-        x.append(sum_val / n)
-    
-    return x
-
-# 测试
-x = [1, 1, 1, 1]
-X = dft(x)
-print("DFT结果:", X)
-# [4, 0, 0, 0] - 只有直流分量
-
-# 验证逆变换
-x_reconstructed = idft(X)
-print("逆DFT结果:", x_reconstructed)</code></pre>
-            </div>
-        </section>
-
-        <section id="fft-principle">
-            <h2>3. FFT原理</h2>
-            
-            <h3>核心思想：分治策略</h3>
-            <p>FFT利用旋转因子的对称性和周期性，将长序列的DFT分解为短序列的DFT计算。</p>
-            
-            <h3>基2时间抽取(DIT)FFT</h3>
-            <p>假设序列长度N是2的幂（N=2^M），将输入序列按奇偶分组：</p>
-            
-            <div class="formula">
-                X[k] = Σ_{n=0}^{N-1} x[n] · W_N^{kn}<br>
-                = Σ_{r=0}^{N/2-1} x[2r] · W_N^{k(2r)} + Σ_{r=0}^{N/2-1} x[2r+1] · W_N^{k(2r+1)}<br>
-                = Σ_{r=0}^{N/2-1} x[2r] · W_{N/2}^{kr} + W_N^k · Σ_{r=0}^{N/2-1} x[2r+1] · W_{N/2}^{kr}
-            </div>
-
-            <h3>分解过程</h3>
-            <p>8点DFT分解为4点DFT的计算流程：</p>
-            
-            <div class="formula">
-                N=8 → N/2=4 → N/4=2 → N/8=1（1点DFT等于自身）
-            </div>
-
-            <h3>完整推导</h3>
-            <p>设偶序列为E[r] = x[2r]，奇序列为O[r] = x[2r+1]：</p>
-            
-            <div class="formula">
-                X[k] = E[k mod (N/2)] + W_N^k · O[k mod (N/2)]
-            </div>
-            
-            <p>其中E[k]和O[k]分别是偶序列和奇序列的(N/2)点DFT。</p>
-
-            <h3>基2频率抽取(DIF)FFT</h3>
-            <p>与时间抽取类似，但在频域进行分组：</p>
-            
-            <div class="formula">
-                X[k] = Σ_{n=0}^{N/2-1} x[n] · W_N^{kn} + Σ_{n=0}^{N/2-1} x[n+N/2] · W_N^{k(n+N/2)}<br>
-                = Σ_{n=0}^{N/2-1} [x[n] + x[n+N/2] · W_N^{kN/2}] · W_N^{kn}
-            </div>
-        </section>
-
-        <section id="butterfly">
-            <h2>4. 蝶形运算</h2>
-            
-            <h3>蝶形单元</h3>
-            <p>蝶形运算是FFT的基本计算单元，一次蝶形运算完成两个复数的加权和计算。</p>
-            
-            <div class="formula">
-                A' = A + W · B<br>
-                B' = A - W · B
-            </div>
-
-            <h3>蝶形图示</h3>
-            <div class="visual-demo" style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0; font-family: monospace;">
-                <pre>
-    输入          蝶形运算             输出
+            <!-- 性能对比 -->
+            <section class="section-detail">
+                <h2><span>⚡</span> DFT vs FFT 性能对比</h2>
+                
+                <div class="performance-comparison">
+                    <h3>计算量对比</h3>
+                    <p>直接计算 DFT 需要 O(n²) 次复数乘法，而 FFT 仅需 O(n log n) 次。</p>
                     
-    A ──────────┬─────────→ A + W·B
-                 │
-                 │  W (旋转因子)
-                 │
-    B ──────────┴─────────→ A - W·B
-                </pre>
-            </div>
+                    <div class="performance-bars">
+                        <div class="perf-bar" style="height: 180px;">
+                            <span class="value">10⁶</span>
+                            <span>DFT<br>1000 点</span>
+                        </div>
+                        <div class="perf-bar" style="height: 40px;">
+                            <span class="value">10⁴</span>
+                            <span>FFT<br>1000 点</span>
+                        </div>
+                        <div class="perf-bar" style="height: 200px;">
+                            <span class="value">10¹²</span>
+                            <span>DFT<br>100 万点</span>
+                        </div>
+                        <div class="perf-bar" style="height: 60px;">
+                            <span class="value">2×10⁷</span>
+                            <span>FFT<br>100 万点</span>
+                        </div>
+                    </div>
+                </div>
 
-            <h3>8点FFT完整蝶形图</h3>
-            <div class="visual-demo" style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0; font-family: monospace;">
-                <pre>
-        第1级              第2级              第3级
-        
-x[0] ────●────────────────────────●────────────────────────●──────── X[0]
-         │ \                    / │                    / │
-         │  \  W₈⁰            /  │   W₄⁰            /  │
-         │   \              /    │      \          /    │
-x[4] ────●───\──────────●──────●───────\──────●──────●──────── X[4]
-         │    \         /  │     │        \    /  │     │
-         │     \ W₈²   /    │     │  W₄¹    \/    │     │
-         │      \    /      │     │          /\    │     │
-x[2] ────●─────\──●──────●─────●──────────/  \───●─────●──────── X[2]
-         │      /    \      │     │        /    \   │     │
-         │     / W₈¹  \     │     │ W₄⁰   /      \  │     │
-         │    /         \   │     │      /        \ │     │
-x[6] ────●─/───────────\──●─────●─────/───────────\●─────●──────── X[6]
-         │/              \  │     │    /             \│     │
-         ●────────────────\─●─────●───●───────────────●─────●──────── X[1]
-         │                 \│     │   /                \│     │
-         │ W₈⁰             ●─────●──●───────────────●───●──────── X[5]
-         │                 /│     │  /                 \│     │
-x[1] ────●────────────────/─●─────●─●───────────────────●─────●──────── X[1]
-         │               /  │     │/                     \│     │
-         │ W₈⁰         /   │     ●                      ●     │
-         │            /    │    /                        \    │
-x[5] ────●───────────●────●───●───────────────────────────●────●──────── X[5]
-         │          /      │  /                            \   │
-         │ W₈²     /       │ /                              \  │
-         │        /        ●                                 ●
-         │       /        /                                  |
-x[3] ────●──────●───────●───────────────────────────────────●────●──────── X[3]
-         │     /        /                                    /
-         │ W₈¹ /       /                                    /
-         │    /       /                                    /
-x[7] ────●─────●────●────────────────────────────────────●────●──────── X[7]
-                </pre>
-            </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>方法</th>
+                            <th>时间复杂度</th>
+                            <th>1000 点计算量</th>
+                            <th>100 万点计算量</th>
+                            <th>实时处理</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>直接 DFT</td>
+                            <td>O(n²)</td>
+                            <td>100 万次</td>
+                            <td>10¹²次</td>
+                            <td>❌ 不可能</td>
+                        </tr>
+                        <tr>
+                            <td>FFT</td>
+                            <td>O(n log n)</td>
+                            <td>约 1 万次</td>
+                            <td>约 2000 万次</td>
+                            <td>✅ 可实时</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-            <h3>各级旋转因子</h3>
-            <table class="comparison-table">
-                <tr>
-                    <th>级数</th>
-                    <th>旋转因子</th>
-                    <th>说明</th>
-                </tr>
-                <tr>
-                    <td>第1级</td>
-                    <td>W₈^0, W₈^2</td>
-                    <td>跨度为1的蝶形</td>
-                </tr>
-                <tr>
-                    <td>第2级</td>
-                    <td>W₄^0, W₄^1</td>
-                    <td>跨度为2的蝶形</td>
-                </tr>
-                <tr>
-                    <td>第3级</td>
-                    <td>W₂^0, W₂^1</td>
-                    <td>跨度为4的蝶形</td>
-                </tr>
-            </table>
-        </section>
+            <!-- DFT 定义 -->
+            <section id="dft" class="section-detail">
+                <h2><span>📊</span> 1. 离散傅里叶变换 (DFT)</h2>
+                
+                <h3>DFT 定义</h3>
+                <p>对于长度为 N 的离散序列 x[n]，其 DFT 定义为：</p>
+                
+                <div class="math-box">
+                    <strong>DFT 公式：</strong><br>
+                    X[k] = Σ_{n=0}^{N-1} x[n] · e^(-j2πkn/N), k = 0, 1, ..., N-1<br><br>
+                    <strong>旋转因子：</strong><br>
+                    W_N = e^(-j2π/N) = cos(2π/N) - j·sin(2π/N)<br><br>
+                    <strong>简化形式：</strong><br>
+                    X[k] = Σ_{n=0}^{N-1} x[n] · W_N^{kn}
+                </div>
 
-        <section id="implementation">
-            <h2>5. 代码实现</h2>
-            
-            <h3>Python实现基2 DIT FFT</h3>
-            <div class="code-block">
-                <div class="code-header">Python</div>
-                <pre><code class="language-python">import numpy as np
+                <h3>旋转因子的性质</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>性质</th>
+                            <th>公式</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周期性</td>
+                            <td>W_N^{k+N} = W_N^k</td>
+                            <td>周期为 N</td>
+                        </tr>
+                        <tr>
+                            <td>对称性</td>
+                            <td>W_N^{k+N/2} = -W_N^k</td>
+                            <td>共轭对称</td>
+                        </tr>
+                        <tr>
+                            <td>可约性</td>
+                            <td>W_N^{kn} = W_{N/d}^{k'n}</td>
+                            <td>因子分解</td>
+                        </tr>
+                        <tr>
+                            <td>逆变换</td>
+                            <td>(W_N^{kn})* = W_N^{-kn}</td>
+                            <td>共轭关系</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- FFT 原理 -->
+            <section id="fft-principle" class="section-detail">
+                <h2><span>⚡</span> 2. FFT 原理：分治策略</h2>
+                
+                <h3>基 2 时间抽取 (DIT) FFT</h3>
+                <p>假设序列长度 N 是 2 的幂（N=2^M），将输入序列按奇偶分组：</p>
+                
+                <div class="math-box">
+                    <strong>分解过程：</strong><br>
+                    X[k] = Σ_{n=0}^{N-1} x[n] · W_N^{kn}<br>
+                    = Σ_{r=0}^{N/2-1} x[2r] · W_N^{k(2r)} + Σ_{r=0}^{N/2-1} x[2r+1] · W_N^{k(2r+1)}<br>
+                    = Σ_{r=0}^{N/2-1} x[2r] · W_{N/2}^{kr} + W_N^k · Σ_{r=0}^{N/2-1} x[2r+1] · W_{N/2}^{kr}<br><br>
+                    <strong>完整推导：</strong><br>
+                    设偶序列 E[k] = DFT{x[2r]}，奇序列 O[k] = DFT{x[2r+1]}<br>
+                    X[k] = E[k] + W_N^k · O[k]<br>
+                    X[k + N/2] = E[k] - W_N^k · O[k]
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">DFT 复杂度</div>
+                        <div class="value">O(n²)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">FFT 复杂度</div>
+                        <div class="value">O(n log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">加速比</div>
+                        <div class="value">n/log n</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 蝶形运算 -->
+            <section id="butterfly" class="section-detail">
+                <h2><span>🦋</span> 3. 蝶形运算</h2>
+                
+                <h3>蝶形单元</h3>
+                <p>蝶形运算是 FFT 的基本计算单元，一次蝶形运算完成两个复数的加权和计算。</p>
+                
+                <div class="butterfly-diagram">
+                    <h4><span>🦋</span> 蝶形运算图示</h4>
+                    <div class="fft-stages">
+                        <div class="stage">
+                            <strong>输入</strong><br>
+                            A<br>
+                            B
+                        </div>
+                        <div class="stage">
+                            <strong>蝶形运算</strong><br>
+                            A' = A + W·B<br>
+                            B' = A - W·B
+                        </div>
+                        <div class="stage">
+                            <strong>输出</strong><br>
+                            A + W·B<br>
+                            A - W·B
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visual-demo">
+                    <p>8 点 FFT 蝶形图（3 级运算）：</p>
+                    <p>        第 1 级              第 2 级              第 3 级</p>
+                    <p>x[0] ────●────────────────────────●────────────────────────●──────── X[0]</p>
+                    <p>         │ \                    / │                    / │</p>
+                    <p>         │  \  W₈⁰            /  │   W₄⁰            /  │</p>
+                    <p>x[4] ────●───\──────────●──────●───────\──────●──────●──────── X[4]</p>
+                    <p>         │    \         /  │     │        \    /  │     │</p>
+                    <p>         │     \ W₈²   /    │     │  W₄¹    \/    │     │</p>
+                    <p>x[2] ────●─────\──●──────●─────●──────────/  \───●─────●──────── X[2]</p>
+                    <p>         │      /    \      │     │        /    \   │     │</p>
+                    <p>         │     / W₈¹  \     │     │ W₄⁰   /      \  │     │</p>
+                    <p>x[6] ────●─/───────────\──●─────●─────/───────────\●─────●──────── X[6]</p>
+                </div>
+
+                <h3>各级旋转因子</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>级数</th>
+                            <th>旋转因子</th>
+                            <th>蝶形跨度</th>
+                            <th>蝶形数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>第 1 级</td>
+                            <td>W₈^0, W₈^2</td>
+                            <td>1</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>第 2 级</td>
+                            <td>W₄^0, W₄^1</td>
+                            <td>2</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>第 3 级</td>
+                            <td>W₂^0, W₂^1</td>
+                            <td>4</td>
+                            <td>4</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 代码实现 -->
+            <section id="implementation" class="section-detail">
+                <h2><span>💻</span> 4. 代码实现</h2>
+                
+                <h3>Python 实现基 2 DIT FFT</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="fft-python">Python</button>
+                        <button class="code-tab-btn" data-tab="fft-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="fft-go">Go</button>
+                    </div>
+                    <div id="fft-python" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-python">import numpy as np
 import cmath
 
 def fft(x):
-    """快速傅里叶变换 - 基2时间抽取算法"""
+    """快速傅里叶变换 - 基 2 时间抽取算法（递归版）"""
     n = len(x)
     
-    # 递归基本情况：长度为1的FFT等于自身
     if n == 1:
         return x
     
-    # 检查n是否为2的幂
     if n % 2 != 0:
-        raise ValueError("序列长度必须是2的幂")
+        raise ValueError("序列长度必须是 2 的幂")
     
     # 偶序列和奇序列
     even = fft(x[::2])
@@ -339,11 +679,8 @@ def fft(x):
     # 合并结果
     X = [0j] * n
     for k in range(n // 2):
-        # 旋转因子
         angle = -2 * np.pi * k / n
         w = complex(np.cos(angle), np.sin(angle))
-        
-        # 蝶形运算
         X[k] = even[k] + w * odd[k]
         X[k + n // 2] = even[k] - w * odd[k]
     
@@ -352,21 +689,13 @@ def fft(x):
 def ifft(X):
     """快速逆傅里叶变换"""
     n = len(X)
-    
-    # 取共轭，FFT，取共轭，除以n
     x_conj = [complex(c.real, -c.imag) for c in X]
     x_fft = fft(x_conj)
-    x = [complex(c.real / n, -c.imag / n) for c in x_fft]
-    
-    return x
+    return [complex(c.real / n, -c.imag / n) for c in x_fft]
 
 def fft_iterative(x):
-    """迭代版FFT - 使用位逆序重排"""
+    """迭代版 FFT - 使用位逆序重排"""
     n = len(x)
-    if n % 2 != 0:
-        raise ValueError("序列长度必须是2的幂")
-    
-    # 复制输入
     X = x.copy()
     
     # 位逆序重排
@@ -386,11 +715,8 @@ def fft_iterative(x):
         half = length // 2
         for i in range(0, n, length):
             for j in range(half):
-                # 旋转因子
                 angle = -2 * np.pi * j / length
                 w = complex(np.cos(angle), np.sin(angle))
-                
-                # 蝶形运算
                 u = X[i + j]
                 v = w * X[i + j + half]
                 X[i + j] = u + v
@@ -399,124 +725,63 @@ def fft_iterative(x):
     
     return X
 
-# 测试
-import matplotlib.pyplot as plt
-
-# 生成测试信号：50Hz + 120Hz 正弦波
+# 测试：50Hz + 120Hz 正弦波
 fs = 1000  # 采样频率
 t = np.arange(0, 1, 1/fs)
-signal = (np.sin(2 * np.pi * 50 * t) + 
-          0.5 * np.sin(2 * np.pi * 120 * t))
+signal = np.sin(2 * np.pi * 50 * t) + 0.5 * np.sin(2 * np.pi * 120 * t)
 
-# 计算FFT
-X = fft(signal)
+X = fft(signal[:256])
 freq = np.fft.fftfreq(len(signal), 1/fs)
 
-print("信号长度:", len(signal))
-print("频率分辨率:", fs / len(signal), "Hz")
-print("信号峰值对应频率:", freq[np.argmax(np.abs(X[1:len(X)//2])) + 1], "Hz")
-
-# 可视化
-plt.figure(figsize=(12, 8))
-
-plt.subplot(2, 2, 1)
-plt.plot(t[:100], signal[:100])
-plt.title('原始信号 (时域)')
-plt.xlabel('时间 (s)')
-plt.ylabel('幅值')
-
-plt.subplot(2, 2, 2)
-plt.plot(freq[:len(freq)//2], np.abs(X[:len(X)//2]))
-plt.title('频谱 (FFT幅值)')
-plt.xlabel('频率 (Hz)')
-plt.ylabel('幅值')
-plt.xlim(0, 200)
-
-plt.tight_layout()
-plt.show()</code></pre>
-            </div>
-
-            <h3>JavaScript实现FFT</h3>
-            <div class="code-block">
-                <div class="code-header">JavaScript</div>
-                <pre><code class="language-javascript">class FFT {
+print(f"信号长度：{len(signal)}")
+print(f"频率分辨率：{fs / len(signal):.2f} Hz")
+peak_freq = freq[np.argmax(np.abs(X[1:len(X)//2])) + 1]
+print(f"峰值频率：{peak_freq:.1f} Hz")</code></pre></div>
+                    </div>
+                    <div id="fft-js" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class FFT {
     constructor() {
         this.sinTable = [];
         this.cosTable = [];
     }
 
-    // 快速傅里叶变换 - 递归版
     fft(x) {
         const n = x.length;
-        
-        if (n === 1) {
-            return x;
-        }
-        
-        if (n % 2 !== 0) {
-            throw new Error("序列长度必须是2的幂");
-        }
-        
+        if (n === 1) return x;
+        if (n % 2 !== 0) throw new Error("序列长度必须是 2 的幂");
+
         const even = this.fft(x.filter((_, i) => i % 2 === 0));
         const odd = this.fft(x.filter((_, i) => i % 2 === 1));
-        
         const X = new Array(n).fill(0);
-        
+
         for (let k = 0; k < n / 2; k++) {
             const angle = -2 * Math.PI * k / n;
             const w = {
                 real: Math.cos(angle),
                 imag: Math.sin(angle)
             };
-            
-            // 复数乘法: w * odd[k]
             const oddTerm = {
                 real: w.real * odd[k].real - w.imag * odd[k].imag,
                 imag: w.real * odd[k].imag + w.imag * odd[k].real
             };
-            
             X[k] = {
                 real: even[k].real + oddTerm.real,
                 imag: even[k].imag + oddTerm.imag
             };
-            
             X[k + n / 2] = {
                 real: even[k].real - oddTerm.real,
                 imag: even[k].imag - oddTerm.imag
             };
         }
-        
         return X;
     }
 
-    // 快速逆傅里叶变换
-    ifft(X) {
-        const n = X.length;
-        
-        // 取共轭
-        const X_conj = X.map(c => ({ real: c.real, imag: -c.imag }));
-        
-        // FFT
-        const x_fft = this.fft(X_conj);
-        
-        // 取共轭并除以n
-        return x_fft.map(c => ({
-            real: c.real / n,
-            imag: -c.imag / n
-        }));
-    }
-
-    // 迭代版FFT - 更高效
     fftIterative(x) {
         const n = x.length;
-        
-        if ((n & (n - 1)) !== 0) {
-            throw new Error("序列长度必须是2的幂");
-        }
-        
-        // 复制输入
+        if ((n & (n - 1)) !== 0) throw new Error("序列长度必须是 2 的幂");
+
         const X = x.map(c => ({ real: c.real !== undefined ? c.real : c, imag: 0 }));
-        
+
         // 位逆序重排
         let j = 0;
         for (let i = 1; i < n; i++) {
@@ -530,7 +795,7 @@ plt.show()</code></pre>
                 [X[i], X[j]] = [X[j], X[i]];
             }
         }
-        
+
         // 逐级蝶形运算
         for (let length = 2; length <= n; length *= 2) {
             const half = length / 2;
@@ -541,93 +806,40 @@ plt.show()</code></pre>
                         real: Math.cos(angle),
                         imag: Math.sin(angle)
                     };
-                    
                     const u = X[i + j];
                     const v = {
                         real: w.real * X[i + j + half].real - w.imag * X[i + j + half].imag,
                         imag: w.real * X[i + j + half].imag + w.imag * X[i + j + half].real
                     };
-                    
-                    X[i + j] = {
-                        real: u.real + v.real,
-                        imag: u.imag + v.imag
-                    };
-                    
-                    X[i + j + half] = {
-                        real: u.real - v.real,
-                        imag: u.imag - v.imag
-                    };
+                    X[i + j] = { real: u.real + v.real, imag: u.imag + v.imag };
+                    X[i + j + half] = { real: u.real - v.real, imag: u.imag - v.imag };
                 }
             }
         }
-        
         return X;
     }
 
-    // 计算幅值谱
     magnitudeSpectrum(X) {
         return X.map(c => Math.sqrt(c.real * c.real + c.imag * c.imag));
-    }
-
-    // 计算功率谱
-    powerSpectrum(X) {
-        return X.map(c => {
-            const mag = Math.sqrt(c.real * c.real + c.imag * c.imag);
-            return mag * mag;
-        });
     }
 }
 
 // 测试
-function testFFT() {
-    const fft = new FFT();
-    
-    // 生成测试信号: sin(2π·50t) + 0.5·sin(2π·120t)
-    const fs = 1000; // 采样频率
-    const signal = [];
-    for (let n = 0; n < 256; n++) {
-        const t = n / fs;
-        signal.push({
-            real: Math.sin(2 * Math.PI * 50 * t) + 0.5 * Math.sin(2 * Math.PI * 120 * t),
-            imag: 0
-        });
-    }
-    
-    // 计算FFT
-    const X = fft.fftIterative(signal);
-    const magnitudes = fft.magnitudeSpectrum(X);
-    
-    // 找到峰值频率
-    let maxMag = 0;
-    let peakFreq = 0;
-    for (let i = 1; i < magnitudes.length / 2; i++) {
-        if (magnitudes[i] > maxMag) {
-            maxMag = magnitudes[i];
-            peakFreq = i * fs / magnitudes.length;
-        }
-    }
-    
-    console.log("信号长度:", signal.length);
-    console.log("频率分辨率:", fs / signal.length, "Hz");
-    console.log("检测到的峰值频率:", peakFreq.toFixed(1), "Hz");
-    
-    // 验证逆变换
-    const x_reconstructed = fft.ifft(X);
-    console.log("逆变换重建误差:", 
-        Math.sqrt(signal.reduce((sum, c, i) => {
-            const diff = c.real - x_reconstructed[i].real;
-            return sum + diff * diff;
-        }, 0) / signal.length));
+const fft = new FFT();
+const signal = [];
+for (let n = 0; n < 256; n++) {
+    const t = n / 1000;
+    signal.push({
+        real: Math.sin(2 * Math.PI * 50 * t) + 0.5 * Math.sin(2 * Math.PI * 120 * t),
+        imag: 0
+    });
 }
-
-// 运行测试
-testFFT();</code></pre>
-            </div>
-
-            <h3>Go语言实现</h3>
-            <div class="code-block">
-                <div class="code-header">Go</div>
-                <pre><code class="language-go">package main
+const X = fft.fftIterative(signal);
+const mags = fft.magnitudeSpectrum(X);
+console.log("峰值频率:", mags.indexOf(Math.max(...mags.slice(1, 128))) * 1000 / 256, "Hz");</code></pre></div>
+                    </div>
+                    <div id="fft-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
 
 import (
     "fmt"
@@ -635,39 +847,31 @@ import (
 )
 
 type Complex struct {
-    real float64
-    imag float64
+    real, imag float64
 }
 
-func (c Complex) Add(other Complex) Complex {
-    return Complex{c.real + other.real, c.imag + other.imag}
+func (c Complex) Add(o Complex) Complex {
+    return Complex{c.real + o.real, c.imag + o.imag}
 }
 
-func (c Complex) Sub(other Complex) Complex {
-    return Complex{c.real - other.real, c.imag - other.imag}
+func (c Complex) Sub(o Complex) Complex {
+    return Complex{c.real - o.real, c.imag - o.imag}
 }
 
-func (c Complex) Mul(other Complex) Complex {
+func (c Complex) Mul(o Complex) Complex {
     return Complex{
-        c.real*other.real - c.imag*other.imag,
-        c.real*other.imag + c.imag*other.real,
+        c.real*o.real - c.imag*o.imag,
+        c.real*o.imag + c.imag*o.real,
     }
 }
 
 func FFT(x []Complex) []Complex {
     n := len(x)
-    
     if n == 1 {
         return x
     }
-    
-    if n%2 != 0 {
-        panic("序列长度必须是2的幂")
-    }
-    
-    // 偶序列和奇序列
-    var even []Complex
-    var odd []Complex
+
+    var even, odd []Complex
     for i := 0; i < n; i++ {
         if i%2 == 0 {
             even = append(even, x[i])
@@ -675,60 +879,31 @@ func FFT(x []Complex) []Complex {
             odd = append(odd, x[i])
         }
     }
-    
+
     evenFFT := FFT(even)
     oddFFT := FFT(odd)
-    
+
     X := make([]Complex, n)
-    
     for k := 0; k < n/2; k++ {
         angle := -2 * math.Pi * float64(k) / float64(n)
         w := Complex{math.Cos(angle), math.Sin(angle)}
-        
         X[k] = evenFFT[k].Add(w.Mul(oddFFT[k]))
         X[k+n/2] = evenFFT[k].Sub(w.Mul(oddFFT[k]))
     }
-    
     return X
 }
 
-func IFFT(X []Complex) []Complex {
-    n := len(X)
-    
-    // 取共轭
-    var X_conj []Complex
-    for _, c := range X {
-        X_conj = append(X_conj, Complex{c.real, -c.imag})
-    }
-    
-    // FFT
-    x_fft := FFT(X_conj)
-    
-    // 取共轭并除以n
-    var x []Complex
-    for _, c := range x_fft {
-        x = append(x, Complex{c.real / float64(n), -c.imag / float64(n)})
-    }
-    
-    return x
-}
-
 func main() {
-    // 生成测试信号: sin(2π·50t) + 0.5·sin(2π·120t)
-    fs := 1000.0 // 采样频率
     n := 256
-    
     var signal []Complex
     for i := 0; i < n; i++ {
-        t := float64(i) / fs
+        t := float64(i) / 1000.0
         val := math.Sin(2*math.Pi*50*t) + 0.5*math.Sin(2*math.Pi*120*t)
         signal = append(signal, Complex{val, 0})
     }
-    
-    // 计算FFT
+
     X := FFT(signal)
     
-    // 找峰值
     var maxMag float64
     var peakIdx int
     for i := 1; i < n/2; i++ {
@@ -738,379 +913,80 @@ func main() {
             peakIdx = i
         }
     }
-    
-    freqResolution := fs / float64(n)
-    fmt.Printf("频率分辨率: %.2f Hz\n", freqResolution)
-    fmt.Printf("峰值频率: %.1f Hz\n", float64(peakIdx)*freqResolution)
-    
-    // 验证逆变换
-    x_reconstructed := IFFT(X)
-    var mse float64
-    for i := 0; i < n; i++ {
-        diff := signal[i].real - x_reconstructed[i].real
-        mse += diff * diff
-    }
-    mse /= float64(n)
-    fmt.Printf("重建MSE: %.10f\n", mse)
-}</code></pre>
+
+    freqRes := 1000.0 / float64(n)
+    fmt.Printf("频率分辨率：%.2f Hz\n", freqRes)
+    fmt.Printf("峰值频率：%.1f Hz\n", float64(peakIdx)*freqRes)
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 应用场景 -->
+            <section id="applications" class="section-detail">
+                <h2><span>🌐</span> 5. 应用场景</h2>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4><span>📡</span> 信号处理</h4>
+                        <ul>
+                            <li>频谱分析</li>
+                            <li>滤波处理</li>
+                            <li>信号检测</li>
+                            <li>特征提取</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-card">
+                        <h4><span>📶</span> 通信系统</h4>
+                        <ul>
+                            <li>OFDM 调制 (LTE/5G/WiFi)</li>
+                            <li>QAM/PSK 调制解调</li>
+                            <li>信道估计</li>
+                            <li>滤波器组</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-card">
+                        <h4><span>🖼️</span> 图像处理</h4>
+                        <ul>
+                            <li>JPEG 压缩 (DCT)</li>
+                            <li>频域滤波</li>
+                            <li>图像增强</li>
+                            <li>模板匹配</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-card">
+                        <h4><span>🔢</span> 数值计算</h4>
+                        <ul>
+                            <li>多项式乘法</li>
+                            <li>大数乘法</li>
+                            <li>卷积计算</li>
+                            <li>微分方程求解</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 算法选择指南 -->
+            <div class="info-card warning">
+                <div class="info-card-title">
+                    <span>🎯</span> FFT 变体选择
+                </div>
+                <div class="info-card-content">
+                    <ul style="margin: 16px 0 0 20px; line-height: 2;">
+                        <li><strong>基 2 DIT：</strong>最常用，序列长度为 2 的幂</li>
+                        <li><strong>基 2 DIF：</strong>频率抽取，输出需要重排</li>
+                        <li><strong>基 4 FFT：</strong>更高基，减少级数</li>
+                        <li><strong>混合基：</strong>任意长度，更灵活</li>
+                        <li><strong>Chirp-Z：</strong>任意长度，非 2 的幂</li>
+                        <li><strong>实数 FFT：</strong>输入为实数，效率更高</li>
+                    </ul>
+                </div>
             </div>
-        </section>
-
-        <section id="applications">
-            <h2>6. 应用场景</h2>
-            
-            <h3>信号处理</h3>
-            <table class="comparison-table">
-                <tr>
-                    <th>应用</th>
-                    <th>说明</th>
-                    <th>示例</th>
-                </tr>
-                <tr>
-                    <td>频谱分析</td>
-                    <td>分析信号的频率成分</td>
-                    <td>音频均衡器、频谱分析仪</td>
-                </tr>
-                <tr>
-                    <td>滤波</td>
-                    <td>在频域进行滤波后逆变换</td>
-                    <td>高通/低通/带通滤波器</td>
-                </tr>
-                <tr>
-                    <td>信号检测</td>
-                    <td>检测特定频率信号</td>
-                    <td>雷达、声呐、GPS</td>
-                </tr>
-                <tr>
-                    <td>特征提取</td>
-                    <td>提取信号的频域特征</td>
-                    <td>语音识别、音色分析</td>
-                </tr>
-            </table>
-
-            <h3>通信系统</h3>
-            <ul>
-                <li><strong>OFDM：</strong>正交频分复用，LTE、5G、WiFi的核心技术</li>
-                <li><strong>调制解调：</strong>QAM、PSK等调制的频域处理</li>
-                <li><strong>信道估计：</strong>在频域估计信道特性</li>
-                <li><strong>滤波器组：</strong>多速率信号处理</li>
-            </ul>
-
-            <h3>图像处理</h3>
-            <ul>
-                <li><strong>图像压缩：</strong>JPEG使用DCT（FFT的变体）</li>
-                <li><strong>图像滤波：</strong>频域滤波去除噪声</li>
-                <li><strong>图像增强：</strong>频域增强特定频率成分</li>
-                <li><strong>模板匹配：</strong>频域加速相关运算</li>
-            </ul>
-
-            <h3>数值计算</h3>
-            <ul>
-                <li><strong>多项式乘法：</strong>使用FFT将O(n²)降低到O(nlogn)</li>
-                <li><strong>大数乘法：</strong>FFT乘法用于大整数运算</li>
-                <li><strong>卷积计算：</strong>时域卷积等于频域乘积</li>
-                <li><strong>微分方程：</strong>频域求解PDE</li>
-            </ul>
-
-            <h3>Python使用NumPy实现通信应用</h3>
-            <div class="code-block">
-                <div class="code-header">Python</div>
-                <pre><code class="language-python">import numpy as np
-from scipy import signal
-
-# OFDM示例
-def ofdm_modulate(data, n_subcarriers=64, n_cyclic_prefix=16):
-    """OFDM调制"""
-    # IFFT
-    ofdm_symbols = np.fft.ifft(data) * np.sqrt(n_subcarriers)
-    
-    # 添加循环前缀
-    cp = ofdm_symbols[-n_cyclic_prefix:]
-    ofdm_tx = np.concatenate([cp, ofdm_symbols])
-    
-    return ofdm_tx
-
-def ofdm_demodulate(rx_signal, n_subcarriers=64, n_cyclic_prefix=16):
-    """OFDM解调"""
-    # 去除循环前缀
-    ofdm_symbols = rx_signal[n_cyclic_prefix:n_cyclic_prefix + n_subcarriers]
-    
-    # FFT
-    data_rx = np.fft.fft(ofdm_symbols) / np.sqrt(n_subcarriers)
-    
-    return data_rx
-
-# QPSK调制 + OFDM
-def qpsk_modulate(bits):
-    """QPSK调制"""
-    # 比特到符号映射
-    symbols = np.zeros(len(bits) // 2, dtype=complex)
-    for i in range(0, len(bits), 2):
-        b1, b2 = bits[i], bits[i+1]
-        if b1 == 0 and b2 == 0:
-            symbols[i//2] = (1 + 1j) / np.sqrt(2)
-        elif b1 == 0 and b2 == 1:
-            symbols[i//2] = (-1 + 1j) / np.sqrt(2)
-        elif b1 == 1 and b2 == 0:
-            symbols[i//2] = (1 - 1j) / np.sqrt(2)
-        else:
-            symbols[i//2] = (-1 - 1j) / np.sqrt(2)
-    return symbols
-
-# 测试OFDM
-n_subcarriers = 64
-n_data_carriers = 48
-
-# 生成随机数据
-data_bits = np.random.randint(0, 2, n_data_carriers * 2)
-data_symbols = qpsk_modulate(data_bits)
-
-# 填充子载波（OFDM前导和直流子载波置零）
-ofdm_data = np.zeros(n_subcarriers, dtype=complex)
-ofdm_data[1:n_data_carriers//2+1] = data_symbols[:n_data_carriers//2]
-ofdm_data[-n_data_carriers//2:] = data_symbols[n_data_carriers//2:]
-
-# OFDM调制
-tx_signal = ofdm_modulate(ofdm_data, n_subcarriers)
-
-print("OFDM信号长度:", len(tx_signal))
-print("子载波数:", n_subcarriers)
-print("循环前缀长度:", 16)
-
-# 卷积示例 - 使用FFT加速
-def fft_convolution(x, h):
-    """使用FFT计算线性卷积"""
-    n = len(x) + len(h) - 1
-    
-    # 补零到2的幂
-    N = 1
-    while N < n:
-        N *= 2
-    
-    X = np.fft.fft(x, N)
-    H = np.fft.fft(h, N)
-    
-    Y = X * H
-    
-    y = np.fft.ifft(Y).real[:n]
-    
-    return y
-
-# 测试卷积
-x = np.random.randn(1000)
-h = np.random.randn(100)
-
-y_fft = fft_convolution(x, h)
-y_direct = signal.convolve(x, h)
-
-print("FFT卷积与直接卷积差异:", np.max(np.abs(y_fft - y_direct)))</code></pre>
-            </div>
-        </section>
-
-        <section id="inverse">
-            <h2>7. 逆FFT</h2>
-            
-            <h3>逆FFT公式</h3>
-            
-            <div class="formula">
-                x[n] = (1/N) · Σ_{k=0}^{N-1} X[k] · e^(j2πkn/N)
-            </div>
-            
-            <p>与FFT相比，逆FFT有三点不同：</p>
-            <ul>
-                <li>旋转因子取正号：W_N^{-kn}</li>
-                <li>最后结果除以N</li>
-                <li>可通过对FFT结果取共轭实现</li>
-            </ul>
-
-            <h3>IFFT的实现方法</h3>
-            
-            <div class="formula">
-                IDFT[x[n]] = (1/N) · conj(DFT[conj(x[n])])
-            </div>
-
-            <h3>Python实现IFFT</h3>
-            <div class="code-block">
-                <div class="code-header">Python</div>
-                <pre><code class="language-python">def ifft(X):
-    """方法1: 使用共轭性质"""
-    n = len(X)
-    
-    # 取共轭
-    X_conj = np.conj(X)
-    
-    # FFT
-    x_fft = np.fft.fft(X_conj)
-    
-    # 取共构并除以n
-    x = np.conj(x_fft) / n
-    
-    return x
-
-def ifft_direct(X):
-    """方法2: 直接计算"""
-    n = len(X)
-    x = np.zeros(n, dtype=complex)
-    
-    for k in range(n):
-        sum_val = 0j
-        for m in range(n):
-            angle = 2 * np.pi * k * m / n
-            sum_val += X[m] * (np.cos(angle) + 1j * np.sin(angle))
-        x[k] = sum_val / n
-    
-    return x
-
-# 验证两种方法结果一致
-X = np.random.randn(8) + 1j * np.random.randn(8)
-x1 = ifft(X)
-x2 = ifft_direct(X)
-print("两种IFFT方法差异:", np.max(np.abs(x1 - x2)))</code></pre>
-            </div>
-        </section>
-
-        <section id="comparison">
-            <h2>8. 算法对比</h2>
-            
-            <h3>FFT变体对比</h3>
-            <table class="comparison-table">
-                <tr>
-                    <th>算法</th>
-                    <th>时间复杂度</th>
-                    <th>适用场景</th>
-                    <th>特点</th>
-                </tr>
-                <tr>
-                    <td>基2 DIT FFT</td>
-                    <td>O(nlogn)</td>
-                    <td>序列长度N=2^M</td>
-                    <td>输入需位逆序</td>
-                </tr>
-                <tr>
-                    <td>基2 DIF FFT</td>
-                    <td>O(nlogn)</td>
-                    <td>序列长度N=2^M</td>
-                    <td>输出需位逆序</td>
-                </tr>
-                <tr>
-                    <td>基4 FFT</td>
-                    <td>O(nlogn)</td>
-                    <td>序列长度N=4^M</td>
-                    <td>减少乘法次数</td>
-                </tr>
-                <tr>
-                    <td>分裂基 FFT</td>
-                    <td>O(nlogn)</td>
-                    <td>通用</td>
-                    <td>计算量最少</td>
-                </tr>
-                <tr>
-                    <td>Bluestein算法</td>
-                    <td>O(nlogn)</td>
-                    <td>任意长度N</td>
-                    <td>适合素数长度</td>
-                </tr>
-            </table>
-
-            <h3>复杂度分析</h3>
-            <table class="comparison-table">
-                <tr>
-                    <th>N</th>
-                    <th>DFT O(n²)</th>
-                    <th>FFT O(nlogn)</th>
-                    <th>加速比</th>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td>64</td>
-                    <td>24</td>
-                    <td>2.7x</td>
-                </tr>
-                <tr>
-                    <td>64</td>
-                    <td>4096</td>
-                    <td>384</td>
-                    <td>10.7x</td>
-                </tr>
-                <tr>
-                    <td>256</td>
-                    <td>65536</td>
-                    <td>2048</td>
-                    <td>32x</td>
-                </tr>
-                <tr>
-                    <td>1024</td>
-                    <td>104万</td>
-                    <td>10240</td>
-                    <td>102x</td>
-                </tr>
-                <tr>
-                    <td>65536</td>
-                    <td>43亿</td>
-                    <td>104万</td>
-                    <td>4096x</td>
-                </tr>
-            </table>
-
-            <h3>实际考虑因素</h3>
-            <ul>
-                <li><strong>缓存效率：</strong>迭代版比递归版更高效</li>
-                <li><strong>浮点精度：</strong>大N时注意数值误差</li>
-                <li><strong>实数优化：</strong>实信号可减少一半计算量</li>
-                <li><strong>内存访问：</strong>连续内存访问比随机访问快</li>
-                <li><strong>向量化：</strong>利用SIMD指令加速</li>
-            </ul>
-
-            <h3>Python性能对比</h3>
-            <div class="code-block">
-                <div class="code-header">Python</div>
-                <pre><code class="language-python">import numpy as np
-import time
-
-def benchmark_fft():
-    sizes = [256, 1024, 4096, 16384, 65536]
-    
-    print("FFT性能对比 (Python/NumPy)")
-    print("-" * 50)
-    print(f"{'N':>10} {'时间(ms)':>12} {'GFLOPS':>12}")
-    print("-" * 50)
-    
-    for n in sizes:
-        x = np.random.randn(n) + 1j * np.random.randn(n)
-        
-        # 预热
-        _ = np.fft.fft(x)
-        
-        # 计时
-        start = time.time()
-        iterations = max(10, 1000000 // n)
-        for _ in range(iterations):
-            _ = np.fft.fft(x)
-        elapsed = time.time() - start
-        
-        # 计算GFLOPS
-        flops = n * np.log2(n) * iterations * 5 / elapsed / 1e9
-        
-        print(f"{n:>10} {elapsed/iterations*1000:>10.3f} {flops:>10.2f}")
-
-benchmark_fft()
-
-# 输出示例:
-# FFT性能对比 (Python/NumPy)
-# --------------------------------------------------
-#          N     时间(ms)      GFLOPS
-# --------------------------------------------------
-#        256       0.023       0.28
-#       1024       0.045       2.88
-#       4096       0.089       11.6
-#      16384       0.201       40.5
-#      65536       0.678       96.2</code></pre>
-            </div>
-        </section>
-
+        </div>
     </main>
 
-    <script src="../js/main.js"></script>
+    <!-- 脚本 -->
+    <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
     <script src="../lib/prism/prism-go.min.js"></script>
