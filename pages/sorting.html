@@ -492,6 +492,7 @@ func main() {
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="counting-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="counting-python">Python</button>
+                        <button class="code-tab-btn" data-tab="counting-go">Go</button>
                     </div>
                     <div id="counting-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -562,6 +563,58 @@ arr = [4, 2, 2, 8, 3, 3, 1]
 print(counting_sort(arr))  # [1, 2, 2, 3, 3, 4, 8]
                         </code></pre></div>
                     </div>
+                    <div id="counting-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+func countingSort(arr []int) []int {
+    if len(arr) == 0 {
+        return arr
+    }
+
+    // 找到最小值和最大值
+    minVal, maxVal := arr[0], arr[0]
+    for _, num := range arr {
+        if num < minVal {
+            minVal = num
+        }
+        if num > maxVal {
+            maxVal = num
+        }
+    }
+
+    rangeVal := maxVal - minVal + 1
+    count := make([]int, rangeVal)
+    output := make([]int, len(arr))
+
+    // 统计每个元素出现次数
+    for _, num := range arr {
+        count[num-minVal]++
+    }
+
+    // 计算累积计数
+    for i := 1; i < len(count); i++ {
+        count[i] += count[i-1]
+    }
+
+    // 构建输出数组（从后向前遍历保持稳定性）
+    for i := len(arr) - 1; i >= 0; i-- {
+        output[count[arr[i]-minVal]-1] = arr[i]
+        count[arr[i]-minVal]--
+    }
+
+    return output
+}
+
+func main() {
+    arr := []int{4, 2, 2, 8, 3, 3, 1}
+    sorted := countingSort(arr)
+    fmt.Println(sorted) // [1 2 2 3 3 4 8]
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -572,6 +625,7 @@ print(counting_sort(arr))  # [1, 2, 2, 3, 3, 4, 8]
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="bucket-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="bucket-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bucket-go">Go</button>
                     </div>
                     <div id="bucket-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -638,6 +692,63 @@ arr = [29, 25, 3, 49, 9, 37, 21, 43]
 print(bucket_sort(arr))  # [3, 9, 21, 25, 29, 37, 43, 49]
                         </code></pre></div>
                     </div>
+                    <div id="bucket-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+func bucketSort(arr []int, bucketSize int) []int {
+    if len(arr) == 0 {
+        return arr
+    }
+
+    // 找到最小值和最大值
+    minVal, maxVal := arr[0], arr[0]
+    for _, num := range arr {
+        if num < minVal {
+            minVal = num
+        }
+        if num > maxVal {
+            maxVal = num
+        }
+    }
+
+    // 计算桶的数量
+    bucketCount := (maxVal-minVal)/bucketSize + 1
+    buckets := make([][]int, bucketCount)
+    for i := range buckets {
+        buckets[i] = make([]int, 0)
+    }
+
+    // 分配到桶中
+    for _, num := range arr {
+        bucketIndex := (num - minVal) / bucketSize
+        buckets[bucketIndex] = append(buckets[bucketIndex], num)
+    }
+
+    // 每个桶内排序并合并结果
+    result := make([]int, 0, len(arr))
+    for _, bucket := range buckets {
+        if len(bucket) > 0 {
+            sort.Ints(bucket)
+            result = append(result, bucket...)
+        }
+    }
+
+    return result
+}
+
+func main() {
+    arr := []int{29, 25, 3, 49, 9, 37, 21, 43}
+    sorted := bucketSort(arr, 5)
+    fmt.Println(sorted) // [3 9 21 25 29 37 43 49]
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -650,6 +761,7 @@ print(bucket_sort(arr))  # [3, 9, 21, 25, 29, 37, 43, 49]
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="neural-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="neural-python">Python</button>
+                        <button class="code-tab-btn" data-tab="neural-go">Go</button>
                     </div>
                     <div id="neural-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -811,6 +923,150 @@ print(ns.smart_sort([1, 2, 3, 5, 4, 6, 7]))  # 近乎有序
 print(ns.smart_sort([64, 34, 25, 12, 22, 11, 90]))  # 随机
                         </code></pre></div>
                     </div>
+                    <div id="neural-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+// NeuralSort 神经网络辅助排序器
+type NeuralSort struct {
+    learnedPatterns map[string]interface{}
+}
+
+// NewNeuralSort 创建新的 NeuralSort 实例
+func NewNeuralSort() *NeuralSort {
+    return &NeuralSort{
+        learnedPatterns: make(map[string]interface{}),
+    }
+}
+
+// Pattern 数据模式分析结果
+type Pattern struct {
+    IsNearlySorted bool
+    IsNearlyReverse bool
+    Sortedness     float64
+}
+
+// AnalyzePattern 分析数据模式
+func (ns *NeuralSort) AnalyzePattern(arr []int) Pattern {
+    n := len(arr)
+    if n <= 1 {
+        return Pattern{IsNearlySorted: true, Sortedness: 1.0}
+    }
+
+    sortedCount := 0
+    reverseCount := 0
+
+    for i := 1; i < n; i++ {
+        if arr[i] >= arr[i-1] {
+            sortedCount++
+        }
+        if arr[i] <= arr[i-1] {
+            reverseCount++
+        }
+    }
+
+    return Pattern{
+        IsNearlySorted: float64(sortedCount) >= float64(n)*0.8,
+        IsNearlyReverse: float64(reverseCount) >= float64(n)*0.8,
+        Sortedness:     float64(sortedCount) / float64(n-1),
+    }
+}
+
+// SmartSort 根据模式选择最优排序策略
+func (ns *NeuralSort) SmartSort(arr []int) []int {
+    pattern := ns.AnalyzePattern(arr)
+
+    if pattern.IsNearlySorted {
+        return ns.insertionSort(arr) // 近乎有序时用插入排序
+    }
+
+    if pattern.Sortedness > 0.5 {
+        return ns.bubbleSortOptimized(arr) // 部分有序时用优化冒泡
+    }
+
+    return ns.quickSort(arr) // 默认使用快速排序
+}
+
+// insertionSort 插入排序
+func (ns *NeuralSort) insertionSort(arr []int) []int {
+    result := make([]int, len(arr))
+    copy(result, arr)
+
+    for i := 1; i < len(result); i++ {
+        key := result[i]
+        j := i - 1
+        for j >= 0 && result[j] > key {
+            result[j+1] = result[j]
+            j--
+        }
+        result[j+1] = key
+    }
+    return result
+}
+
+// bubbleSortOptimized 优化的冒泡排序
+func (ns *NeuralSort) bubbleSortOptimized(arr []int) []int {
+    result := make([]int, len(arr))
+    copy(result, arr)
+
+    for {
+        swapped := false
+        for i := 0; i < len(result)-1; i++ {
+            if result[i] > result[i+1] {
+                result[i], result[i+1] = result[i+1], result[i]
+                swapped = true
+            }
+        }
+        if !swapped {
+            break
+        }
+    }
+    return result
+}
+
+// quickSort 快速排序
+func (ns *NeuralSort) quickSort(arr []int) []int {
+    if len(arr) <= 1 {
+        return arr
+    }
+
+    pivot := arr[len(arr)/2]
+    left := make([]int, 0)
+    middle := make([]int, 0)
+    right := make([]int, 0)
+
+    for _, x := range arr {
+        if x < pivot {
+            left = append(left, x)
+        } else if x == pivot {
+            middle = append(middle, x)
+        } else {
+            right = append(right, x)
+        }
+    }
+
+    left = ns.quickSort(left)
+    right = ns.quickSort(right)
+
+    result := make([]int, 0, len(left)+len(middle)+len(right))
+    result = append(result, left...)
+    result = append(result, middle...)
+    result = append(result, right...)
+    return result
+}
+
+func main() {
+    ns := NewNeuralSort()
+    fmt.Println(ns.SmartSort([]int{1, 2, 3, 5, 4, 6, 7}))     // 近乎有序
+    fmt.Println(ns.SmartSort([]int{64, 34, 25, 12, 22, 11, 90})) // 随机
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -821,6 +1077,7 @@ print(ns.smart_sort([64, 34, 25, 12, 22, 11, 90]))  # 随机
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="parallel-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="parallel-python">Python</button>
+                        <button class="code-tab-btn" data-tab="parallel-go">Go</button>
                     </div>
                     <div id="parallel-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -953,6 +1210,128 @@ sorted_arr = ps.sort(arr)
 print(f'Sorted {len(sorted_arr)} elements')
                         </code></pre></div>
                     </div>
+                    <div id="parallel-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math/rand"
+    "sort"
+    "sync"
+    "time"
+)
+
+// ParallelSort 并行排序器
+type ParallelSort struct {
+    numWorkers int
+}
+
+// NewParallelSort 创建新的 ParallelSort 实例
+func NewParallelSort(numWorkers int) *ParallelSort {
+    if numWorkers <= 0 {
+        numWorkers = 4
+    }
+    return &ParallelSort{numWorkers: numWorkers}
+}
+
+// Sort 并行排序主函数
+func (ps *ParallelSort) Sort(arr []int) []int {
+    // 小数组直接排序
+    if len(arr) < 1000 {
+        result := make([]int, len(arr))
+        copy(result, arr)
+        sort.Ints(result)
+        return result
+    }
+
+    // 分割数组
+    chunkSize := (len(arr) + ps.numWorkers - 1) / ps.numWorkers
+    chunks := make([][]int, 0, ps.numWorkers)
+
+    for i := 0; i < len(arr); i += chunkSize {
+        end := i + chunkSize
+        if end > len(arr) {
+            end = len(arr)
+        }
+        chunk := make([]int, end-i)
+        copy(chunk, arr[i:end])
+        chunks = append(chunks, chunk)
+    }
+
+    // 并行排序每个块
+    var wg sync.WaitGroup
+    sortedChunks := make([][]int, len(chunks))
+
+    for i, chunk := range chunks {
+        wg.Add(1)
+        go func(idx int, c []int) {
+            defer wg.Done()
+            sort.Ints(c)
+            sortedChunks[idx] = c
+        }(i, chunk)
+    }
+
+    wg.Wait()
+
+    // 合并结果
+    return ps.mergeAll(sortedChunks)
+}
+
+// mergeAll 合并所有已排序的块
+func (ps *ParallelSort) mergeAll(chunks [][]int) []int {
+    for len(chunks) > 1 {
+        merged := make([][]int, 0, (len(chunks)+1)/2)
+        for i := 0; i < len(chunks); i += 2 {
+            if i+1 < len(chunks) {
+                merged = append(merged, ps.merge(chunks[i], chunks[i+1]))
+            } else {
+                merged = append(merged, chunks[i])
+            }
+        }
+        chunks = merged
+    }
+    if len(chunks) > 0 {
+        return chunks[0]
+    }
+    return []int{}
+}
+
+// merge 合并两个已排序的数组
+func (ps *ParallelSort) merge(left, right []int) []int {
+    result := make([]int, 0, len(left)+len(right))
+    i, j := 0, 0
+
+    for i < len(left) && j < len(right) {
+        if left[i] <= right[j] {
+            result = append(result, left[i])
+            i++
+        } else {
+            result = append(result, right[j])
+            j++
+        }
+    }
+
+    result = append(result, left[i:]...)
+    result = append(result, right[j:]...)
+    return result
+}
+
+func main() {
+    rand.Seed(time.Now().UnixNano())
+
+    // 生成随机数组
+    arr := make([]int, 10000)
+    for i := range arr {
+        arr[i] = rand.Intn(10000)
+    }
+
+    ps := NewParallelSort(4)
+    sorted := ps.Sort(arr)
+    fmt.Printf("Sorted %d elements\n", len(sorted))
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -962,6 +1341,7 @@ print(f'Sorted {len(sorted_arr)} elements')
                 <div class="code-tabs">
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="quantum-python">Python</button>
+                        <button class="code-tab-btn" data-tab="quantum-go">Go</button>
                     </div>
                     <div id="quantum-python" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-python">
@@ -1043,6 +1423,115 @@ class QuantumSortConcept:
 qs = QuantumSortConcept()
 print(qs.sort([64, 34, 25, 12, 22, 11, 90]))  # [11, 12, 22, 25, 34, 64, 90]
 print(qs.sort([5, 2, 8, 1, 9, 3, 7, 4]))  # [1, 2, 3, 4, 5, 7, 8, 9]
+                        </code></pre></div>
+                    </div>
+                    <div id="quantum-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math"
+)
+
+// QuantumSortConcept 量子排序概念实现 - 模拟量子比较网络
+// 注意：这是经典计算机上的模拟，真正的量子排序需要量子计算机
+type QuantumSortConcept struct {
+    qubits []int
+}
+
+// NewQuantumSortConcept 创建新的量子排序实例
+func NewQuantumSortConcept() *QuantumSortConcept {
+    return &QuantumSortConcept{}
+}
+
+// quantumCompare 量子比较操作（模拟）
+// 真实量子计算中，这通过量子门实现
+func (qs *QuantumSortConcept) quantumCompare(a, b int) (int, int) {
+    if a <= b {
+        return a, b
+    }
+    return b, a
+}
+
+// bitonicMerge Bitonic 排序网络的合并操作
+func (qs *QuantumSortConcept) bitonicMerge(arr []int, low, cnt, direction int) {
+    if cnt > 1 {
+        k := cnt / 2
+        for i := low; i < low+k; i++ {
+            // 根据方向决定是否交换
+            if (direction == 1 && arr[i] > arr[i+k]) ||
+                (direction == 0 && arr[i] < arr[i+k]) {
+                arr[i], arr[i+k] = qs.quantumCompare(arr[i], arr[i+k])
+            }
+        }
+        qs.bitonicMerge(arr, low, k, direction)
+        qs.bitonicMerge(arr, low+k, k, direction)
+    }
+}
+
+// bitonicSort Bitonic 排序网络
+// 这是一种可以高度并行化的排序网络，适合模拟量子并行性
+func (qs *QuantumSortConcept) bitonicSort(arr []int, low, cnt, direction int) {
+    if cnt > 1 {
+        k := cnt / 2
+        // 递归排序两半，方向相反
+        qs.bitonicSort(arr, low, k, 1)   // 升序
+        qs.bitonicSort(arr, low+k, k, 0) // 降序
+        // 合并
+        qs.bitonicMerge(arr, low, cnt, direction)
+    }
+}
+
+// nextPowerOf2 计算大于等于 n 的最小的 2 的幂
+func nextPowerOf2(n int) int {
+    if n <= 0 {
+        return 1
+    }
+    return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
+}
+
+// Sort 量子排序接口
+// 时间复杂度：O(log²n) - 使用量子并行性（模拟）
+// 空间复杂度：O(n) - 量子比特数
+func (qs *QuantumSortConcept) Sort(arr []int) []int {
+    if len(arr) <= 1 {
+        return arr
+    }
+
+    n := len(arr)
+    // 创建副本避免修改原数组
+    result := make([]int, len(arr))
+    copy(result, arr)
+
+    // 检查长度是否为 2 的幂（量子排序网络要求）
+    if n&(n-1) != 0 {
+        // 填充到最近的 2 的幂
+        nextPow2 := nextPowerOf2(n)
+        // 使用最大值填充，排序后移除
+        for len(result) < nextPow2 {
+            result = append(result, math.MaxInt32)
+        }
+    }
+
+    // 执行 Bitonic 排序网络
+    qs.bitonicSort(result, 0, len(result), 1)
+
+    // 移除填充元素
+    filtered := make([]int, 0, n)
+    for _, v := range result {
+        if v != math.MaxInt32 {
+            filtered = append(filtered, v)
+        }
+    }
+    return filtered
+}
+
+func main() {
+    qs := NewQuantumSortConcept()
+    fmt.Println(qs.Sort([]int{64, 34, 25, 12, 22, 11, 90})) // [11 12 22 25 34 64 90]
+    fmt.Println(qs.Sort([]int{5, 2, 8, 1, 9, 3, 7, 4}))     // [1 2 3 4 5 7 8 9]
+}
                         </code></pre></div>
                     </div>
                 </div>

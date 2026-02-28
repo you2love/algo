@@ -1184,6 +1184,7 @@ console.log(hashTable.get('age')); // undefined
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="heap-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="heap-python">Python</button>
+                        <button class="code-tab-btn" data-tab="heap-go">Go</button>
                     </div>
                     <div id="heap-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1200,7 +1201,7 @@ class MinHeap {
     pop() {
         if (this.heap.length === 0) return null;
         if (this.heap.length === 1) return this.heap.pop();
-        
+
         const min = this.heap[0];
         this.heap[0] = this.heap.pop();
         this._bubbleDown(0);
@@ -1215,7 +1216,7 @@ class MinHeap {
         while (index > 0) {
             const parentIndex = Math.floor((index - 1) / 2);
             if (this.heap[parentIndex] <= this.heap[index]) break;
-            [this.heap[parentIndex], this.heap[index]] = 
+            [this.heap[parentIndex], this.heap[index]] =
             [this.heap[index], this.heap[parentIndex]];
             index = parentIndex;
         }
@@ -1235,7 +1236,7 @@ class MinHeap {
                 smallest = rightChild;
             }
             if (smallest === index) break;
-            [this.heap[index], this.heap[smallest]] = 
+            [this.heap[index], this.heap[smallest]] =
             [this.heap[smallest], this.heap[index]];
             index = smallest;
         }
@@ -1279,6 +1280,91 @@ print(heap.pop())  # 2
 print(heap.peek()) # 3
                         </code></pre></div>
                     </div>
+                    <div id="heap-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type MinHeap struct {
+    heap []int
+}
+
+func NewMinHeap() *MinHeap {
+    return &MinHeap{heap: []int{}}
+}
+
+func (h *MinHeap) Push(val int) {
+    h.heap = append(h.heap, val)
+    h.bubbleUp(len(h.heap) - 1)
+}
+
+func (h *MinHeap) Pop() int {
+    if len(h.heap) == 0 {
+        return -1
+    }
+    if len(h.heap) == 1 {
+        val := h.heap[0]
+        h.heap = h.heap[:0]
+        return val
+    }
+    min := h.heap[0]
+    h.heap[0] = h.heap[len(h.heap)-1]
+    h.heap = h.heap[:len(h.heap)-1]
+    h.bubbleDown(0)
+    return min
+}
+
+func (h *MinHeap) Peek() int {
+    if len(h.heap) == 0 {
+        return -1
+    }
+    return h.heap[0]
+}
+
+func (h *MinHeap) bubbleUp(index int) {
+    for index > 0 {
+        parentIndex := (index - 1) / 2
+        if h.heap[parentIndex] <= h.heap[index] {
+            break
+        }
+        h.heap[parentIndex], h.heap[index] = h.heap[index], h.heap[parentIndex]
+        index = parentIndex
+    }
+}
+
+func (h *MinHeap) bubbleDown(index int) {
+    length := len(h.heap)
+    for {
+        leftChild := 2*index + 1
+        rightChild := 2*index + 2
+        smallest := index
+
+        if leftChild < length && h.heap[leftChild] < h.heap[smallest] {
+            smallest = leftChild
+        }
+        if rightChild < length && h.heap[rightChild] < h.heap[smallest] {
+            smallest = rightChild
+        }
+        if smallest == index {
+            break
+        }
+        h.heap[index], h.heap[smallest] = h.heap[smallest], h.heap[index]
+        index = smallest
+    }
+}
+
+func main() {
+    heap := NewMinHeap()
+    for _, v := range []int{5, 3, 8, 1, 2} {
+        heap.Push(v)
+    }
+    fmt.Println(heap.Pop())  // 1
+    fmt.Println(heap.Pop())  // 2
+    fmt.Println(heap.Peek()) // 3
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -1289,6 +1375,7 @@ print(heap.peek()) # 3
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="trie-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="trie-python">Python</button>
+                        <button class="code-tab-btn" data-tab="trie-go">Go</button>
                     </div>
                     <div id="trie-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1337,7 +1424,7 @@ class Trie {
     autoComplete(prefix) {
         const node = this._findNode(prefix);
         if (!node) return [];
-        
+
         const results = [];
         this._dfs(node, prefix, results);
         return results;
@@ -1416,6 +1503,95 @@ print(trie.startsWith('appl'))  # True
 print(trie.autocomplete('app'))  # ['app', 'apple', 'application', 'apply']
                         </code></pre></div>
                     </div>
+                    <div id="trie-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type TrieNode struct {
+    children   map[rune]*TrieNode
+    isEndOfWord bool
+}
+
+func NewTrieNode() *TrieNode {
+    return &TrieNode{
+        children:   make(map[rune]*TrieNode),
+        isEndOfWord: false,
+    }
+}
+
+type Trie struct {
+    root *TrieNode
+}
+
+func NewTrie() *Trie {
+    return &Trie{root: NewTrieNode()}
+}
+
+func (t *Trie) Insert(word string) {
+    node := t.root
+    for _, char := range word {
+        if _, exists := node.children[char]; !exists {
+            node.children[char] = NewTrieNode()
+        }
+        node = node.children[char]
+    }
+    node.isEndOfWord = true
+}
+
+func (t *Trie) Search(word string) bool {
+    node := t.findNode(word)
+    return node != nil && node.isEndOfWord
+}
+
+func (t *Trie) StartsWith(prefix string) bool {
+    return t.findNode(prefix) != nil
+}
+
+func (t *Trie) findNode(prefix string) *TrieNode {
+    node := t.root
+    for _, char := range prefix {
+        if _, exists := node.children[char]; !exists {
+            return nil
+        }
+        node = node.children[char]
+    }
+    return node
+}
+
+// 自动补全
+func (t *Trie) AutoComplete(prefix string) []string {
+    node := t.findNode(prefix)
+    if node == nil {
+        return []string{}
+    }
+    results := []string{}
+    t.dfs(node, prefix, &results)
+    return results
+}
+
+func (t *Trie) dfs(node *TrieNode, prefix string, results *[]string) {
+    if node.isEndOfWord {
+        *results = append(*results, prefix)
+    }
+    for char, child := range node.children {
+        t.dfs(child, prefix+string(char), results)
+    }
+}
+
+func main() {
+    trie := NewTrie()
+    words := []string{"apple", "app", "application", "apply"}
+    for _, w := range words {
+        trie.Insert(w)
+    }
+    fmt.Println(trie.Search("app"))           // true
+    fmt.Println(trie.StartsWith("appl"))      // true
+    fmt.Println(trie.AutoComplete("app"))     // [app apple application apply]
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -1428,6 +1604,7 @@ print(trie.autocomplete('app'))  # ['app', 'apple', 'application', 'apply']
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="vector-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="vector-python">Python</button>
+                        <button class="code-tab-btn" data-tab="vector-go">Go</button>
                     </div>
                     <div id="vector-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1553,6 +1730,112 @@ if __name__ == "__main__":
         print(f"{r['id']}: {r['score']:.4f} - {r['metadata']}")
                         </code></pre></div>
                     </div>
+                    <div id="vector-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math"
+    "sort"
+)
+
+type VectorItem struct {
+    ID       string
+    Vector   []float64
+    Metadata map[string]interface{}
+}
+
+type VectorIndex struct {
+    vectors  []VectorItem
+}
+
+func NewVectorIndex() *VectorIndex {
+    return &VectorIndex{
+        vectors: []VectorItem{},
+    }
+}
+
+// 向量归一化
+func normalize(vector []float64) []float64 {
+    norm := 0.0
+    for _, v := range vector {
+        norm += v * v
+    }
+    norm = math.Sqrt(norm)
+    if norm == 0 {
+        return vector
+    }
+    result := make([]float64, len(vector))
+    for i, v := range vector {
+        result[i] = v / norm
+    }
+    return result
+}
+
+// 点积计算余弦相似度
+func dotProduct(a, b []float64) float64 {
+    sum := 0.0
+    for i := range a {
+        sum += a[i] * b[i]
+    }
+    return sum
+}
+
+// 添加向量
+func (vi *VectorIndex) Insert(id string, vector []float64, metadata map[string]interface{}) {
+    vi.vectors = append(vi.vectors, VectorItem{
+        ID:       id,
+        Vector:   normalize(vector),
+        Metadata: metadata,
+    })
+}
+
+// 近似最近邻搜索
+func (vi *VectorIndex) Search(queryVector []float64, topK int) []map[string]interface{} {
+    normalized := normalize(queryVector)
+    scores := make([]map[string]interface{}, 0, len(vi.vectors))
+
+    for _, item := range vi.vectors {
+        score := dotProduct(normalized, item.Vector)
+        scores = append(scores, map[string]interface{}{
+            "id":       item.ID,
+            "score":    score,
+            "metadata": item.Metadata,
+        })
+    }
+
+    // 按相似度排序
+    sort.Slice(scores, func(i, j int) bool {
+        return scores[i]["score"].(float64) > scores[j]["score"].(float64)
+    })
+
+    if topK > len(scores) {
+        topK = len(scores)
+    }
+    return scores[:topK]
+}
+
+// 批量插入
+func (vi *VectorIndex) BatchInsert(items []VectorItem) {
+    for _, item := range items {
+        vi.Insert(item.ID, item.Vector, item.Metadata)
+    }
+}
+
+func main() {
+    index := NewVectorIndex()
+    index.Insert("doc1", []float64{0.8, 0.2, 0.5}, map[string]interface{}{"text": "AI 技术"})
+    index.Insert("doc2", []float64{0.7, 0.3, 0.4}, map[string]interface{}{"text": "机器学习"})
+    index.Insert("doc3", []float64{0.1, 0.9, 0.2}, map[string]interface{}{"text": "美食食谱"})
+
+    results := index.Search([]float64{0.75, 0.25, 0.45}, 2)
+    for _, r := range results {
+        fmt.Printf("%s: %.4f - %v\n", r["id"], r["score"], r["metadata"])
+    }
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -1563,6 +1846,7 @@ if __name__ == "__main__":
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="bloom-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="bloom-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bloom-go">Go</button>
                     </div>
                     <div id="bloom-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1668,6 +1952,76 @@ if __name__ == "__main__":
     print(bf.contains('watermelon')) # 可能误判
                         </code></pre></div>
                     </div>
+                    <div id="bloom-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "crypto/md5"
+    "encoding/binary"
+    "fmt"
+)
+
+type BloomFilter struct {
+    size      int
+    hashCount int
+    bitArray  []bool
+}
+
+func NewBloomFilter(size, hashCount int) *BloomFilter {
+    return &BloomFilter{
+        size:      size,
+        hashCount: hashCount,
+        bitArray:  make([]bool, size),
+    }
+}
+
+// 生成多个哈希值
+func (bf *BloomFilter) hash(value string, seed int) int {
+    key := fmt.Sprintf("%d:%s", seed, value)
+    hash := md5.Sum([]byte(key))
+    hashVal := int(binary.LittleEndian.Uint64(hash[:8]))
+    return hashVal % bf.size
+}
+
+// 添加元素
+func (bf *BloomFilter) Add(value string) {
+    for i := 0; i < bf.hashCount; i++ {
+        index := bf.hash(value, i)
+        bf.bitArray[index] = true
+    }
+}
+
+// 检查元素是否存在
+func (bf *BloomFilter) Contains(value string) bool {
+    for i := 0; i < bf.hashCount; i++ {
+        index := bf.hash(value, i)
+        if !bf.bitArray[index] {
+            return false // 一定不存在
+        }
+    }
+    return true // 可能存在（有假阳性）
+}
+
+// 批量添加
+func (bf *BloomFilter) AddBatch(values []string) {
+    for _, v := range values {
+        bf.Add(v)
+    }
+}
+
+func main() {
+    bf := NewBloomFilter(1000, 3)
+    fruits := []string{"apple", "banana", "orange"}
+    bf.AddBatch(fruits)
+
+    fmt.Println(bf.Contains("apple"))     // true
+    fmt.Println(bf.Contains("banana"))    // true
+    fmt.Println(bf.Contains("grape"))     // false
+    fmt.Println(bf.Contains("watermelon")) // 可能误判
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -1678,6 +2032,7 @@ if __name__ == "__main__":
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="skiplist-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="skiplist-python">Python</button>
+                        <button class="code-tab-btn" data-tab="skiplist-go">Go</button>
                     </div>
                     <div id="skiplist-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1868,6 +2223,144 @@ if __name__ == "__main__":
     print(sl.range_search(80, 95))
                         </code></pre></div>
                     </div>
+                    <div id="skiplist-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import (
+    "fmt"
+    "math"
+    "math/rand"
+    "time"
+)
+
+type SkipNode struct {
+    value  string
+    score  float64
+    forward []*SkipNode
+}
+
+func NewSkipNode(level int, value string, score float64) *SkipNode {
+    return &SkipNode{
+        value:   value,
+        score:   score,
+        forward: make([]*SkipNode, level),
+    }
+}
+
+type SkipList struct {
+    maxLevel    int
+    probability float64
+    header      *SkipNode
+    level       int
+}
+
+func NewSkipList(maxLevel int, probability float64) *SkipList {
+    rand.Seed(time.Now().UnixNano())
+    return &SkipList{
+        maxLevel:    maxLevel,
+        probability: probability,
+        header:      NewSkipNode(maxLevel, "", math.Inf(-1)),
+        level:       1,
+    }
+}
+
+// 随机生成层数
+func (sl *SkipList) randomLevel() int {
+    lvl := 1
+    for rand.Float64() < sl.probability && lvl < sl.maxLevel {
+        lvl++
+    }
+    return lvl
+}
+
+// 插入元素
+func (sl *SkipList) Insert(score float64, value string) {
+    update := make([]*SkipNode, sl.maxLevel)
+    current := sl.header
+
+    // 找到插入位置
+    for i := sl.level - 1; i >= 0; i-- {
+        for current.forward[i] != nil && current.forward[i].score < score {
+            current = current.forward[i]
+        }
+        update[i] = current
+    }
+
+    // 检查是否已存在
+    if current.forward[0] != nil && current.forward[0].score == score {
+        current.forward[0].value = value
+        return
+    }
+
+    // 创建新节点
+    newLevel := sl.randomLevel()
+    if newLevel > sl.level {
+        for i := sl.level; i < newLevel; i++ {
+            update[i] = sl.header
+        }
+        sl.level = newLevel
+    }
+
+    newNode := NewSkipNode(newLevel, value, score)
+    for i := 0; i < newLevel; i++ {
+        newNode.forward[i] = update[i].forward[i]
+        update[i].forward[i] = newNode
+    }
+}
+
+// 查找元素
+func (sl *SkipList) Search(score float64) string {
+    current := sl.header
+    for i := sl.level - 1; i >= 0; i-- {
+        for current.forward[i] != nil && current.forward[i].score < score {
+            current = current.forward[i]
+        }
+    }
+    current = current.forward[0]
+    if current != nil && current.score == score {
+        return current.value
+    }
+    return ""
+}
+
+// 范围查询
+type RangeResult struct {
+    Score float64
+    Value string
+}
+
+func (sl *SkipList) RangeSearch(minScore, maxScore float64) []RangeResult {
+    result := []RangeResult{}
+    current := sl.header
+
+    for i := sl.level - 1; i >= 0; i-- {
+        for current.forward[i] != nil && current.forward[i].score < minScore {
+            current = current.forward[i]
+        }
+    }
+
+    current = current.forward[0]
+    for current != nil && current.score <= maxScore {
+        result = append(result, RangeResult{Score: current.score, Value: current.value})
+        current = current.forward[0]
+    }
+
+    return result
+}
+
+func main() {
+    sl := NewSkipList(16, 0.5)
+    sl.Insert(85, "Alice")
+    sl.Insert(92, "Bob")
+    sl.Insert(78, "Charlie")
+    sl.Insert(95, "David")
+
+    fmt.Println(sl.Search(92))              // Bob
+    fmt.Println(sl.RangeSearch(80, 95))     // [{85 Alice} {92 Bob} {95 David}]
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -1878,6 +2371,7 @@ if __name__ == "__main__":
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="seg-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="seg-python">Python</button>
+                        <button class="code-tab-btn" data-tab="seg-go">Go</button>
                     </div>
                     <div id="seg-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -1909,7 +2403,7 @@ class SegmentTree {
     _query(node, start, end, l, r) {
         if (r < start || end < l) return 0;
         if (l <= start && end <= r) return this.tree[node];
-        
+
         const mid = Math.floor((start + end) / 2);
         const leftSum = this._query(2 * node + 1, start, mid, l, r);
         const rightSum = this._query(2 * node + 2, mid + 1, end, l, r);
@@ -1973,7 +2467,7 @@ class SegmentTree:
             return 0
         if l <= start and end <= r:
             return self.tree[node]
-        
+
         mid = (start + end) // 2
         left_sum = self._query(2 * node + 1, start, mid, l, r)
         right_sum = self._query(2 * node + 2, mid + 1, end, l, r)
@@ -2001,6 +2495,86 @@ st.update(2, 10)
 print(st.query(1, 3))  # 20 (3+10+7)
                         </code></pre></div>
                     </div>
+                    <div id="seg-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type SegmentTree struct {
+    n     int
+    tree  []int
+}
+
+func NewSegmentTree(arr []int) *SegmentTree {
+    n := len(arr)
+    st := &SegmentTree{
+        n:    n,
+        tree: make([]int, 4*n),
+    }
+    st.build(arr, 0, 0, n-1)
+    return st
+}
+
+func (st *SegmentTree) build(arr []int, node, start, end int) {
+    if start == end {
+        st.tree[node] = arr[start]
+    } else {
+        mid := (start + end) / 2
+        leftNode := 2*node + 1
+        rightNode := 2*node + 2
+        st.build(arr, leftNode, start, mid)
+        st.build(arr, rightNode, mid+1, end)
+        st.tree[node] = st.tree[leftNode] + st.tree[rightNode]
+    }
+}
+
+// 区间查询
+func (st *SegmentTree) Query(l, r int) int {
+    return st.query(0, 0, st.n-1, l, r)
+}
+
+func (st *SegmentTree) query(node, start, end, l, r int) int {
+    if r < start || end < l {
+        return 0
+    }
+    if l <= start && end <= r {
+        return st.tree[node]
+    }
+    mid := (start + end) / 2
+    leftSum := st.query(2*node+1, start, mid, l, r)
+    rightSum := st.query(2*node+2, mid+1, end, l, r)
+    return leftSum + rightSum
+}
+
+// 单点更新
+func (st *SegmentTree) Update(idx, val int) {
+    st.update(0, 0, st.n-1, idx, val)
+}
+
+func (st *SegmentTree) update(node, start, end, idx, val int) {
+    if start == end {
+        st.tree[node] = val
+    } else {
+        mid := (start + end) / 2
+        if start <= idx && idx <= mid {
+            st.update(2*node+1, start, mid, idx, val)
+        } else {
+            st.update(2*node+2, mid+1, end, idx, val)
+        }
+        st.tree[node] = st.tree[2*node+1] + st.tree[2*node+2]
+    }
+}
+
+func main() {
+    arr := []int{1, 3, 5, 7, 9, 11}
+    st := NewSegmentTree(arr)
+    fmt.Println(st.Query(1, 3))  // 15 (3+5+7)
+    st.Update(2, 10)
+    fmt.Println(st.Query(1, 3))  // 20 (3+10+7)
+}
+                        </code></pre></div>
+                    </div>
                 </div>
             </div>
 
@@ -2011,6 +2585,7 @@ print(st.query(1, 3))  # 20 (3+10+7)
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="lru-js">JavaScript</button>
                         <button class="code-tab-btn" data-tab="lru-python">Python</button>
+                        <button class="code-tab-btn" data-tab="lru-go">Go</button>
                     </div>
                     <div id="lru-js" class="code-tab-content active">
                         <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -2022,7 +2597,7 @@ class LRUCache {
 
     get(key) {
         if (!this.cache.has(key)) return -1;
-        
+
         const value = this.cache.get(key);
         this.cache.delete(key);
         this.cache.set(key, value); // 移到末尾（最近使用）
@@ -2089,6 +2664,105 @@ print(cache.get(1))  # 'A'
 cache.put(3, 'C')  # 淘汰 key=2
 print(cache.get(2))  # -1
 print(cache.status())  # [(1, 'A'), (3, 'C')]
+                        </code></pre></div>
+                    </div>
+                    <div id="lru-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type LRUNode struct {
+    key   int
+    value interface{}
+    prev  *LRUNode
+    next  *LRUNode
+}
+
+type LRUCache struct {
+    capacity int
+    cache    map[int]*LRUNode
+    head     *LRUNode // 伪头节点（最近使用）
+    tail     *LRUNode // 伪尾节点（最久未使用）
+}
+
+func Constructor(capacity int) LRUCache {
+    cache := LRUCache{
+        capacity: capacity,
+        cache:    make(map[int]*LRUNode),
+        head:     &LRUNode{},
+        tail:     &LRUNode{},
+    }
+    cache.head.next = cache.tail
+    cache.tail.prev = cache.head
+    return cache
+}
+
+func (c *LRUCache) addToHead(node *LRUNode) {
+    node.prev = c.head
+    node.next = c.head.next
+    c.head.next.prev = node
+    c.head.next = node
+}
+
+func (c *LRUCache) removeNode(node *LRUNode) {
+    node.prev.next = node.next
+    node.next.prev = node.prev
+}
+
+func (c *LRUCache) moveToHead(node *LRUNode) {
+    c.removeNode(node)
+    c.addToHead(node)
+}
+
+func (c *LRUCache) removeTail() *LRUNode {
+    node := c.tail.prev
+    c.removeNode(node)
+    return node
+}
+
+func (c *LRUCache) Get(key int) interface{} {
+    if node, ok := c.cache[key]; ok {
+        c.moveToHead(node)
+        return node.value
+    }
+    return -1
+}
+
+func (c *LRUCache) Put(key int, value interface{}) {
+    if node, ok := c.cache[key]; ok {
+        node.value = value
+        c.moveToHead(node)
+    } else {
+        newNode := &LRUNode{key: key, value: value}
+        c.cache[key] = newNode
+        c.addToHead(newNode)
+        if len(c.cache) > c.capacity {
+            removed := c.removeTail()
+            delete(c.cache, removed.key)
+        }
+    }
+}
+
+func (c *LRUCache) Status() [][2]interface{} {
+    result := [][2]interface{}{}
+    current := c.head.next
+    for current != c.tail {
+        result = append(result, [2]interface{}{current.key, current.value})
+        current = current.next
+    }
+    return result
+}
+
+func main() {
+    cache := Constructor(2)
+    cache.Put(1, "A")
+    cache.Put(2, "B")
+    fmt.Println(cache.Get(1))    // A
+    cache.Put(3, "C")            // 淘汰 key=2
+    fmt.Println(cache.Get(2))    // -1
+    fmt.Println(cache.Status())  // [[1 A] [3 C]]
+}
                         </code></pre></div>
                     </div>
                 </div>

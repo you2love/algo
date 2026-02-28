@@ -73,6 +73,7 @@ ROOT
                 <div class="code-tab-header">
                     <button class="code-tab-btn active" data-tab="trie-js">JavaScript</button>
                     <button class="code-tab-btn" data-tab="trie-python">Python</button>
+                    <button class="code-tab-btn" data-tab="trie-go">Go</button>
                 </div>
                 <div id="trie-js" class="code-tab-content active">
                     <div class="code-block line-numbers"><pre><code class="language-javascript">
@@ -221,6 +222,99 @@ print(trie.search("appl"))      # False
 print(trie.starts_with("appl")) # True
 print(trie.starts_with("bat"))  # False
                     </code></pre></div>
+                </div>
+                <div id="trie-go" class="code-tab-content">
+                    <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+type TrieNode struct {
+    children     map[rune]*TrieNode
+    isEndOfWord  bool
+}
+
+type Trie struct {
+    root *TrieNode
+}
+
+func NewTrie() *Trie {
+    return &Trie{
+        root: &TrieNode{children: make(map[rune]*TrieNode)},
+    }
+}
+
+func (t *Trie) Insert(word string) {
+    node := t.root
+    for _, char := range word {
+        if node.children[char] == nil {
+            node.children[char] = &TrieNode{children: make(map[rune]*TrieNode)}
+        }
+        node = node.children[char]
+    }
+    node.isEndOfWord = true
+}
+
+func (t *Trie) Search(word string) bool {
+    node := t.findNode(word)
+    return node != nil && node.isEndOfWord
+}
+
+func (t *Trie) StartsWith(prefix string) bool {
+    return t.findNode(prefix) != nil
+}
+
+func (t *Trie) findNode(prefix string) *TrieNode {
+    node := t.root
+    for _, char := range prefix {
+        if node.children[char] == nil {
+            return nil
+        }
+        node = node.children[char]
+    }
+    return node
+}
+
+func (t *Trie) Delete(word string) {
+    t.delete(t.root, word, 0)
+}
+
+func (t *Trie) delete(node *TrieNode, word string, index int) bool {
+    if index == len(word) {
+        if !node.isEndOfWord {
+            return false
+        }
+        node.isEndOfWord = false
+        return len(node.children) == 0
+    }
+
+    char := rune(word[index])
+    child := node.children[char]
+    if child == nil {
+        return false
+    }
+
+    shouldDeleteChild := t.delete(child, word, index+1)
+
+    if shouldDeleteChild {
+        delete(node.children, char)
+        return len(node.children) == 0 && !node.isEndOfWord
+    }
+    return false
+}
+
+func main() {
+    trie := NewTrie()
+    trie.Insert("apple")
+    trie.Insert("app")
+    trie.Insert("application")
+
+    fmt.Println(trie.Search("app"))       // true
+    fmt.Println(trie.Search("appl"))      // false
+    fmt.Println(trie.StartsWith("appl"))  // true
+    fmt.Println(trie.StartsWith("bat"))   // false
+}
+                        </code></pre></div>
                 </div>
             </div>
 
