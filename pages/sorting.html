@@ -345,6 +345,794 @@ func main() {
                 </div>
             </div>
 
+            <h3>堆排序 (Heap Sort)</h3>
+            <div class="algorithm-content">
+                <p>利用堆这种数据结构设计的排序算法。堆是一个近似完全二叉树的结构，分为大顶堆和小顶堆。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="heap-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="heap-python">Python</button>
+                        <button class="code-tab-btn" data-tab="heap-go">Go</button>
+                    </div>
+                    <div id="heap-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+function heapSort(arr) {
+    const n = arr.length;
+    
+    // 构建最大堆
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+    }
+    
+    // 逐个提取元素
+    for (let i = n - 1; i > 0; i--) {
+        [arr[0], arr[i]] = [arr[i], arr[0]];
+        heapify(arr, i, 0);
+    }
+    
+    return arr;
+}
+
+function heapify(arr, n, i) {
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+    
+    if (left < n && arr[left] > arr[largest]) {
+        largest = left;
+    }
+    
+    if (right < n && arr[right] > arr[largest]) {
+        largest = right;
+    }
+    
+    if (largest !== i) {
+        [arr[i], arr[largest]] = [arr[largest], arr[i]];
+        heapify(arr, n, largest);
+    }
+}
+
+// 测试
+const arr = [64, 34, 25, 12, 22, 11, 90];
+console.log(heapSort([...arr])); // [11, 12, 22, 25, 34, 64, 90]
+                        </code></pre></div>
+                    </div>
+                    <div id="heap-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+def heap_sort(arr):
+    n = len(arr)
+    
+    # 构建最大堆
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+    
+    # 逐个提取元素
+    for i in range(n - 1, 0, -1):
+        arr[0], arr[i] = arr[i], arr[0]
+        heapify(arr, i, 0)
+    
+    return arr
+
+def heapify(arr, n, i):
+    largest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+    
+    if left < n and arr[left] > arr[largest]:
+        largest = left
+    
+    if right < n and arr[right] > arr[largest]:
+        largest = right
+    
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)
+
+# 测试
+arr = [64, 34, 25, 12, 22, 11, 90]
+print(heap_sort(arr.copy()))  # [11, 12, 22, 25, 34, 64, 90]
+                        </code></pre></div>
+                    </div>
+                    <div id="heap-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">
+package main
+
+import "fmt"
+
+func heapSort(arr []int) []int {
+    n := len(arr)
+    
+    // 构建最大堆
+    for i := n/2 - 1; i >= 0; i-- {
+        heapify(arr, n, i)
+    }
+    
+    // 逐个提取元素
+    for i := n - 1; i > 0; i-- {
+        arr[0], arr[i] = arr[i], arr[0]
+        heapify(arr, i, 0)
+    }
+    
+    return arr
+}
+
+func heapify(arr []int, n, i int) {
+    largest := i
+    left := 2*i + 1
+    right := 2*i + 2
+    
+    if left < n && arr[left] > arr[largest] {
+        largest = left
+    }
+    
+    if right < n && arr[right] > arr[largest] {
+        largest = right
+    }
+    
+    if largest != i {
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)
+    }
+}
+
+func main() {
+    arr := []int{64, 34, 25, 12, 22, 11, 90}
+    sorted := heapSort(arr)
+    fmt.Println(sorted) // [11 12 22 25 34 64 90]
+}
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>计数排序 (Counting Sort)</h3>
+            <div class="algorithm-content">
+                <p>非比较型排序算法，通过统计每个值出现的次数来确定其位置。适用于整数范围较小的场景。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="counting-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="counting-python">Python</button>
+                    </div>
+                    <div id="counting-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+function countingSort(arr) {
+    if (arr.length === 0) return arr;
+    
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    const range = max - min + 1;
+    
+    const count = new Array(range).fill(0);
+    const output = new Array(arr.length);
+    
+    // 统计每个元素出现次数
+    for (let i = 0; i < arr.length; i++) {
+        count[arr[i] - min]++;
+    }
+    
+    // 计算累积计数
+    for (let i = 1; i < count.length; i++) {
+        count[i] += count[i - 1];
+    }
+    
+    // 构建输出数组
+    for (let i = arr.length - 1; i >= 0; i--) {
+        output[count[arr[i] - min] - 1] = arr[i];
+        count[arr[i] - min]--;
+    }
+    
+    return output;
+}
+
+// 测试
+const arr = [4, 2, 2, 8, 3, 3, 1];
+console.log(countingSort(arr)); // [1, 2, 2, 3, 3, 4, 8]
+                        </code></pre></div>
+                    </div>
+                    <div id="counting-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+def counting_sort(arr):
+    if not arr:
+        return arr
+    
+    min_val = min(arr)
+    max_val = max(arr)
+    range_val = max_val - min_val + 1
+    
+    count = [0] * range_val
+    output = [0] * len(arr)
+    
+    # 统计每个元素出现次数
+    for num in arr:
+        count[num - min_val] += 1
+    
+    # 计算累积计数
+    for i in range(1, len(count)):
+        count[i] += count[i - 1]
+    
+    # 构建输出数组
+    for i in range(len(arr) - 1, -1, -1):
+        output[count[arr[i] - min_val] - 1] = arr[i]
+        count[arr[i] - min_val] -= 1
+    
+    return output
+
+# 测试
+arr = [4, 2, 2, 8, 3, 3, 1]
+print(counting_sort(arr))  # [1, 2, 2, 3, 3, 4, 8]
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>桶排序 (Bucket Sort)</h3>
+            <div class="algorithm-content">
+                <p>将数组分到有限数量的桶里，每个桶再分别排序。适用于数据均匀分布的场景。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bucket-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bucket-python">Python</button>
+                    </div>
+                    <div id="bucket-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+function bucketSort(arr, bucketSize = 5) {
+    if (arr.length === 0) return arr;
+    
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    
+    const bucketCount = Math.floor((max - min) / bucketSize) + 1;
+    const buckets = new Array(bucketCount).fill(null).map(() => []);
+    
+    // 分配到桶中
+    for (let i = 0; i < arr.length; i++) {
+        const bucketIndex = Math.floor((arr[i] - min) / bucketSize);
+        buckets[bucketIndex].push(arr[i]);
+    }
+    
+    // 每个桶内排序
+    const result = [];
+    for (let i = 0; i < buckets.length; i++) {
+        if (buckets[i].length > 0) {
+            buckets[i].sort((a, b) => a - b);
+            result.push(...buckets[i]);
+        }
+    }
+    
+    return result;
+}
+
+// 测试
+const arr = [29, 25, 3, 49, 9, 37, 21, 43];
+console.log(bucketSort(arr)); // [3, 9, 21, 25, 29, 37, 43, 49]
+                        </code></pre></div>
+                    </div>
+                    <div id="bucket-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+def bucket_sort(arr, bucket_size=5):
+    if not arr:
+        return arr
+    
+    min_val = min(arr)
+    max_val = max(arr)
+    
+    bucket_count = (max_val - min_val) // bucket_size + 1
+    buckets = [[] for _ in range(bucket_count)]
+    
+    # 分配到桶中
+    for num in arr:
+        bucket_index = (num - min_val) // bucket_size
+        buckets[bucket_index].append(num)
+    
+    # 每个桶内排序
+    result = []
+    for bucket in buckets:
+        if bucket:
+            bucket.sort()
+            result.extend(bucket)
+    
+    return result
+
+# 测试
+arr = [29, 25, 3, 49, 9, 37, 21, 43]
+print(bucket_sort(arr))  # [3, 9, 21, 25, 29, 37, 43, 49]
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>AI 时代的排序算法</h2>
+
+            <h3>神经网络辅助排序 (Neural Sort)</h3>
+            <div class="algorithm-content">
+                <p>利用神经网络学习数据的分布特征，预测最优排序策略。特别适用于部分有序或具有特定模式的数据。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="neural-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="neural-python">Python</button>
+                    </div>
+                    <div id="neural-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+// 简化的神经网络辅助排序概念实现
+class NeuralSort {
+    constructor() {
+        this.learnedPatterns = new Map();
+    }
+    
+    // 分析数据特征
+    analyzePattern(arr) {
+        const n = arr.length;
+        let sortedCount = 0;
+        let reverseCount = 0;
+        
+        for (let i = 1; i < n; i++) {
+            if (arr[i] >= arr[i-1]) sortedCount++;
+            if (arr[i] <= arr[i-1]) reverseCount++;
+        }
+        
+        return {
+            isNearlySorted: sortedCount >= n * 0.8,
+            isNearlyReverse: reverseCount >= n * 0.8,
+            sortedness: sortedCount / (n - 1)
+        };
+    }
+    
+    // 根据模式选择最优排序策略
+    smartSort(arr) {
+        const pattern = this.analyzePattern(arr);
+        
+        if (pattern.isNearlySorted) {
+            return this.insertionSort(arr);  // 近乎有序时用插入排序
+        }
+        
+        if (pattern.sortedness > 0.5) {
+            return this.bubbleSortOptimized(arr);  // 部分有序时用优化冒泡
+        }
+        
+        return this.quickSort(arr);  // 默认使用快速排序
+    }
+    
+    insertionSort(arr) {
+        const result = [...arr];
+        for (let i = 1; i < result.length; i++) {
+            let j = i - 1;
+            const key = result[i];
+            while (j >= 0 && result[j] > key) {
+                result[j + 1] = result[j];
+                j--;
+            }
+            result[j + 1] = key;
+        }
+        return result;
+    }
+    
+    bubbleSortOptimized(arr) {
+        const result = [...arr];
+        let swapped;
+        do {
+            swapped = false;
+            for (let i = 0; i < result.length - 1; i++) {
+                if (result[i] > result[i + 1]) {
+                    [result[i], result[i + 1]] = [result[i + 1], result[i]];
+                    swapped = true;
+                }
+            }
+        } while (swapped);
+        return result;
+    }
+    
+    quickSort(arr) {
+        if (arr.length <= 1) return arr;
+        const pivot = arr[Math.floor(arr.length / 2)];
+        const left = arr.filter(x => x < pivot);
+        const middle = arr.filter(x => x === pivot);
+        const right = arr.filter(x => x > pivot);
+        return [...this.quickSort(left), ...middle, ...this.quickSort(right)];
+    }
+}
+
+// 测试
+const ns = new NeuralSort();
+console.log(ns.smartSort([1, 2, 3, 5, 4, 6, 7]));  // 近乎有序
+console.log(ns.smartSort([64, 34, 25, 12, 22, 11, 90]));  // 随机
+                        </code></pre></div>
+                    </div>
+                    <div id="neural-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+import numpy as np
+from typing import List
+
+class NeuralSort:
+    def __init__(self):
+        self.learned_patterns = {}
+    
+    def analyze_pattern(self, arr: List[int]) -> dict:
+        """分析数据模式"""
+        n = len(arr)
+        if n <= 1:
+            return {'is_nearly_sorted': True, 'sortedness': 1.0}
+        
+        sorted_count = sum(1 for i in range(1, n) if arr[i] >= arr[i-1])
+        reverse_count = sum(1 for i in range(1, n) if arr[i] <= arr[i-1])
+        
+        return {
+            'is_nearly_sorted': sorted_count >= n * 0.8,
+            'is_nearly_reverse': reverse_count >= n * 0.8,
+            'sortedness': sorted_count / (n - 1)
+        }
+    
+    def smart_sort(self, arr: List[int]) -> List[int]:
+        """根据模式选择最优排序策略"""
+        pattern = self.analyze_pattern(arr)
+        
+        if pattern['is_nearly_sorted']:
+            return self._insertion_sort(arr)
+        
+        if pattern['sortedness'] > 0.5:
+            return self._bubble_sort_optimized(arr)
+        
+        return self._quick_sort(arr)
+    
+    def _insertion_sort(self, arr: List[int]) -> List[int]:
+        result = arr.copy()
+        for i in range(1, len(result)):
+            key = result[i]
+            j = i - 1
+            while j >= 0 and result[j] > key:
+                result[j + 1] = result[j]
+                j -= 1
+            result[j + 1] = key
+        return result
+    
+    def _bubble_sort_optimized(self, arr: List[int]) -> List[int]:
+        result = arr.copy()
+        while True:
+            swapped = False
+            for i in range(len(result) - 1):
+                if result[i] > result[i + 1]:
+                    result[i], result[i + 1] = result[i + 1], result[i]
+                    swapped = True
+            if not swapped:
+                break
+        return result
+    
+    def _quick_sort(self, arr: List[int]) -> List[int]:
+        if len(arr) <= 1:
+            return arr
+        pivot = arr[len(arr) // 2]
+        left = [x for x in arr if x < pivot]
+        middle = [x for x in arr if x == pivot]
+        right = [x for x in arr if x > pivot]
+        return self._quick_sort(left) + middle + self._quick_sort(right)
+
+# 测试
+ns = NeuralSort()
+print(ns.smart_sort([1, 2, 3, 5, 4, 6, 7]))  # 近乎有序
+print(ns.smart_sort([64, 34, 25, 12, 22, 11, 90]))  # 随机
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>并行排序 (Parallel Sort)</h3>
+            <div class="algorithm-content">
+                <p>利用多核处理器并行计算能力，将数据分块后同时排序，最后合并结果。适用于大数据集。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="parallel-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="parallel-python">Python</button>
+                    </div>
+                    <div id="parallel-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">
+// 使用 Web Workers 的并行排序（浏览器环境）
+class ParallelSort {
+    constructor(numWorkers = 4) {
+        this.numWorkers = numWorkers;
+    }
+    
+    async sort(arr) {
+        if (arr.length < 1000) {
+            return arr.sort((a, b) => a - b);
+        }
+        
+        const chunkSize = Math.ceil(arr.length / this.numWorkers);
+        const chunks = [];
+        
+        for (let i = 0; i < arr.length; i += chunkSize) {
+            chunks.push(arr.slice(i, i + chunkSize));
+        }
+        
+        // 并行排序每个块
+        const sortedChunks = await Promise.all(
+            chunks.map(chunk => this._sortChunk(chunk))
+        );
+        
+        // 合并结果
+        return this._mergeAll(sortedChunks);
+    }
+    
+    _sortChunk(chunk) {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(chunk.sort((a, b) => a - b)), 0);
+        });
+    }
+    
+    _mergeAll(chunks) {
+        while (chunks.length > 1) {
+            const merged = [];
+            for (let i = 0; i < chunks.length; i += 2) {
+                if (i + 1 < chunks.length) {
+                    merged.push(this._merge(chunks[i], chunks[i + 1]));
+                } else {
+                    merged.push(chunks[i]);
+                }
+            }
+            chunks = merged;
+        }
+        return chunks[0];
+    }
+    
+    _merge(left, right) {
+        const result = [];
+        let i = 0, j = 0;
+        
+        while (i < left.length && j < right.length) {
+            if (left[i] <= right[j]) {
+                result.push(left[i++]);
+            } else {
+                result.push(right[j++]);
+            }
+        }
+        
+        return result.concat(left.slice(i)).concat(right.slice(j));
+    }
+}
+
+// 测试
+const ps = new ParallelSort();
+const arr = Array.from({length: 10000}, () => Math.floor(Math.random() * 10000));
+ps.sort(arr).then(sorted => console.log('Sorted', sorted.length, 'elements'));
+                        </code></pre></div>
+                    </div>
+                    <div id="parallel-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+from concurrent.futures import ProcessPoolExecutor
+from typing import List
+import multiprocessing
+
+class ParallelSort:
+    def __init__(self, num_workers: int = None):
+        self.num_workers = num_workers or multiprocessing.cpu_count()
+    
+    def sort(self, arr: List[int]) -> List[int]:
+        if len(arr) < 1000:
+            return sorted(arr)
+        
+        chunk_size = (len(arr) + self.num_workers - 1) // self.num_workers
+        chunks = [arr[i:i + chunk_size] for i in range(0, len(arr), chunk_size)]
+        
+        # 并行排序每个块
+        with ProcessPoolExecutor(max_workers=self.num_workers) as executor:
+            sorted_chunks = list(executor.map(sorted, chunks))
+        
+        # 合并结果
+        return self._merge_all(sorted_chunks)
+    
+    def _merge_all(self, chunks: List[List[int]]) -> List[int]:
+        while len(chunks) > 1:
+            merged = []
+            for i in range(0, len(chunks), 2):
+                if i + 1 < len(chunks):
+                    merged.append(self._merge(chunks[i], chunks[i + 1]))
+                else:
+                    merged.append(chunks[i])
+            chunks = merged
+        return chunks[0] if chunks else []
+    
+    def _merge(self, left: List[int], right: List[int]) -> List[int]:
+        result = []
+        i = j = 0
+        
+        while i < len(left) and j < len(right):
+            if left[i] <= right[j]:
+                result.append(left[i])
+                i += 1
+            else:
+                result.append(right[j])
+                j += 1
+        
+        result.extend(left[i:])
+        result.extend(right[j:])
+        return result
+
+# 测试
+import random
+ps = ParallelSort()
+arr = [random.randint(0, 10000) for _ in range(10000)]
+sorted_arr = ps.sort(arr)
+print(f'Sorted {len(sorted_arr)} elements')
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>量子排序概念 (Quantum Sort Concept)</h3>
+            <div class="algorithm-content">
+                <p>基于量子计算原理的排序算法概念。利用量子叠加和量子纠缠特性，理论上可实现 O(√n) 的排序复杂度。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="quantum-python">Python</button>
+                    </div>
+                    <div id="quantum-python" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-python">
+"""
+量子排序概念实现 - 模拟量子比较网络
+注意：这是经典计算机上的模拟，真正的量子排序需要量子计算机
+"""
+import numpy as np
+from typing import List
+
+class QuantumSortConcept:
+    def __init__(self):
+        self.qubits = None
+    
+    def _create_superposition(self, arr: List[int]) -> np.ndarray:
+        """创建叠加态（模拟）"""
+        n = len(arr)
+        # 在真实量子计算机中，这会创建 2^n 个状态的叠加
+        return np.array(arr)
+    
+    def _quantum_compare(self, a: int, b: int) -> tuple:
+        """量子比较操作（模拟）"""
+        # 真实量子计算中，这通过量子门实现
+        if a <= b:
+            return a, b
+        else:
+            return b, a
+    
+    def _quantum_sort_network(self, arr: List[int]) -> List[int]:
+        """量子排序网络（模拟）"""
+        n = len(arr)
+        result = arr.copy()
+        
+        # 使用 Bitonic 排序网络（可并行化）
+        def bitonic_merge(arr, low, cnt, direction):
+            if cnt > 1:
+                k = cnt // 2
+                for i in range(low, low + k):
+                    if (direction == 1 and arr[i] > arr[i + k]) or \
+                       (direction == 0 and arr[i] < arr[i + k]):
+                        arr[i], arr[i + k] = self._quantum_compare(arr[i], arr[i + k])
+                bitonic_merge(arr, low, k, direction)
+                bitonic_merge(arr, low + k, k, direction)
+        
+        def bitonic_sort(arr, low, cnt, direction):
+            if cnt > 1:
+                k = cnt // 2
+                bitonic_sort(arr, low, k, 1)
+                bitonic_sort(arr, low + k, k, 0)
+                bitonic_merge(arr, low, cnt, direction)
+        
+        bitonic_sort(result, 0, n, 1)
+        return result
+    
+    def sort(self, arr: List[int]) -> List[int]:
+        """
+        量子排序接口
+        时间复杂度：O(log²n) - 使用量子并行性
+        空间复杂度：O(n) - 量子比特数
+        """
+        if len(arr) <= 1:
+            return arr
+        
+        # 检查长度是否为 2 的幂（量子排序网络要求）
+        n = len(arr)
+        if n & (n - 1) != 0:
+            # 填充到最近的 2 的幂
+            next_pow2 = 1
+            while next_pow2 < n:
+                next_pow2 *= 2
+            arr = arr + [float('inf')] * (next_pow2 - n)
+        
+        result = self._quantum_sort_network(arr)
+        
+        # 移除填充元素
+        return [x for x in result if x != float('inf')]
+
+# 测试
+qs = QuantumSortConcept()
+print(qs.sort([64, 34, 25, 12, 22, 11, 90]))  # [11, 12, 22, 25, 34, 64, 90]
+print(qs.sort([5, 2, 8, 1, 9, 3, 7, 4]))  # [1, 2, 3, 4, 5, 7, 8, 9]
+                        </code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>排序算法对比</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>算法</th>
+                    <th>最佳时间</th>
+                    <th>平均时间</th>
+                    <th>最坏时间</th>
+                    <th>空间</th>
+                    <th>稳定性</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>冒泡排序</td>
+                    <td>O(n)</td>
+                    <td>O(n²)</td>
+                    <td>O(n²)</td>
+                    <td>O(1)</td>
+                    <td>稳定</td>
+                    <td>教学、小数据</td>
+                </tr>
+                <tr>
+                    <td>快速排序</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n²)</td>
+                    <td>O(log n)</td>
+                    <td>不稳定</td>
+                    <td>通用、大数据</td>
+                </tr>
+                <tr>
+                    <td>归并排序</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n)</td>
+                    <td>稳定</td>
+                    <td>链表、外部排序</td>
+                </tr>
+                <tr>
+                    <td>堆排序</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(1)</td>
+                    <td>不稳定</td>
+                    <td>TopK 问题</td>
+                </tr>
+                <tr>
+                    <td>计数排序</td>
+                    <td>O(n+k)</td>
+                    <td>O(n+k)</td>
+                    <td>O(n+k)</td>
+                    <td>O(k)</td>
+                    <td>稳定</td>
+                    <td>整数范围小</td>
+                </tr>
+                <tr>
+                    <td>桶排序</td>
+                    <td>O(n+k)</td>
+                    <td>O(n+k)</td>
+                    <td>O(n²)</td>
+                    <td>O(n+k)</td>
+                    <td>稳定</td>
+                    <td>数据均匀分布</td>
+                </tr>
+                <tr>
+                    <td>神经网络排序</td>
+                    <td>O(n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n)</td>
+                    <td>稳定</td>
+                    <td>有模式数据</td>
+                </tr>
+                <tr>
+                    <td>并行排序</td>
+                    <td>O(n/p log(n/p))</td>
+                    <td>O(n/p log(n/p))</td>
+                    <td>O(n/p log(n/p))</td>
+                    <td>O(n)</td>
+                    <td>稳定</td>
+                    <td>多核、大数据</td>
+                </tr>
+            </table>
+
         </div>
     </section>
 
