@@ -83,6 +83,7 @@ function initCodeTabs() {
 // 代码块折叠功能
 // ===================================
 function initCodeFold() {
+    // 处理 code-tabs 中的代码块
     document.querySelectorAll('.code-tabs').forEach(tabContainer => {
         const tabHeader = tabContainer.querySelector('.code-tab-header');
         if (!tabHeader) return;
@@ -96,22 +97,11 @@ function initCodeFold() {
         foldBtn.innerHTML = '<span class="fold-icon">▼</span> <span class="fold-text">折叠</span>';
         tabHeader.appendChild(foldBtn);
 
-        // 获取第一个激活的标签内容
-        const activeContent = tabContainer.querySelector('.code-tab-content.active');
-
-        // 为每个代码内容添加折叠功能
+        // 为每个代码内容添加折叠功能 - 所有代码块都支持折叠
         tabContainer.querySelectorAll('.code-tab-content').forEach(content => {
             const codeBlock = content.querySelector('.code-block');
             if (!codeBlock) return;
-
-            // 检查代码是否超过可折叠的行数
-            const lines = codeBlock.querySelectorAll('span:not([class])').length || 
-                          codeBlock.textContent.split('\n').length;
-            
-            if (lines > 10) {
-                // 默认展开状态
-                content.dataset.canFold = 'true';
-            }
+            content.dataset.canFold = 'true';
         });
 
         // 折叠/展开点击事件
@@ -121,7 +111,7 @@ function initCodeFold() {
 
             const isCollapsed = activeContent.classList.toggle('collapsed');
             foldBtn.classList.toggle('collapsed', isCollapsed);
-            
+
             const foldText = foldBtn.querySelector('.fold-text');
             if (foldText) {
                 foldText.textContent = isCollapsed ? '展开' : '折叠';

@@ -828,6 +828,29 @@ body {
     padding: 0;
 }
 
+/* 独立代码块包装器 */
+.code-block-wrapper {
+    position: relative;
+    margin: 32px 0;
+}
+
+.code-block-wrapper.collapsed .code-block {
+    max-height: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.code-block-wrapper.collapsed .code-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, var(--code-bg));
+    pointer-events: none;
+}
+
 /* ===================================
    信息卡片
    =================================== */

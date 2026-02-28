@@ -170,6 +170,7 @@ console.log('Available functions: searchAlgorithms(), generateRandomArray(), get
 
 // 代码块折叠功能（旧版样式支持）
 function initCodeFold() {
+    // 处理 code-tabs 中的代码块
     document.querySelectorAll('.code-tabs').forEach(tabContainer => {
         const tabHeader = tabContainer.querySelector('.code-tab-header');
         if (!tabHeader) return;
@@ -183,18 +184,11 @@ function initCodeFold() {
         foldBtn.innerHTML = '<span class="fold-icon">▼</span> <span class="fold-text">折叠</span>';
         tabHeader.appendChild(foldBtn);
 
-        // 为每个代码内容添加折叠功能
+        // 为每个代码内容添加折叠功能 - 所有代码块都支持折叠
         tabContainer.querySelectorAll('.code-tab-content').forEach(content => {
             const codeBlock = content.querySelector('.code-block');
             if (!codeBlock) return;
-
-            // 检查代码是否超过可折叠的行数
-            const lines = codeBlock.querySelectorAll('span:not([class])').length || 
-                          codeBlock.textContent.split('\n').length;
-            
-            if (lines > 10) {
-                content.dataset.canFold = 'true';
-            }
+            content.dataset.canFold = 'true';
         });
 
         // 折叠/展开点击事件
@@ -204,7 +198,56 @@ function initCodeFold() {
 
             const isCollapsed = activeContent.classList.toggle('collapsed');
             foldBtn.classList.toggle('collapsed', isCollapsed);
-            
+
+            const foldText = foldBtn.querySelector('.fold-text');
+            if (foldText) {
+                foldText.textContent = isCollapsed ? '展开' : '折叠';
+            }
+        });
+    });
+
+    // 处理独立的代码块（不在 code-tabs 中）
+    document.querySelectorAll('.code-block').forEach(codeBlock => {
+        // 检查是否已经有折叠按钮
+        if (codeBlock.parentElement.querySelector('.code-fold-btn')) return;
+
+        // 创建包装容器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        wrapper.style.position = 'relative';
+
+        // 创建折叠按钮
+        const foldBtn = document.createElement('button');
+        foldBtn.className = 'code-fold-btn';
+        foldBtn.innerHTML = '<span class="fold-icon">▼</span> <span class="fold-text">折叠</span>';
+        foldBtn.style.position = 'absolute';
+        foldBtn.style.top = '8px';
+        foldBtn.style.right = '8px';
+        foldBtn.style.zIndex = '10';
+
+        // 插入包装器和按钮
+        codeBlock.parentNode.insertBefore(wrapper, codeBlock);
+        wrapper.appendChild(codeBlock);
+        wrapper.appendChild(foldBtn);
+
+        // 标记为可折叠
+        wrapper.dataset.canFold = 'true';
+
+        // 折叠/展开点击事件
+        foldBtn.addEventListener('click', function() {
+            const isCollapsed = wrapper.classList.toggle('collapsed');
+            foldBtn.classList.toggle('collapsed', isCollapsed);
+
+            if (isCollapsed) {
+                codeBlock.style.maxHeight = '50px';
+                codeBlock.style.overflow = 'hidden';
+                codeBlock.style.position = 'relative';
+            } else {
+                codeBlock.style.maxHeight = '';
+                codeBlock.style.overflow = '';
+                codeBlock.style.position = '';
+            }
+
             const foldText = foldBtn.querySelector('.fold-text');
             if (foldText) {
                 foldText.textContent = isCollapsed ? '展开' : '折叠';
