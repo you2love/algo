@@ -3,185 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>缓存算法 - 算法学习指南</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>缓存算法 - 系统性能优化 2026</title>
+    <meta name="description" content="全面掌握缓存置换算法：LRU、LFU、FIFO、MRU、Clock，配备详细原理分析和代码实现">
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
     <style>
-        .toc {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+        /* 页面专属样式 */
+        .algorithm-intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: var(--border-radius-lg);
+            margin: 32px 0;
+            text-align: center;
         }
-        .toc h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        .toc ul {
-            list-style: none;
+
+        .algorithm-intro h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            border: none;
             padding: 0;
         }
-        .toc li {
-            margin: 8px 0;
+
+        .algorithm-intro p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
         }
-        .toc a {
-            color: #3498db;
-            text-decoration: none;
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
         }
-        .toc a:hover {
-            text-decoration: underline;
+
+        .algorithm-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
         }
-        .algo-section {
-            margin-bottom: 60px;
-            padding-bottom: 40px;
-            border-bottom: 1px solid #eee;
+
+        .algorithm-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
-        .algo-section:last-child {
-            border-bottom: none;
+
+        .algorithm-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .visual-demo {
-            background: #2d2d2d;
+
+        .algorithm-card .icon {
+            font-size: 1.8rem;
+        }
+
+        .algorithm-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .complexity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .complexity-item {
+            background: var(--bg-tertiary);
             padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .complexity-item:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-secondary);
+        }
+
+        .complexity-item .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .complexity-item .value {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-item {
+            background: var(--bg-secondary);
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .feature-item strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .feature-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .section-detail {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            margin: 40px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-detail h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-detail h3 {
+            color: var(--text-primary);
+            margin: 24px 0 16px;
+            font-size: 1.3rem;
+        }
+
+        .math-box {
+            background: var(--code-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            color: var(--code-text);
+            overflow-x: auto;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .pros {
+            background: rgba(72, 187, 120, 0.1);
+            border: 2px solid var(--success-color);
+        }
+
+        .cons {
+            background: rgba(245, 101, 101, 0.1);
+            border: 2px solid var(--error-color);
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pros h4 {
+            color: var(--success-color);
+        }
+
+        .cons h4 {
+            color: var(--error-color);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .comparison-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .comparison-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comparison-card li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .comparison-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .visual-demo {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--code-text);
+            overflow-x: auto;
+        }
+
+        .visual-demo p {
+            margin: 8px 0;
+            white-space: pre;
+        }
+
+        .cache-structure {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 24px 0;
+            color: white;
+        }
+
+        .cache-structure h4 {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .structure-diagram {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .structure-part {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 16px;
             border-radius: 8px;
-            margin: 15px 0;
-            font-family: 'Consolas', monospace;
-            color: #f8f8f2;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            
+            .algorithm-intro {
+                padding: 40px 20px;
+            }
+            
+            .algorithm-intro h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo"></h1>
+            <a href="/" class="logo">AlgoGuide 2026</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#resources">学习资源</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
             </ul>
         </div>
     </nav>
 
-    <section class="algorithm-detail">
+    <main class="algorithm-detail">
         <div class="container">
-            <a href="../index.html#algorithms" class="back-link">← 返回算法分类</a>
-            <h2>缓存算法</h2>
-            
-            <div class="toc">
-                <h3>目录</h3>
-                <ul>
-                    <li>1. <a href="#cache-intro">缓存概述与问题背景</a></li>
-                    <li>2. <a href="#lru">LRU - 最近最少使用</a></li>
-                    <li>3. <a href="#lfu">LFU - 最不经常使用</a></li>
-                    <li>4. <a href="#fifo">FIFO - 先进先出</a></li>
-                    <li>5. <a href="#mru">MRU - 最近最多使用</a></li>
-                    <li>6. <a href="#clock">Clock算法</a></li>
-                    <li>7. <a href="#comparison">算法对比与选择</a></li>
-                </ul>
+            <!-- 页面介绍 -->
+            <div class="algorithm-intro">
+                <h1>💾 缓存置换算法</h1>
+                <p>在有限空间内智能管理数据，最大化缓存命中率，提升系统性能</p>
             </div>
 
-            <div class="algo-section" id="cache-intro">
-                <h2>缓存概述与问题背景</h2>
-                
-                <div class="algorithm-content">
-                    <h3>为什么需要缓存算法？</h3>
-                    <p>缓存是计算机系统中用于存储临时数据的高速存储层，其目的是避免重复计算或从慢速存储中读取数据。由于缓存空间有限，当缓存满时需要决定淘汰哪些数据，这就是缓存置换问题。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>缓存的核心假设：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li><strong>时间局部性：</strong>最近访问的数据可能再次被访问</li>
-                        <li><strong>空间局部性：</strong>访问某个数据时，其附近的数据也可能被访问</li>
-                    </ul>
-
-                    <p style="margin-top: 15px;"><strong>缓存置换的目标：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>最大化缓存命中率（Hit Rate）</li>
-                        <li>最小化缓存未命中率（Miss Rate）</li>
-                        <li>降低平均访问时间</li>
-                    </ul>
+            <!-- 算法概览卡片 -->
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <h3><span class="icon">🔄</span> LRU</h3>
+                    <p>最近最少使用，基于时间局部性。最经典的缓存算法，广泛应用。</p>
                 </div>
-
-                <div class="complexity">
-                    <div class="complexity-item">
-                        <h4>理想情况</h4>
-                        <p>OPT - 置换未来最远使用的页面</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>实际目标</h4>
-                        <p>接近OPT的命中率</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>权衡因素</h4>
-                        <p>实现复杂度、空间开销</p>
-                    </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">📊</span> LFU</h3>
+                    <p>最不经常使用，基于频率统计。适合热点数据明显的场景。</p>
                 </div>
-
-                <h3>Belady's Theorem (Belady异常)</h3>
-                <div class="algorithm-content">
-                    <p><strong>Belady异常：</strong>对于FIFO算法，增加缓存容量反而可能导致更高的缺页率。</p>
-                    <p style="margin-top: 15px;"><strong>示例序列：</strong>1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</p>
-                    <ul style="margin-left: 20px;">
-                        <li>容量=3时：9次缺页</li>
-                        <li>容量=4时：10次缺页（FIFO异常）</li>
-                    </ul>
-                    <p style="margin-top: 15px;"><strong>LRU不存在Belady异常：</strong>增加缓存容量不会降低命中率。</p>
+                <div class="algorithm-card">
+                    <h3><span class="icon">📥</span> FIFO</h3>
+                    <p>先进先出，最简单直接。实现成本低，但性能一般。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">🕐</span> MRU</h3>
+                    <p>最近最多使用，特殊场景适用。适合循环访问模式。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">⏰</span> Clock</h3>
+                    <p>时钟算法，LRU 的近似实现。性能与成本的平衡选择。</p>
                 </div>
             </div>
 
-            <div class="algo-section" id="lru">
-                <h2>LRU - 最近最少使用 (Least Recently Used)</h2>
+            <!-- 缓存核心概念 -->
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>💡</span> 缓存核心原理
+                </div>
+                <div class="info-card-content">
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <strong>🎯 时间局部性</strong>
+                            <p>最近访问的数据可能再次被访问</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>📍 空间局部性</strong>
+                            <p>访问某个数据时，附近数据也可能被访问</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>📈 命中率优化</strong>
+                            <p>最大化缓存命中，最小化未命中</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>⚡ 降低延迟</strong>
+                            <p>减少从慢速存储读取数据的次数</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LRU 算法 -->
+            <section id="lru" class="section-detail">
+                <h2><span>🔄</span> 1. LRU - 最近最少使用</h2>
                 
-                <div class="algorithm-content">
-                    <h3>算法原理</h3>
-                    <p>LRU算法基于"最近使用的条目在未来更可能被使用"的假设。当缓存满时，淘汰最长时间未被访问的数据。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>维护数据的访问时间顺序</li>
-                        <li>每次访问数据时，将其移到链表头部</li>
-                        <li>淘汰时移除链表尾部数据</li>
-                    </ul>
-                </div>
-
-                <div class="complexity">
-                    <div class="complexity-item">
-                        <h4>查询</h4>
-                        <p>O(1)</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>插入</h4>
-                        <p>O(1)</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>删除</h4>
-                        <p>O(1)</p>
+                <h3>算法原理</h3>
+                <p>LRU 算法基于"最近使用的条目在未来更可能被使用"的假设。当缓存满时，淘汰最长时间未被访问的数据。</p>
+                
+                <div class="cache-structure">
+                    <h4><span>🏗️</span> LRU 数据结构：哈希表 + 双向链表</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>📖 哈希表</strong><br>
+                            O(1) 查找<br>
+                            key → 链表节点
+                        </div>
+                        <div class="structure-part">
+                            <strong>🔗 双向链表</strong><br>
+                            维护访问顺序<br>
+                            头→最新，尾→最老
+                        </div>
                     </div>
                 </div>
 
-                <h3>为什么LRU是O(1)？</h3>
-                <div class="algorithm-content">
-                    <p>使用<strong>哈希表 + 双向链表</strong>的数据结构：</p>
-                    <ul style="margin-left: 20px;">
-                        <li><strong>哈希表：</strong>提供O(1)时间复杂度的查找</li>
-                        <li><strong>双向链表：</strong>维护访问顺序，头尾操作O(1)</li>
-                        <li><strong>配合使用：</strong>通过哈希表可以直接找到链表节点</li>
-                    </ul>
-                    
-                    <div class="visual-demo">
-                        <p>数据结构示意：</p>
-<p>┌─────────┐     head ─────────────────────────────────── tail ┐</p>
-<p>│         │                                                      │</p>
-<p>│ HashMap │  HEAD                                               TAIL</p>
-<p>│─────────│    ↓                                                 ↓</p>
-<p>│ A: node1 │  [A] ↔ [B] ↔ [C] ↔ [D] ↔ [E] (最近使用顺序)</p>
-<p>│ B: node2 │    ↑                         ↑</p>
-<p>│ C: node3 │  最新访问                   最老访问</p>
-<p>│ D: node4 │                              ↓ 被淘汰</p>
-<p>│ E: node5 │</p>
-<p>└─────────┘</p>
+                <div class="visual-demo">
+                    <p>LRU 缓存状态示意：</p>
+                    <p>┌─────────┐     head ─────────────────────────────────── tail ┐</p>
+                    <p>│         │                                                      │</p>
+                    <p>│ HashMap │  HEAD                                               TAIL</p>
+                    <p>│─────────│    ↓                                                 ↓</p>
+                    <p>│ A: node1 │  [A] ↔ [B] ↔ [C] ↔ [D] ↔ [E] (最近使用顺序)</p>
+                    <p>│ B: node2 │    ↑                         ↑</p>
+                    <p>│ C: node3 │  最新访问                   最老访问</p>
+                    <p>│ D: node4 │                              ↓ 被淘汰</p>
+                    <p>│ E: node5 │</p>
+                    <p>└─────────┘</p>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">查询</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">插入</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">删除</div>
+                        <div class="value">O(1)</div>
                     </div>
                 </div>
 
-                <h3>算法实现</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>实现简单，容易理解</li>
+                            <li>不存在 Belady 异常</li>
+                            <li>适合大多数实际场景</li>
+                            <li>时间复杂度最优</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>需要维护访问顺序</li>
+                            <li>循环访问模式性能差</li>
+                            <li>冷启动时需要预热</li>
+                            <li>内存开销较大</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
                 <div class="code-tabs">
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="lru-js">JavaScript</button>
@@ -189,8 +463,7 @@
                         <button class="code-tab-btn" data-tab="lru-go">Go</button>
                     </div>
                     <div id="lru-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class LRUCache {
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class LRUCache {
     constructor(capacity) {
         this.capacity = capacity;
         this.cache = new Map();
@@ -198,9 +471,7 @@ class LRUCache {
 
     get(key) {
         if (!this.cache.has(key)) return -1;
-        
         const value = this.cache.get(key);
-        // 重新插入以更新位置
         this.cache.delete(key);
         this.cache.set(key, value);
         return value;
@@ -210,35 +481,6 @@ class LRUCache {
         if (this.cache.has(key)) {
             this.cache.delete(key);
         } else if (this.cache.size >= this.capacity) {
-            // 淘汰最久未使用的（Map的第一个键）
-            const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
-        }
-        this.cache.set(key, value);
-    }
-}
-
-// 使用LinkedHashMap思想手动实现（更高效）
-class LRUCache2 {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.cache = new Map();
-    }
-
-    get(key) {
-        if (!this.cache.has(key)) return -1;
-        
-        const value = this.cache.get(key);
-        this.cache.delete(key);
-        this.cache.set(key, value);
-        return value;
-    }
-
-    put(key, value) {
-        if (this.cache.has(key)) {
-            this.cache.delete(key);
-        }
-        if (this.cache.size >= this.capacity) {
             const firstKey = this.cache.keys().next().value;
             this.cache.delete(firstKey);
         }
@@ -251,82 +493,30 @@ const lru = new LRUCache(3);
 lru.put(1, 'A');
 lru.put(2, 'B');
 lru.put(3, 'C');
-console.log(lru.get(1)); // 'A' - 访问1，将其移到最新
-lru.put(4, 'D'); // 淘汰2（最久未使用）
-console.log(lru.get(2)); // -1
-console.log(lru.get(3)); // 'C'
-                        </code></pre></div>
+console.log(lru.get(1)); // 'A'
+lru.put(4, 'D'); // 淘汰 2
+console.log(lru.get(2)); // -1</code></pre></div>
                     </div>
                     <div id="lru-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import OrderedDict
+                        <div class="code-block line-numbers"><pre><code class="language-python">from collections import OrderedDict
 
 class LRUCache:
     def __init__(self, capacity):
         self.capacity = capacity
         self.cache = OrderedDict()
-    
+
     def get(self, key):
         if key not in self.cache:
             return -1
-        # 移到末尾（最新）
         self.cache.move_to_end(key)
         return self.cache[key]
-    
+
     def put(self, key, value):
         if key in self.cache:
             self.cache.move_to_end(key)
         self.cache[key] = value
         if len(self.cache) > self.capacity:
-            # 弹出第一个（最久未使用）
             self.cache.popitem(last=False)
-
-# 使用双向链表 + 哈希表（更底层的实现）
-class LRUCache2:
-    class Node:
-        __slots__ = ('key', 'val', 'prev', 'next')
-        def __init__(self, key, val):
-            self.key = key
-            self.val = val
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = {}
-        self.head = self.Node(0, 0)
-        self.tail = self.Node(0, 0)
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def _remove(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def _add(self, node):
-        node.prev = self.tail.prev
-        node.next = self.tail
-        self.tail.prev.next = node
-        self.tail.prev = node
-
-    def get(self, key):
-        if key not in self.cache:
-            return -1
-        node = self.cache[key]
-        self._remove(node)
-        self._add(node)
-        return node.val
-
-    def put(self, key, value):
-        if key in self.cache:
-            self._remove(self.cache[key])
-        node = self.Node(key, value)
-        self.cache[key] = node
-        self._add(node)
-        if len(self.cache) > self.capacity:
-            to_remove = self.head.next
-            self._remove(to_remove)
-            del self.cache[to_remove.key]
 
 # 测试
 lru = LRUCache(3)
@@ -334,13 +524,11 @@ lru.put(1, 'A')
 lru.put(2, 'B')
 lru.put(3, 'C')
 print(lru.get(1))  # 'A'
-lru.put(4, 'D')    # 淘汰2
-print(lru.get(2))  # -1
-                        </code></pre></div>
+lru.put(4, 'D')    # 淘汰 2
+print(lru.get(2))  # -1</code></pre></div>
                     </div>
                     <div id="lru-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
 
 import (
     "container/list"
@@ -380,7 +568,6 @@ func (c *LRUCache) Put(key int, value interface{}) {
         elem.Value.(*entry).value = value
         return
     }
-
     if c.lruList.Len() >= c.capacity {
         back := c.lruList.Back()
         if back != nil {
@@ -389,7 +576,6 @@ func (c *LRUCache) Put(key int, value interface{}) {
             c.lruList.Remove(back)
         }
     }
-
     newEntry := &entry{key: key, value: value}
     elem := c.lruList.PushFront(newEntry)
     c.cache[key] = elem
@@ -403,108 +589,64 @@ func main() {
     fmt.Println(lru.Get(1)) // A
     lru.Put(4, "D")         // 淘汰 2
     fmt.Println(lru.Get(2)) // -1
-    fmt.Println(lru.Get(3)) // C
-}
-                        </code></pre></div>
+}</code></pre></div>
                     </div>
                 </div>
+            </section>
 
-                <h3>LRU的优缺点</h3>
-                <div class="algorithm-content">
-                    <p><strong>优点：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>实现简单，容易理解</li>
-                        <li>不存在Belady异常</li>
-                        <li>适合大多数实际场景</li>
-                    </ul>
-                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>需要维护访问顺序，有一定开销</li>
-                        <li>对于循环访问模式，可能性能不佳</li>
-                        <li>冷启动时需要预热</li>
-                    </ul>
-                </div>
-
-                <h3>LRU的应用场景</h3>
-                <div class="algorithm-content">
-                    <ul>
-                        <li><strong>操作系统页面置换：</strong>Linux使用改进的LRU</li>
-                        <li><strong>数据库缓存：</strong>InnoDB缓冲池</li>
-                        <li><strong>Web缓存：</strong>浏览器缓存、CDN</li>
-                        <li><strong>应用程序缓存：</strong>Redis LRU策略</li>
-                        <li><strong>CPU缓存：</strong>Cache替换策略</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="algo-section" id="lfu">
-                <h2>LFU - 最不经常使用 (Least Frequently Used)</h2>
+            <!-- LFU 算法 -->
+            <section id="lfu" class="section-detail">
+                <h2><span>📊</span> 2. LFU - 最不经常使用</h2>
                 
-                <div class="algorithm-content">
-                    <h3>算法原理</h3>
-                    <p>LFU算法基于"使用频率低的数据在未来使用的可能性也低"的假设。当缓存满时，淘汰访问频率最低的数据。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>维护每个数据的使用频率</li>
-                        <li>每次访问数据时，频率加1</li>
-                        <li>淘汰时选择频率最低的</li>
-                    </ul>
+                <h3>算法原理</h3>
+                <p>LFU 算法基于"使用频率低的数据在未来使用的可能性也低"的假设。当缓存满时，淘汰访问频率最低的数据。</p>
+                
+                <div class="visual-demo">
+                    <p>LFU 数据结构示意：</p>
+                    <p>┌─────────────────────────────────────────────────┐</p>
+                    <p>│ freq=1: [A] ←→ [B]                              │</p>
+                    <p>│ freq=2: [C] ←→ [D]                              │</p>
+                    <p>│ freq=3: [E]                                      │</p>
+                    <p>└─────────────────────────────────────────────────┘</p>
+                    <p>哈希表：{A: node, B: node, C: node, ...}</p>
+                    <p>minFreq = 1</p>
                 </div>
 
-                <div class="complexity">
+                <div class="complexity-grid">
                     <div class="complexity-item">
-                        <h4>查询</h4>
-                        <p>O(1)</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>插入</h4>
-                        <p>O(log n)</p>
+                        <div class="label">查询</div>
+                        <div class="value">O(1)</div>
                     </div>
                     <div class="complexity-item">
-                        <h4>删除</h4>
-                        <p>O(1)</p>
+                        <div class="label">插入</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">删除</div>
+                        <div class="value">O(1)</div>
                     </div>
                 </div>
 
-                <h3>LFU的实现挑战</h3>
-                <div class="algorithm-content">
-                    <p><strong>问题：</strong>如何高效找到频率最低的数据？</p>
-                    <p style="margin-top: 15px;"><strong>解决方案：</strong>使用<strong>哈希表 + 双向链表</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>外层哈希表：key → node</li>
-                        <li>内层链表：按频率分组，同频率按时间排序</li>
-                        <li>维护最小频率指针</li>
-                    </ul>
-
-                    <div class="visual-demo">
-                        <p>LFU数据结构示意：</p>
-<p>┌─────────────────────────────────────────────────┐</p>
-<p>│ freq=1: [A] ←→ [B]                              │</p>
-<p>│ freq=2: [C] ←→ [D]                              │</p>
-│ freq=3: [E]                                      │
-<p>└─────────────────────────────────────────────────┘</p>
-<p>哈希表: {A: node, B: node, C: node, ...}</p>
-<p>minFreq = 1</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>保留热点数据</li>
+                            <li>适合频率差异大的场景</li>
+                            <li>长期性能稳定</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>实现复杂度高</li>
+                            <li>存在"饥饿"问题</li>
+                            <li>需要频率衰减机制</li>
+                        </ul>
                     </div>
                 </div>
 
-                <h3>LFU的两种策略</h3>
-                <div class="algorithm-content">
-                    <p><strong>1. 纯LFU：</strong>频率相同时按时间淘汰（最久未使用）</p>
-                    <p><strong>2. LFU*（LFU-Aging）：</strong>定期衰减频率，防止"饥饿"问题</p>
-                    
-                    <p style="margin-top: 15px;"><strong>LFU的"饥饿"问题：</strong></p>
-                    <p>一个数据曾经被频繁访问后，即使之后不再访问，也会长期占用缓存，因为它的频率很高。新数据可能因为频率低而被频繁淘汰。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>解决方案：频率衰减</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>定期将所有频率减半（或按比例衰减）</li>
-                        <li>使用时间窗口，只统计近期的访问频率</li>
-                    </ul>
-                </div>
-
-                <h3>算法实现</h3>
+                <h3>代码实现</h3>
                 <div class="code-tabs">
                     <div class="code-tab-header">
                         <button class="code-tab-btn active" data-tab="lfu-js">JavaScript</button>
@@ -512,19 +654,16 @@ func main() {
                         <button class="code-tab-btn" data-tab="lfu-go">Go</button>
                     </div>
                     <div id="lfu-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class LFUCache {
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class LFUCache {
     constructor(capacity) {
         this.capacity = capacity;
         this.minFreq = 0;
-        this.size = 0;
-        this.cache = new Map();       // key → {key, value, freq}
-        this.freqMap = new Map();     // freq → Set of nodes (按访问时间排序)
+        this.cache = new Map();
+        this.freqMap = new Map();
     }
 
     get(key) {
         if (!this.cache.has(key)) return -1;
-        
         const node = this.cache.get(key);
         this._updateFreq(node);
         return node.value;
@@ -532,40 +671,31 @@ class LFUCache {
 
     put(key, value) {
         if (this.capacity <= 0) return;
-        
         if (this.cache.has(key)) {
             const node = this.cache.get(key);
             node.value = value;
             this._updateFreq(node);
         } else {
-            if (this.size >= this.capacity) {
+            if (this.cache.size >= this.capacity) {
                 this._evict();
             }
-            
             const node = { key, value, freq: 1 };
             this.cache.set(key, node);
-            
             if (!this.freqMap.has(1)) {
                 this.freqMap.set(1, new Set());
             }
             this.freqMap.get(1).add(node);
-            
             this.minFreq = 1;
-            this.size++;
         }
     }
 
     _updateFreq(node) {
         const oldFreq = node.freq;
         this.freqMap.get(oldFreq).delete(node);
-        
         if (this.freqMap.get(oldFreq).size === 0) {
             this.freqMap.delete(oldFreq);
-            if (this.minFreq === oldFreq) {
-                this.minFreq++;
-            }
+            if (this.minFreq === oldFreq) this.minFreq++;
         }
-        
         node.freq++;
         if (!this.freqMap.has(node.freq)) {
             this.freqMap.set(node.freq, new Set());
@@ -577,11 +707,7 @@ class LFUCache {
         const minFreqSet = this.freqMap.get(this.minFreq);
         const firstKey = minFreqSet.values().next().value.key;
         minFreqSet.delete(firstKey);
-        if (minFreqSet.size === 0) {
-            this.freqMap.delete(this.minFreq);
-        }
         this.cache.delete(firstKey);
-        this.size--;
     }
 }
 
@@ -590,88 +716,71 @@ const lfu = new LFUCache(3);
 lfu.put(1, 'A');
 lfu.put(2, 'B');
 lfu.put(3, 'C');
-lfu.get(1); // A访问频率变为2
-lfu.get(2); // B访问频率变为2
-lfu.put(4, 'D'); // 淘汰C（频率1，最低）
-console.log(lfu.get(3)); // -1
-                        </code></pre></div>
+lfu.get(1); lfu.get(2);
+lfu.put(4, 'D'); // 淘汰 C
+console.log(lfu.get(3)); // -1</code></pre></div>
                     </div>
                     <div id="lfu-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import defaultdict
-from collections import OrderedDict
+                        <div class="code-block line-numbers"><pre><code class="language-python">from collections import defaultdict, OrderedDict
 
 class LFUCache:
     def __init__(self, capacity):
         self.capacity = capacity
         self.min_freq = 0
-        self.size = 0
-        self.cache = {}        # key -> [value, freq]
-        self.freq_map = defaultdict(OrderedDict)  # freq -> OrderedDict(key, value)
-    
+        self.cache = {}
+        self.freq_map = defaultdict(OrderedDict)
+
     def get(self, key):
         if key not in self.cache:
             return -1
-        
         value, freq = self.cache[key]
         self._update_freq(key, freq)
         return value
-    
+
     def put(self, key, value):
         if self.capacity <= 0:
             return
-        
         if key in self.cache:
             old_freq = self.cache[key][1]
             self.cache[key][0] = value
             self._update_freq(key, old_freq)
-            return
-        
-        if self.size >= self.capacity:
-            self._evict()
-        
-        self.cache[key] = [value, 1]
-        self.freq_map[1][key] = value
-        self.min_freq = 1
-        self.size += 1
-    
+        else:
+            if len(self.cache) >= self.capacity:
+                self._evict()
+            self.cache[key] = [value, 1]
+            self.freq_map[1][key] = value
+            self.min_freq = 1
+
     def _update_freq(self, key, old_freq):
-        # 从旧频率集合中删除
         del self.freq_map[old_freq][key]
         if not self.freq_map[old_freq]:
             del self.freq_map[old_freq]
             if self.min_freq == old_freq:
                 self.min_freq += 1
-        
-        # 添加到新频率集合
         new_freq = old_freq + 1
         self.cache[key][1] = new_freq
         self.freq_map[new_freq][key] = self.cache[key][0]
-    
+
     def _evict(self):
         min_freq_keys = self.freq_map[self.min_freq]
-        # OrderedDict保持插入顺序，最久未使用的在前面
         evict_key = next(iter(min_freq_keys))
         del min_freq_keys[evict_key]
         if not min_freq_keys:
             del self.freq_map[self.min_freq]
         del self.cache[evict_key]
-        self.size -= 1
 
 # 测试
 lfu = LFUCache(3)
 lfu.put(1, 'A')
 lfu.put(2, 'B')
 lfu.put(3, 'C')
-lfu.get(1)  # A频率变为2
-lfu.get(2)  # B频率变为2
-lfu.put(4, 'D')  # 淘汰C（频率1，最低）
-print(lfu.get(3))  # -1
-                        </code></pre></div>
+lfu.get(1)
+lfu.get(2)
+lfu.put(4, 'D')
+print(lfu.get(3))  # -1</code></pre></div>
                     </div>
                     <div id="lfu-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
 
 import (
     "container/list"
@@ -679,11 +788,10 @@ import (
 )
 
 type LFUCache struct {
-    capacity  int
-    minFreq   int
-    size      int
-    cache     map[int]*list.Element
-    freqMap   map[int]*list.List
+    capacity int
+    minFreq  int
+    cache    map[int]*list.Element
+    freqMap  map[int]*list.List
 }
 
 type lfuEntry struct {
@@ -695,8 +803,6 @@ type lfuEntry struct {
 func NewLFUCache(capacity int) *LFUCache {
     return &LFUCache{
         capacity: capacity,
-        minFreq:  0,
-        size:     0,
         cache:    make(map[int]*list.Element),
         freqMap:  make(map[int]*list.List),
     }
@@ -714,17 +820,14 @@ func (c *LFUCache) Put(key int, value interface{}) {
     if c.capacity <= 0 {
         return
     }
-
     if elem, ok := c.cache[key]; ok {
         elem.Value.(*lfuEntry).value = value
         c.updateFreq(elem)
         return
     }
-
-    if c.size >= c.capacity {
+    if len(c.cache) >= c.capacity {
         c.evict()
     }
-
     entry := &lfuEntry{key: key, value: value, freq: 1}
     if c.freqMap[1] == nil {
         c.freqMap[1] = list.New()
@@ -732,13 +835,11 @@ func (c *LFUCache) Put(key int, value interface{}) {
     elem := c.freqMap[1].PushBack(entry)
     c.cache[key] = elem
     c.minFreq = 1
-    c.size++
 }
 
 func (c *LFUCache) updateFreq(elem *list.Element) {
     entry := elem.Value.(*lfuEntry)
     oldFreq := entry.freq
-
     c.freqMap[oldFreq].Remove(elem)
     if c.freqMap[oldFreq].Len() == 0 {
         delete(c.freqMap, oldFreq)
@@ -746,13 +847,11 @@ func (c *LFUCache) updateFreq(elem *list.Element) {
             c.minFreq++
         }
     }
-
     entry.freq++
-    newFreq := entry.freq
-    if c.freqMap[newFreq] == nil {
-        c.freqMap[newFreq] = list.New()
+    if c.freqMap[entry.freq] == nil {
+        c.freqMap[entry.freq] = list.New()
     }
-    newElem := c.freqMap[newFreq].PushBack(entry)
+    newElem := c.freqMap[entry.freq].PushBack(entry)
     c.cache[entry.key] = newElem
 }
 
@@ -768,7 +867,6 @@ func (c *LFUCache) evict() {
             delete(c.freqMap, c.minFreq)
         }
         delete(c.cache, entry.key)
-        c.size--
     }
 }
 
@@ -779,671 +877,107 @@ func main() {
     lfu.Put(3, "C")
     fmt.Println(lfu.Get(1)) // A
     fmt.Println(lfu.Get(2)) // B
-    lfu.Put(4, "D")         // 淘汰 C（频率 1，最低）
+    lfu.Put(4, "D")
     fmt.Println(lfu.Get(3)) // -1
-}
-                        </code></pre></div>
+}</code></pre></div>
                     </div>
                 </div>
+            </section>
 
-                <h3>LFU的应用场景</h3>
-                <div class="algorithm-content">
-                    <ul>
-                        <li><strong>热点数据缓存：</strong>访问频率高的数据优先保留</li>
-                        <li><strong>推荐系统：</strong>保留用户感兴趣的内容</li>
-                        <li><strong> CDN缓存：</strong>热门资源访问频率高</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="algo-section" id="fifo">
-                <h2>FIFO - 先进先出 (First In First Out)</h2>
+            <!-- 算法对比与选择 -->
+            <section id="comparison" class="section-detail">
+                <h2><span>📊</span> 算法对比与选择</h2>
                 
-                <div class="algorithm-content">
-                    <h3>算法原理</h3>
-                    <p>FIFO是最简单的缓存置换算法。当缓存满时，淘汰最早进入缓存的数据。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>核心思想：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>维护数据进入缓存的顺序</li>
-                        <li>使用队列存储数据</li>
-                        <li>淘汰时弹出队列头部</li>
-                    </ul>
-                </div>
-
-                <div class="complexity">
-                    <div class="complexity-item">
-                        <h4>查询</h4>
-                        <p>O(n)</p>
+                <h3>缓存算法对比</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4><span>🔄</span> LRU</h4>
+                        <ul>
+                            <li>基于访问时间</li>
+                            <li>O(1) 复杂度</li>
+                            <li>无 Belady 异常</li>
+                            <li>通用场景首选</li>
+                        </ul>
                     </div>
-                    <div class="complexity-item">
-                        <h4>插入</h4>
-                        <p>O(1)</p>
+                    <div class="comparison-card">
+                        <h4><span>📊</span> LFU</h4>
+                        <ul>
+                            <li>基于访问频率</li>
+                            <li>O(log n) 复杂度</li>
+                            <li>保留热点数据</li>
+                            <li>频率差异大场景</li>
+                        </ul>
                     </div>
-                    <div class="complexity-item">
-                        <h4>删除</h4>
-                        <p>O(1)</p>
+                    <div class="comparison-card">
+                        <h4><span>📥</span> FIFO</h4>
+                        <ul>
+                            <li>基于进入时间</li>
+                            <li>O(1) 复杂度</li>
+                            <li>实现最简单</li>
+                            <li>性能一般</li>
+                        </ul>
                     </div>
-                </div>
-
-                <h3>Belady异常详解</h3>
-                <div class="algorithm-content">
-                    <p><strong>示例序列：</strong>1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</p>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                        <tr style="background: #3498db; color: white;">
-                            <th style="padding: 10px;">缓存容量</th>
-                            <th style="padding: 10px;">缺页次数</th>
-                            <th style="padding: 10px;">说明</th>
-                        <tr style=" </tr>
-                       background: #f8f9fa;">
-                            <td style="padding: 10px;">3</td>
-                            <td style="padding: 10px;">9</td>
-                            <td style="padding: 10px;">正常</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px;">4</td>
-                            <td style="padding: 10px;">10</td>
-                            <td style="padding: 10px;">Belady异常！</td>
-                        </tr>
-                    </table>
-
-                    <p style="margin-top: 15px;"><strong>原因分析：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>容量3时：1,2,3,4,5交替，命中较少</li>
-                        <li>容量4时：4号页面进入后，1,2,5,3,4循环，无法稳定命中</li>
-                    </ul>
-                </div>
-
-                <h3>算法实现</h3>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="fifo-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="fifo-python">Python</button>
-                        <button class="code-tab-btn" data-tab="fifo-go">Go</button>
-                    </div>
-                    <div id="fifo-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class FIFOCache {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.cache = new Set();
-        this.queue = []; // 记录进入顺序
-    }
-
-    get(key) {
-        return this.cache.has(key) ? 1 : -1; // 1表示命中，-1表示未命中
-    }
-
-    put(key, value) {
-        if (this.capacity <= 0) return;
-        
-        if (this.cache.has(key)) {
-            // FIFO不更新顺序
-            return;
-        }
-        
-        if (this.cache.size >= this.capacity) {
-            const evictKey = this.queue.shift();
-            this.cache.delete(evictKey);
-        }
-        
-        this.cache.add(key);
-        this.queue.push(key);
-    }
-
-    // 模拟访问序列
-    access(sequence) {
-        let hits = 0;
-        let misses = 0;
-        
-        for (const key of sequence) {
-            if (this.get(key) === 1) {
-                hits++;
-            } else {
-                misses++;
-                this.put(key, null);
-            }
-        }
-        
-        return { hits, misses, hitRate: hits / sequence.length };
-    }
-}
-
-// 测试
-const fifo = new FIFOCache(3);
-const sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5];
-console.log(fifo.access(sequence)); // 缺页10次
-                        </code></pre></div>
-                    </div>
-                    <div id="fifo-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-class FIFOCache:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = set()
-        self.queue = []  # 记录进入顺序
-    
-    def get(self, key):
-        return 1 if key in self.cache else -1
-    
-    def put(self, key, value):
-        if self.capacity <= 0:
-            return
-        
-        if key in self.cache:
-            return
-        
-        if len(self.cache) >= self.capacity:
-            evict_key = self.queue.pop(0)
-            self.cache.remove(evict_key)
-        
-        self.cache.add(key)
-        self.queue.append(key)
-    
-    def access(self, sequence):
-        hits = 0
-        misses = 0
-        
-        for key in sequence:
-            if self.get(key) == 1:
-                hits += 1
-            else:
-                misses += 1
-                self.put(key, None)
-        
-        return {'hits': hits, 'misses': misses, 
-                'hit_rate': hits / len(sequence)}
-
-# 测试
-fifo = FIFOCache(3)
-sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
-print(fifo.access(sequence))  # 缺页10次
-                        </code></pre>                    </div>
-                    <div id="fifo-go" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-go">
-package main
-
-import "fmt"
-
-type FIFOCache struct {
-    capacity int
-    cache    map[int]bool
-    queue    []int
-}
-
-func NewFIFOCache(capacity int) *FIFOCache {
-    return &FIFOCache{
-        capacity: capacity,
-        cache:    make(map[int]bool),
-        queue:    make([]int, 0),
-    }
-}
-
-func (c *FIFOCache) Get(key int) int {
-    if c.cache[key] {
-        return 1
-    }
-    return -1
-}
-
-func (c *FIFOCache) Put(key int, value interface{}) {
-    if c.capacity <= 0 {
-        return
-    }
-
-    if c.cache[key] {
-        return
-    }
-
-    if len(c.cache) >= c.capacity {
-        evictKey := c.queue[0]
-        c.queue = c.queue[1:]
-        delete(c.cache, evictKey)
-    }
-
-    c.cache[key] = true
-    c.queue = append(c.queue, key)
-}
-
-func (c *FIFOCache) Access(sequence []int) (hits, misses int, hitRate float64) {
-    hits = 0
-    misses = 0
-    for _, key := range sequence {
-        if c.Get(key) == 1 {
-            hits++
-        } else {
-            misses++
-            c.Put(key, nil)
-        }
-    }
-    hitRate = float64(hits) / float64(len(sequence))
-    return
-}
-
-func main() {
-    fifo := NewFIFOCache(3)
-    sequence := []int{1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5}
-    hits, misses, hitRate := fifo.Access(sequence)
-    fmt.Printf("Hits: %d, Misses: %d, Hit Rate: %.2f\n", hits, misses, hitRate)
-}
-                        </code></pre></div>
-                    </div>
-                </div></div>
+                    <div class="comparison-card">
+                        <h4><span>⏰</span> Clock</h4>
+                        <ul>
+                            <li>LRU 近似</li>
+                            <li>O(1) 复杂度</li>
+                            <li>空间效率高</li>
+                            <li>操作系统常用</li>
+                        </ul>
                     </div>
                 </div>
 
-                <h3>FIFO的特点</h3>
-                <div class="algorithm-content">
-                    <p><strong>优点：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>实现极其简单</li>
-                        <li>不需要维护额外的访问信息</li>
-                        <li>开销最小</li>
-                    </ul>
-                    <p style="margin-top: 15px;"><strong>缺点：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>存在Belady异常</li>
-                        <li>不考虑数据访问频率</li>
-                        <li>不适合大多数实际场景</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="algo-section" id="mru">
-                <h2>MRU - 最近最多使用 (Most Recently Used)</h2>
-                
-                <div class="algorithm-content">
-                    <h3>算法原理</h3>
-                    <p>MRU是LRU的相反策略，淘汰最近最多使用的数据。适用于某些特定的访问模式。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>适用场景：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>重复扫描大型数据集</li>
-                        <li>短期热点数据（如实时数据流）</li>
-                        <li>浏览器"最近关闭的标签页"</li>
-                    </ul>
-                </div>
-
-                <h3>算法实现</h3>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="mru-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="mru-python">Python</button>
+                <h3>应用场景推荐</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4><span>🌐</span> Web 缓存</h4>
+                        <ul>
+                            <li>LRU：页面缓存</li>
+                            <li>LFU：静态资源</li>
+                            <li>CDN：地理分布</li>
+                        </ul>
                     </div>
-                    <div id="mru-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class MRUCache {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.cache = new Map(); // Map维护插入顺序
-    }
-
-    get(key) {
-        if (!this.cache.has(key)) return -1;
-        const value = this.cache.get(key);
-        // MRU不一定要更新位置，取决于策略
-        return value;
-    }
-
-    put(key, value) {
-        if (this.capacity <= 0) return;
-        
-        if (this.cache.has(key)) {
-            this.cache.delete(key);
-        }
-        
-        this.cache.set(key, value);
-        
-        if (this.cache.size > this.capacity) {
-            // 淘汰最旧的（Map的第一个）
-            const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
-        }
-    }
-}
-
-// 测试：适合的场景
-const mru = new MRUCache(3);
-mru.put(1, 'A');
-mru.put(2, 'B');
-mru.put(3, 'C');
-// 重复扫描：1,2,3,1,2,3,...
-// MRU会保留1,2,3中较旧的，淘汰最新访问的
-// 适合重复扫描整个数据集的场景
-                        </code></pre></div>
+                    <div class="comparison-card">
+                        <h4><span>🗄️</span> 数据库缓存</h4>
+                        <ul>
+                            <li>LRU：InnoDB 缓冲池</li>
+                            <li>Clock：页面置换</li>
+                            <li>LRU-K：查询缓存</li>
+                        </ul>
                     </div>
-                    <div id="mru-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-from collections import OrderedDict
-
-class MRUCache:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = OrderedDict()
-    
-    def get(self, key):
-        return self.cache.get(key, -1)
-    
-    def put(self, key, value):
-        if key in self.cache:
-            del self.cache[key]
-        self.cache[key] = value
-        
-        if len(self.cache) > self.capacity:
-            # 弹出最旧的（第一个）
-            self.cache.popitem(last=False)
-
-# 测试
-mru = MRUCache(3)
-mru.put(1, 'A')
-mru.put(2, 'B')
-mru.put(3, 'C')
-mru.put(4, 'D')  # 淘汰1
-print(mru.get(1))  # -1
-                        </code></pre></div>
+                    <div class="comparison-card">
+                        <h4><span>💾</span> 操作系统</h4>
+                        <ul>
+                            <li>Clock：页面置换</li>
+                            <li>LRU：文件缓存</li>
+                            <li>MRU：特殊场景</li>
+                        </ul>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="algo-section" id="clock">
-                <h2>Clock算法 (Second Chance)</h2>
-                
-                <div class="algorithm-content">
-                    <h3>算法原理</h3>
-                    <p>Clock是LRU的近似实现，使用环形链表和引用位来模拟LRU，避免频繁的节点移动。</p>
-                    
-                    <p style="margin-top: 15px;"><strong>工作原理：</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>所有缓存块排成环形</li>
-                        <li>每个块有一个引用位（R位）</li>
-                        <li>时钟指针扫描，R=1的设为0并跳过（给第二次机会）</li>
-                        <li>R=0的块被淘汰</li>
-                    </ul>
-
-                    <div class="visual-demo">
-                        <p>Clock数据结构示意：</p>
-<p>        ┌───┐     ┌───┐     ┌───┐     ┌───┐</p>
-<p>        │ A │────►│ B │────►│ C │────►│ D │────►(回到A)</p>
-<p>        │ R │     │ R │     │ R │     │ R │</p>
-<p>        │ 1 │     │ 0 │     │ 1 │     │ 0 │</p>
-<p>        └───┘     └───┘     └───┘     └───┘</p>
-<p>             ↑</p>
-<p>         时钟指针</p>
-<p>         当前指向B，R=0，可能被淘汰</p>
-                    </div>
+            <!-- 算法选择指南 -->
+            <div class="info-card warning">
+                <div class="info-card-title">
+                    <span>🎯</span> 算法选择指南
                 </div>
-
-                <div class="complexity">
-                    <div class="complexity-item">
-                        <h4>查询</h4>
-                        <p>O(1)</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>插入</h4>
-                        <p>O(1)</p>
-                    </div>
-                    <div class="complexity-item">
-                        <h4>置换</h4>
-                        <p>O(1) 近似</p>
-                    </div>
-                </div>
-
-                <h3>Clock vs LRU</h3>
-                <div class="algorithm-content">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background: #3498db; color: white;">
-                            <th style="padding: 12px;">特性</th>
-                            <th style="padding: 12px;">Clock</th>
-                            <th style="padding: 12px;">LRU</th>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 12px;">实现复杂度</td>
-                            <td style="padding: 12px;">简单</td>
-                            <td style="padding: 12px;">中等</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px;">精确度</td>
-                            <td style="padding: 12px;">近似</td>
-                            <td style="padding: 12px;">精确</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 12px;">空间开销</td>
-                            <td style="padding: 12px;">每块1位</td>
-                            <td style="padding: 12px;">链表指针</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px;">性能</td>
-                            <td style="padding: 12px;">更高</td>
-                            <td style="padding: 12px;">略低</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <h3>算法实现</h3>
-                <div class="code-tabs">
-                    <div class="code-tab-header">
-                        <button class="code-tab-btn active" data-tab="clock-js">JavaScript</button>
-                        <button class="code-tab-btn" data-tab="clock-python">Python</button>
-                    </div>
-                    <div id="clock-js" class="code-tab-content active">
-                        <div class="code-block line-numbers"><pre><code class="language-javascript">
-class ClockCache {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.cache = new Map(); // key → {value, ref}
-        this.hand = 0; // 时钟指针
-        this.keys = []; // 环形链表的键
-    }
-
-    get(key) {
-        if (!this.cache.has(key)) return -1;
-        
-        const node = this.cache.get(key);
-        node.ref = 1; // 访问时设置引用位
-        return node.value;
-    }
-
-    put(key, value) {
-        if (this.capacity <= 0) return;
-        
-        if (this.cache.has(key)) {
-            const node = this.cache.get(key);
-            node.value = value;
-            node.ref = 1;
-            return;
-        }
-        
-        if (this.cache.size >= this.capacity) {
-            this._evict();
-        }
-        
-        this.cache.set(key, { value, ref: 1 });
-        this.keys.push(key);
-    }
-
-    _evict() {
-        while (this.cache.size >= this.capacity) {
-            const currentKey = this.keys[this.hand];
-            const node = this.cache.get(currentKey);
-            
-            if (node.ref === 0) {
-                // 淘汰
-                this.cache.delete(currentKey);
-                this.keys.splice(this.hand, 1);
-                // 不增加hand，因为刚删除了一个元素
-            } else {
-                // 给第二次机会，清除引用位
-                node.ref = 0;
-                this.hand = (this.hand + 1) % this.keys.length;
-            }
-        }
-    }
-}
-
-// 测试
-const clock = new ClockCache(3);
-clock.put(1, 'A');
-clock.put(2, 'B');
-clock.put(3, 'C');
-clock.get(1); // A的ref设为1
-clock.put(4, 'D'); // 淘汰B或C（ref=0的）
-                        </code></pre></div>
-                    </div>
-                    <div id="clock-python" class="code-tab-content">
-                        <div class="code-block line-numbers"><pre><code class="language-python">
-class ClockCache:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = {}  # key -> [value, ref]
-        self.keys = []   # 环形链表的键
-        self.hand = 0    # 时钟指针
-    
-    def get(self, key):
-        if key not in self.cache:
-            return -1
-        self.cache[key][1] = 1  # 设置引用位
-        return self.cache[key][0]
-    
-    def put(self, key, value):
-        if self.capacity <= 0:
-            return
-        
-        if key in self.cache:
-            self.cache[key][0] = value
-            self.cache[key][1] = 1
-            return
-        
-        if len(self.cache) >= self.capacity:
-            self._evict()
-        
-        self.cache[key] = [value, 1]
-        self.keys.append(key)
-    
-    def _evict(self):
-        while len(self.cache) >= self.capacity:
-            current_key = self.keys[self.hand]
-            ref = self.cache[current_key][1]
-            
-            if ref == 0:
-                # 淘汰
-                del self.cache[current_key]
-                self.keys.pop(self.hand)
-                # 不增加hand，因为刚删除了一个元素
-            else:
-                # 给第二次机会，清除引用位
-                self.cache[current_key][1] = 0
-                self.hand = (self.hand + 1) % len(self.keys)
-
-# 测试
-clock = ClockCache(3)
-clock.put(1, 'A')
-clock.put(2, 'B')
-clock.put(3, 'C')
-clock.get(1)  # A的ref设为1
-clock.put(4, 'D')  # 淘汰B或C（ref=0的）
-                        </code></pre></div>
-                    </div>
-                </div>
-
-                <h3>Clock的应用场景</h3>
-                <div class="algorithm-content">
-                    <ul>
-                        <li><strong>操作系统页面置换：</strong>Unix/Linux页面替换</li>
-                        <li><strong>数据库缓存：</strong>InnoDB的近似LRU</li>
-                        <li><strong>嵌入式系统：</strong>资源受限环境</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="algo-section" id="comparison">
-                <h2>算法对比与选择</h2>
-                
-                <h3>综合对比</h3>
-                <div class="algorithm-content">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background: #3498db; color: white;">
-                            <th style="padding: 12px;">算法</th>
-                            <th style="padding: 12px;">复杂度</th>
-                            <th style="padding: 12px;">Belady异常</th>
-                            <th style="padding: 12px;">实现难度</th>
-                            <th style="padding: 12px;">适用场景</th>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 12px;">LRU</td>
-                            <td style="padding: 12px;">O(1)</td>
-                            <td style="padding: 12px;">无</td>
-                            <td style="padding: 12px;">中等</td>
-                            <td style="padding: 12px;">通用</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px;">LFU</td>
-                            <td style="padding: 12px;">O(1)/O(log n)</td>
-                            <td style="padding: 12px;">无</td>
-                            <td style="padding: 12px;">较高</td>
-                            <td style="padding: 12px;">热点数据</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 12px;">FIFO</td>
-                            <td style="padding: 12px;">O(1)</td>
-                            <td style="padding: 12px;">有</td>
-                            <td style="padding: 12px;">简单</td>
-                            <td style="padding: 12px;">很少使用</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px;">MRU</td>
-                            <td style="padding: 12px;">O(1)</td>
-                            <td style="padding: 12px;">无</td>
-                            <td style="padding: 12px;">简单</td>
-                            <td style="padding: 12px;">重复扫描</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 12px;">Clock</td>
-                            <td style="padding: 12px;">O(1)</td>
-                            <td style="padding: 12px;">近似无</td>
-                            <td style="padding: 12px;">中等</td>
-                            <td style="padding: 12px;">资源受限</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <h3>选择建议</h3>
-                <div class="algorithm-content">
-                    <ul>
-                        <li><strong>通用场景：</strong>优先选择LRU（Redis默认策略）</li>
-                        <li><strong>热点数据：</strong>选择LFU（访问频率差异大）</li>
-                        <li><strong>内存受限：</strong>选择Clock（空间开销小）</li>
-                        <li><strong>重复扫描：</strong>选择MRU</li>
-                        <li><strong>简单演示：</strong>选择FIFO</li>
-                    </ul>
-                </div>
-
-                <h3>实际系统中的缓存策略</h3>
-                <div class="algorithm-content">
-                    <ul>
-                        <li><strong>Redis：</strong>支持volatile-lru、allkeys-lru、volatile-fifo等</li>
-                        <li><strong>Memcached：</strong>LRU + Clock（近似）</li>
-                        <li><strong>Linux：</strong>改进的Clock（Two-Level Clock）</li>
-                        <li><strong>InnoDB：</strong>改进的LRU（冷热数据分离）</li>
-                        <li><strong>CPU Cache：</strong>LRU或PLRU（伪LRU）</li>
-                    </ul>
-                </div>
-
-                <h3>扩展：混合策略</h3>
-                <div class="algorithm-content">
-                    <p>现代系统常使用混合策略，结合多种算法的优点：</p>
-                    <ul style="margin-left: 20px;">
-                        <li><strong>ARC (Adaptive Replacement Cache)：</strong>自适应调整LRU和LFU</li>
-                        <li><strong>2Q (Two Queue)：</strong>FIFO队列 + LRU队列</li>
-                        <li><strong>LFU*：</strong>带频率衰减的LFU</li>
-                        <li><strong>InnoDB LRU：</strong>冷热分离 +  midpoint insertion</li>
+                <div class="info-card-content">
+                    <ul style="margin: 16px 0 0 20px; line-height: 2;">
+                        <li><strong>通用场景：</strong>LRU（简单高效，无异常）</li>
+                        <li><strong>热点明显：</strong>LFU（保留高频数据）</li>
+                        <li><strong>资源受限：</strong>FIFO/Clock（实现简单）</li>
+                        <li><strong>循环访问：</strong>MRU（特殊场景）</li>
+                        <li><strong>操作系统：</strong>Clock（性能与成本平衡）</li>
+                        <li><strong>数据库缓存：</strong>LRU/LRU-K（成熟稳定）</li>
                     </ul>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <script src="../js/main.js"></script>
+    <!-- 脚本 -->
+    <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
     <script src="../lib/prism/prism-go.min.js"></script>
