@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>向量嵌入 Embedding - AI 大模型核心技术</title>
+    <meta name="description" content="全面讲解向量嵌入 Embedding 技术：Word2Vec、GloVe、BERT 等词向量技术的发展历程、技术原理和实际应用">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <style>
+        /* 页面头部样式 */
+        .embedding-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .embedding-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .embedding-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .embedding-hero p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* 内容区域 */
+        .embedding-section {
+            padding: 2rem 0;
+        }
+
+        .embedding-category {
+            margin-bottom: 3rem;
+        }
+
+        .embedding-category h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .embedding-category h3::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        /* 信息卡片 */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .info-card ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid var(--card-bg);
+        }
+
+        .timeline-item h5 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .timeline-year {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 技术对比表 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 代码块 */
+        .code-block-collapsible {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block-collapsible summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transition: all 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .code-block-collapsible summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .code-block-collapsible summary:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .code-block-collapsible summary::before {
+            content: '📄';
+            font-size: 1.1rem;
+        }
+
+        .code-block-collapsible summary::after {
+            content: '展开';
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .code-block-collapsible[open] summary::after {
+            content: '收起';
+        }
+
+        .code-tabs {
+            margin-top: 0;
+            border-radius: 0;
+            border: none;
+        }
+
+        .code-tabs-header {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-tab-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .code-tab-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .code-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .code-tabs-content {
+            position: relative;
+        }
+
+        .code-tab-panel {
+            display: none;
+        }
+
+        .code-tab-panel.active {
+            display: block;
+        }
+
+        .code-tab-panel pre {
+            margin: 0;
+            border-radius: 0;
+            border-top: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .embedding-hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .embedding-hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">AlgoGuide</a>
+            <ul class="nav-links">
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#knowledge-map">知识图谱</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container" style="padding-top: 2rem;">
+        <a href="../index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+
+        <!-- Hero 区域 -->
+        <div class="embedding-hero">
+            <h1>🔌 向量嵌入 Embedding</h1>
+            <p>将离散符号映射到连续向量空间，AI 大模型的核心技术基础</p>
+        </div>
+
+        <section class="embedding-section">
+
+            <!-- 技术概述 -->
+            <div class="embedding-category">
+                <h3>📖 技术概述</h3>
+                
+                <div class="info-card">
+                    <h4><span>🎯</span> 什么是 Embedding？</h4>
+                    <p><strong>向量嵌入（Embedding）</strong>是一种将离散对象（如单词、句子、图像、用户 ID 等）映射到连续向量空间的技术。通过这种映射，语义相似的对象在向量空间中的距离也更近。</p>
+                    <p>Embedding 是现代人工智能和机器学习的核心技术之一，广泛应用于：</p>
+                    <ul>
+                        <li><strong>自然语言处理</strong> - 词向量、句向量、文档向量</li>
+                        <li><strong>推荐系统</strong> - 用户嵌入、物品嵌入</li>
+                        <li><strong>计算机视觉</strong> - 图像嵌入、特征提取</li>
+                        <li><strong>信息检索</strong> - 语义搜索、相似度匹配</li>
+                        <li><strong>大语言模型</strong> - Token 嵌入、位置嵌入</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>💡</span> 核心思想</h4>
+                    <p>Embedding 的核心思想是<strong>分布式表示（Distributed Representation）</strong>：</p>
+                    <ul>
+                        <li><strong>降维</strong> - 将高维稀疏的 one-hot 编码转换为低维稠密向量</li>
+                        <li><strong>语义保持</strong> - 语义相似的对象在向量空间中距离更近</li>
+                        <li><strong>可计算性</strong> - 向量可以进行数学运算，如相似度计算、向量加减</li>
+                        <li><strong>迁移学习</strong> - 预训练的 Embedding 可以迁移到新任务</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 发展历程 -->
+            <div class="embedding-category">
+                <h3>📜 发展历程</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1950s-1980s</span>
+                        <h5>🔤 独热编码时代 (One-Hot Encoding)</h5>
+                        <p>最早的离散符号表示方法，将每个词表示为一个高维稀疏向量。缺点是无法表达词与词之间的关系，且维度灾难严重。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">1986</span>
+                        <h5>🧠 分布式表示概念提出</h5>
+                        <p>Geoffrey Hinton 等人提出分布式表示的概念，认为可以用低维稠密向量来表示符号，开启了 Embedding 研究的先河。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2003</span>
+                        <h5>📊 Neural Probabilistic Language Model</h5>
+                        <p>Yoshua Bengio 等人提出神经概率语言模型，首次使用神经网络学习词的分布式表示，是 Word Embedding 的雏形。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2013</span>
+                        <h5>🚀 Word2Vec 发布</h5>
+                        <p>Google 的 Tomas Mikolov 等人提出 Word2Vec，通过 CBOW 和 Skip-gram 模型高效学习词向量，发现"king - man + woman ≈ queen"等语义关系，引发 NLP 革命。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2014</span>
+                        <h5>🌐 GloVe 词向量</h5>
+                        <p>Stanford 提出 GloVe (Global Vectors)，结合全局矩阵分解和局部上下文窗口方法，在词向量任务上取得更好效果。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2015</span>
+                        <h5>📝 Doc2Vec / Paragraph2Vec</h5>
+                        <p>Word2Vec 的扩展，可以学习文档级别的向量表示，用于文档相似度、分类等任务。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2017</span>
+                        <h5>⚡ Transformer 架构</h5>
+                        <p>"Attention Is All You Need"论文提出 Transformer 架构，位置嵌入 (Positional Embedding) 成为标准组件。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2018</span>
+                        <h5>🤖 BERT 发布</h5>
+                        <p>Google 提出 BERT (Bidirectional Encoder Representations from Transformers)，通过双向 Transformer 和 Masked LM 预训练，在多项 NLP 任务上刷新记录。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2019-2020</span>
+                        <h5>🌟 大模型时代</h5>
+                        <p>GPT-2、GPT-3、T5 等超大规模预训练模型涌现，Embedding 维度从几百维增长到几千甚至上万维，模型参数量达到千亿级别。</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <span class="timeline-year">2021-至今</span>
+                        <h5>🔥 多模态 Embedding</h5>
+                        <p>CLIP、DALL-E 等多模态模型实现文本、图像、音频的统一嵌入表示，开启跨模态检索和生成的新纪元。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术原理 -->
+            <div class="embedding-category">
+                <h3>⚙️ 技术原理</h3>
+
+                <!-- Word2Vec -->
+                <div class="info-card">
+                    <h4><span>🎯</span> Word2Vec 原理</h4>
+                    <p>Word2Vec 通过预测上下文来学习词向量，包含两种模型架构：</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">1. CBOW (Continuous Bag of Words)</h5>
+                    <p>根据上下文词预测中心词。例如，给定"the cat ___ on the mat"，预测"sat"。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">2. Skip-gram</h5>
+                    <p>根据中心词预测上下文词。例如，给定"sat"，预测"the cat ___ on the mat"。</p>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 使用 Gensim 实现 Word2Vec
+from gensim.models import Word2Vec
+
+# 准备语料
+sentences = [
+    ['the', 'cat', 'sat', 'on', 'the', 'mat'],
+    ['the', 'dog', 'ran', 'in', 'the', 'park'],
+    ['the', 'bird', 'flew', 'over', 'the', 'tree']
+]
+
+# 训练 Word2Vec 模型
+model = Word2Vec(
+    sentences=sentences,
+    vector_size=100,      # 向量维度
+    window=5,             # 上下文窗口大小
+    min_count=1,          # 最小词频
+    workers=4,            # 并行线程数
+    sg=1,                 # 1=Skip-gram, 0=CBOW
+    epochs=10             # 训练轮数
+)
+
+# 获取词向量
+vector = model.wv['cat']
+print(f"'cat' 的向量：{vector[:10]}...")  # 显示前 10 维
+
+# 查找相似词
+similar = model.wv.most_similar('cat', topn=3)
+print(f"与'cat'相似的词：{similar}")
+
+# 词向量运算
+result = model.wv.most_similar(positive=['king', 'woman'], negative=['man'], topn=1)
+print(f"king - man + woman ≈ {result[0][0]}")
+
+# 计算相似度
+similarity = model.wv.similarity('cat', 'dog')
+print(f"'cat'和'dog'的相似度：{similarity:.4f}")</code></pre>
+                                </div>
+                                <div class="code-tab-panel" data-panel="javascript">
+                                    <pre><code class="language-javascript">// 使用 TensorFlow.js 实现简易 Word2Vec
+const tf = require('@tensorflow/tfjs');
+
+// 简化的 Word2Vec 实现示例
+class SimpleWord2Vec {
+    constructor(vocabSize, embeddingDim) {
+        this.vocabSize = vocabSize;
+        this.embeddingDim = embeddingDim;
+        
+        // 初始化嵌入矩阵
+        this.embeddings = tf.randomNormal([vocabSize, embeddingDim]);
+    }
+    
+    // 获取词向量
+    getEmbedding(wordIndex) {
+        return this.embeddings.gather([wordIndex]);
+    }
+    
+    // 计算两个词的相似度（余弦相似度）
+    similarity(index1, index2) {
+        const vec1 = this.getEmbedding(index1);
+        const vec2 = this.getEmbedding(index2);
+        
+        const dot = vec1.dot(vec2);
+        const norm1 = vec1.norm();
+        const norm2 = vec2.norm();
+        
+        return dot.div(norm1.mul(norm2)).dataSync()[0];
+    }
+    
+    // 训练一步（简化版）
+    trainStep(contextIndices, targetIndex, learningRate = 0.01) {
+        return tf.tidy(() => {
+            // 这里应该是完整的 Skip-gram 或 CBOW 训练逻辑
+            // 为简化示例，仅展示概念
+            const contextEmbeddings = this.embeddings.gather(contextIndices);
+            const targetEmbedding = this.getEmbedding(targetIndex);
+            
+            // 计算损失并更新（实际实现需要反向传播）
+            return contextEmbeddings.mean();
+        });
+    }
+}
+
+// 使用示例
+const vocabSize = 10000;
+const embeddingDim = 100;
+const word2vec = new SimpleWord2Vec(vocabSize, embeddingDim);
+
+// 获取词向量
+const catVector = word2vec.getEmbedding(42);
+console.log('Cat vector shape:', catVector.shape);
+
+// 计算相似度
+const sim = word2vec.similarity(42, 100);
+console.log('Similarity:', sim);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- GloVe -->
+                <div class="info-card">
+                    <h4><span>🌐</span> GloVe 原理</h4>
+                    <p>GloVe (Global Vectors for Word Representation) 结合了全局矩阵分解和局部上下文窗口的优点。</p>
+                    <p><strong>核心思想：</strong>词共现矩阵的对数比值与词向量之间的关系存在线性关联。</p>
+                    
+                    <div class="comparison-table" style="max-width: 800px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>Word2Vec</th>
+                                    <th>GloVe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>训练方式</td>
+                                    <td>局部上下文窗口</td>
+                                    <td>全局共现矩阵</td>
+                                </tr>
+                                <tr>
+                                    <td>训练速度</td>
+                                    <td>较快</td>
+                                    <td>需要构建共现矩阵</td>
+                                </tr>
+                                <tr>
+                                    <td>语义捕捉</td>
+                                    <td>局部语义</td>
+                                    <td>全局统计信息</td>
+                                </tr>
+                                <tr>
+                                    <td>内存占用</td>
+                                    <td>较低</td>
+                                    <td>较高（需要存储共现矩阵）</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BERT -->
+                <div class="info-card">
+                    <h4><span>🤖</span> BERT 与 Transformer Embedding</h4>
+                    <p>BERT (Bidirectional Encoder Representations from Transformers) 使用双向 Transformer 编码器生成上下文相关的词向量。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">关键创新</h5>
+                    <ul>
+                        <li><strong>双向上下文</strong> - 同时考虑左右两侧上下文</li>
+                        <li><strong>Masked LM</strong> - 随机遮蔽部分词，让模型预测</li>
+                        <li><strong>Next Sentence Prediction</strong> - 预测两句话是否连续</li>
+                        <li><strong>位置嵌入</strong> - 使用可学习的位置向量</li>
+                    </ul>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 使用 Hugging Face Transformers 获取 BERT Embedding
+from transformers import BertTokenizer, BertModel
+import torch
+
+# 加载预训练模型和分词器
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertModel.from_pretrained('bert-base-uncased')
+
+# 准备文本
+texts = [
+    "The cat sat on the mat.",
+    "The dog ran in the park."
+]
+
+# 分词并获取输入
+inputs = tokenizer(texts, padding=True, truncation=True, 
+                   return_tensors='pt', max_length=512)
+
+# 获取 BERT 输出
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# last_hidden_state: [batch_size, seq_len, hidden_size]
+last_hidden = outputs.last_hidden_state
+# pooler_output: [batch_size, hidden_size] - [CLS] token 的输出
+pooler_output = outputs.pooler_output
+
+print(f"Last hidden state shape: {last_hidden.shape}")
+print(f"Pooler output shape: {pooler_output.shape}")
+
+# 获取 [CLS] token 的嵌入（常用于句子表示）
+cls_embeddings = last_hidden[:, 0, :]
+print(f"CLS embeddings shape: {cls_embeddings.shape}")
+
+# 计算句子相似度
+from torch.nn.functional import cosine_similarity
+
+similarity = cosine_similarity(
+    cls_embeddings[0].unsqueeze(0),
+    cls_embeddings[1].unsqueeze(0)
+)
+print(f"句子相似度：{similarity.item():.4f}")
+
+# 使用句向量进行语义搜索
+def semantic_search(query, candidates, model, tokenizer, top_k=3):
+    """语义搜索示例"""
+    all_texts = [query] + candidates
+    inputs = tokenizer(all_texts, padding=True, truncation=True, 
+                       return_tensors='pt', max_length=512)
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    embeddings = outputs.pooler_output
+    query_emb = embeddings[0:1]
+    candidate_embs = embeddings[1:]
+    
+    # 计算余弦相似度
+    similarities = cosine_similarity(query_emb, candidate_embs)
+    
+    # 返回 top_k 结果
+    top_indices = similarities.topk(top_k).indices.tolist()
+    return [(candidates[i], similarities[0][i].item()) for i in top_indices]
+
+# 测试
+candidates = [
+    "A feline is resting on the carpet.",
+    "The canine is playing outside.",
+    "Birds are flying in the sky."
+]
+
+results = semantic_search("The cat sat on the mat.", candidates, model, tokenizer)
+print("\n语义搜索结果:")
+for text, score in results:
+    print(f"  {score:.4f}: {text}")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 现代 Embedding 技术 -->
+                <div class="info-card">
+                    <h4><span>🌟</span> 现代 Embedding 技术</h4>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">Sentence-BERT (SBERT)</h5>
+                    <p>通过孪生网络结构优化 BERT，生成高质量的句向量，适用于语义相似度任务。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">Universal Sentence Encoder</h5>
+                    <p>Google 推出的通用句向量编码器，支持多种语言，可直接用于下游任务。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">CLIP (Contrastive Language-Image Pre-training)</h5>
+                    <p>OpenAI 的多模态模型，将文本和图像映射到同一向量空间，实现跨模态检索。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">Text Embedding Ada-002</h5>
+                    <p>OpenAI 提供的高效文本嵌入 API，1536 维向量，在多项基准测试中表现优异。</p>
+                </div>
+            </div>
+
+            <!-- 现状与趋势 -->
+            <div class="embedding-category">
+                <h3>📊 现状与趋势</h3>
+                
+                <div class="info-card">
+                    <h4><span>🎯</span> 当前主流方案</h4>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>模型</th>
+                                    <th>维度</th>
+                                    <th>特点</th>
+                                    <th>应用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Word2Vec</strong></td>
+                                    <td>100-300</td>
+                                    <td>轻量、快速</td>
+                                    <td>传统 NLP 任务</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>GloVe</strong></td>
+                                    <td>100-300</td>
+                                    <td>全局统计信息</td>
+                                    <td>词相似度任务</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BERT</strong></td>
+                                    <td>768-1024</td>
+                                    <td>上下文相关</td>
+                                    <td>各类 NLP 任务</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sentence-BERT</strong></td>
+                                    <td>384-768</td>
+                                    <td>句向量优化</td>
+                                    <td>语义搜索、相似度</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>text-embedding-ada-002</strong></td>
+                                    <td>1536</td>
+                                    <td>API 服务、高质量</td>
+                                    <td>通用嵌入任务</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CLIP</strong></td>
+                                    <td>512-768</td>
+                                    <td>多模态</td>
+                                    <td>图文检索、生成</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>🚀</span> 发展趋势</h4>
+                    <ul>
+                        <li><strong>更大规模</strong> - 从 GPT-3 的 1750 亿参数到 GPT-4 的万亿级别</li>
+                        <li><strong>多模态融合</strong> - 文本、图像、音频、视频的统一表示</li>
+                        <li><strong>高效推理</strong> - 量化、蒸馏、剪枝等技术降低计算成本</li>
+                        <li><strong>领域适配</strong> - 医疗、法律、金融等垂直领域的专业 Embedding</li>
+                        <li><strong>可解释性</strong> - 理解 Embedding 空间中的语义结构</li>
+                        <li><strong>向量数据库</strong> - FAISS、Milvus、Pinecone 等专用存储检索系统</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>💼</span> 实际应用案例</h4>
+                    <ul>
+                        <li><strong>搜索引擎</strong> - Google、Bing 使用 Embedding 提升语义理解</li>
+                        <li><strong>推荐系统</strong> - YouTube、Netflix 用 Embedding 表示用户和内容</li>
+                        <li><strong>智能客服</strong> - 语义匹配理解用户问题</li>
+                        <li><strong>内容审核</strong> - 识别相似违规内容</li>
+                        <li><strong>知识图谱</strong> - 实体链接和关系抽取</li>
+                        <li><strong>RAG 系统</strong> - 检索增强生成，结合向量检索和大模型</li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer style="text-align: center; padding: 2.5rem 1rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); margin-top: 4rem; background: linear-gradient(180deg, transparent 0%, var(--bg-secondary) 100%); border-radius: 12px 12px 0 0;">
+        <p style="margin: 0; font-size: 0.9rem;">© AlgoGuide. 掌握算法之美，成就编程梦想。</p>
+    </footer>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-javascript.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+    <script>
+        // 代码选项卡切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.code-tabs').forEach(function(tabs) {
+                const buttons = tabs.querySelectorAll('.code-tab-btn');
+                const panels = tabs.querySelectorAll('.code-tab-panel');
+                
+                buttons.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const lang = this.dataset.lang;
+                        
+                        // 移除所有激活状态
+                        buttons.forEach(b => b.classList.remove('active'));
+                        panels.forEach(p => p.classList.remove('active'));
+                        
+                        // 激活当前选项
+                        this.classList.add('active');
+                        tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
+                    });
+                });
+            });
+            
+            // 折叠展开时重新应用 Prism 高亮
+            document.querySelectorAll('.code-block-collapsible').forEach(function(details) {
+                details.addEventListener('toggle', function() {
+                    if (this.open) {
+                        Prism.highlightAllUnder(this);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
