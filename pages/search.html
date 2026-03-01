@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>查找算法 - 二分查找 | 哈希表 | 双指针</title>
-    <meta name="description" content="全面讲解查找算法：二分查找、哈希表、双指针、BFS、DFS 等常用搜索技术">
+    <title>查找算法 - 二分查找 | 哈希表 | 双指针 | 拓扑排序 | 并查集</title>
+    <meta name="description" content="全面讲解查找算法：二分查找、哈希表、双指针、BFS、DFS、拓扑排序、并查集等常用搜索技术">
 
     <link rel="stylesheet" href="../css/fonts.css">
     <link rel="stylesheet" href="../css/modern-style.css">
@@ -656,8 +656,8 @@
 
         <!-- Hero 区域 -->
         <div class="search-hero">
-            <h1>🔍 查找算法</h1>
-            <p>掌握高效的查找技术，包括二分查找、哈希表、双指针等核心算法</p>
+            <h1>🔍 查找与高级算法</h1>
+            <p>掌握高效的查找技术，包括二分查找、哈希表、双指针、拓扑排序、并查集等核心算法</p>
         </div>
 
         <section class="search-algorithms-section">
@@ -2335,6 +2335,556 @@ func main() {
     result = interpolationSearch(arr, 85)
     fmt.Printf("索引：%d\n", result)  // 输出：-1 (不存在)
 }</code></pre>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 高级算法 -->
+            <div class="search-category">
+                <h3>高级算法</h3>
+
+                <!-- 拓扑排序 -->
+                <div class="search-card">
+                    <h4>
+                        <span>🔀</span>
+                        拓扑排序 (Topological Sort)
+                    </h4>
+                    <p>对有向无环图 (DAG) 的顶点进行线性排序，使得对于每条有向边 (u,v)，顶点 u 在排序中都在顶点 v 之前。常用于任务调度、课程安排、依赖解析等场景。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(V)</span>
+                        <span class="search-meta-item">⚡ 时间：O(V+E)</span>
+                    </div>
+                    <div class="search-complexity" style="margin-top: 1rem;">
+                        <h5>实现方法</h5>
+                        <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
+                            <li><strong>Kahn 算法</strong> - 基于入度的 BFS 方法，不断移除入度为 0 的节点</li>
+                            <li><strong>DFS 方法</strong> - 深度优先搜索，逆序记录完成时间</li>
+                        </ul>
+                    </div>
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 拓扑排序 - Kahn 算法 (BFS)
+from collections import deque, defaultdict
+
+def topological_sort_kahn(num_nodes, edges):
+    """
+    Kahn 算法 - 基于入度的 BFS 方法
+    num_nodes: 节点数量
+    edges: 边列表 [(from, to), ...]
+    """
+    # 构建邻接表和入度数组
+    graph = defaultdict(list)
+    in_degree = [0] * num_nodes
+    
+    for u, v in edges:
+        graph[u].append(v)
+        in_degree[v] += 1
+    
+    # 初始化队列（入度为 0 的节点）
+    queue = deque([i for i in range(num_nodes) if in_degree[i] == 0])
+    result = []
+    
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+        
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+    
+    # 检查是否有环
+    if len(result) != num_nodes:
+        return []  # 存在环，无法拓扑排序
+    
+    return result
+
+# 拓扑排序 - DFS 方法
+def topological_sort_dfs(num_nodes, edges):
+    graph = defaultdict(list)
+    for u, v in edges:
+        graph[u].append(v)
+    
+    visited = [False] * num_nodes
+    result = []
+    
+    def dfs(node):
+        visited[node] = True
+        for neighbor in graph[node]:
+            if not visited[neighbor]:
+                dfs(neighbor)
+        result.append(node)  # 后序遍历
+    
+    for i in range(num_nodes):
+        if not visited[i]:
+            dfs(i)
+    
+    return result[::-1]  # 逆序
+
+# 测试 - 课程安排问题
+# 0 → 1 → 3
+# ↓   ↓
+# 2 → 4
+edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 4)]
+print("Kahn 算法:", topological_sort_kahn(5, edges))
+print("DFS 方法:", topological_sort_dfs(5, edges))</code></pre>
+                                </div>
+                                <div class="code-tab-panel" data-panel="javascript">
+                                    <pre><code class="language-javascript">// 拓扑排序 - Kahn 算法 (BFS)
+function topologicalSortKahn(numNodes, edges) {
+    // 构建邻接表和入度数组
+    const graph = new Map();
+    const inDegree = new Array(numNodes).fill(0);
+    
+    for (let i = 0; i < numNodes; i++) {
+        graph.set(i, []);
+    }
+    
+    for (const [u, v] of edges) {
+        graph.get(u).push(v);
+        inDegree[v]++;
+    }
+    
+    // 初始化队列（入度为 0 的节点）
+    const queue = [];
+    for (let i = 0; i < numNodes; i++) {
+        if (inDegree[i] === 0) {
+            queue.push(i);
+        }
+    }
+    
+    const result = [];
+    
+    while (queue.length > 0) {
+        const node = queue.shift();
+        result.push(node);
+        
+        for (const neighbor of graph.get(node)) {
+            inDegree[neighbor]--;
+            if (inDegree[neighbor] === 0) {
+                queue.push(neighbor);
+            }
+        }
+    }
+    
+    // 检查是否有环
+    if (result.length !== numNodes) {
+        return []; // 存在环
+    }
+    
+    return result;
+}
+
+// 拓扑排序 - DFS 方法
+function topologicalSortDfs(numNodes, edges) {
+    const graph = new Map();
+    for (let i = 0; i < numNodes; i++) {
+        graph.set(i, []);
+    }
+    for (const [u, v] of edges) {
+        graph.get(u).push(v);
+    }
+    
+    const visited = new Set();
+    const result = [];
+    
+    function dfs(node) {
+        visited.add(node);
+        for (const neighbor of graph.get(node)) {
+            if (!visited.has(neighbor)) {
+                dfs(neighbor);
+            }
+        }
+        result.push(node); // 后序遍历
+    }
+    
+    for (let i = 0; i < numNodes; i++) {
+        if (!visited.has(i)) {
+            dfs(i);
+        }
+    }
+    
+    return result.reverse(); // 逆序
+}
+
+// 测试 - 课程安排问题
+const edges = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 4]];
+console.log("Kahn 算法:", topologicalSortKahn(5, edges));
+console.log("DFS 方法:", topologicalSortDfs(5, edges));</code></pre>
+                                </div>
+                                <div class="code-tab-panel" data-panel="go">
+                                    <pre><code class="language-go">package main
+
+import "fmt"
+
+// 拓扑排序 - Kahn 算法 (BFS)
+func topologicalSortKahn(numNodes int, edges [][]int) []int {
+    // 构建邻接表和入度数组
+    graph := make(map[int][]int)
+    inDegree := make([]int, numNodes)
+    
+    for i := 0; i < numNodes; i++ {
+        graph[i] = []int{}
+    }
+    
+    for _, edge := range edges {
+        u, v := edge[0], edge[1]
+        graph[u] = append(graph[u], v)
+        inDegree[v]++
+    }
+    
+    // 初始化队列（入度为 0 的节点）
+    queue := []int{}
+    for i := 0; i < numNodes; i++ {
+        if inDegree[i] == 0 {
+            queue = append(queue, i)
+        }
+    }
+    
+    result := []int{}
+    
+    for len(queue) > 0 {
+        node := queue[0]
+        queue = queue[1:]
+        result = append(result, node)
+        
+        for _, neighbor := range graph[node] {
+            inDegree[neighbor]--
+            if inDegree[neighbor] == 0 {
+                queue = append(queue, neighbor)
+            }
+        }
+    }
+    
+    // 检查是否有环
+    if len(result) != numNodes {
+        return []int{} // 存在环
+    }
+    
+    return result
+}
+
+// 拓扑排序 - DFS 方法
+func topologicalSortDfs(numNodes int, edges [][]int) []int {
+    graph := make(map[int][]int)
+    for i := 0; i < numNodes; i++ {
+        graph[i] = []int{}
+    }
+    for _, edge := range edges {
+        graph[edge[0]] = append(graph[edge[0]], edge[1])
+    }
+    
+    visited := make([]bool, numNodes)
+    result := []int{}
+    
+    var dfs func(int)
+    dfs = func(node int) {
+        visited[node] = true
+        for _, neighbor := range graph[node] {
+            if !visited[neighbor] {
+                dfs(neighbor)
+            }
+        }
+        result = append(result, node)
+    }
+    
+    for i := 0; i < numNodes; i++ {
+        if !visited[i] {
+            dfs(i)
+        }
+    }
+    
+    // 逆序
+    for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+        result[i], result[j] = result[j], result[i]
+    }
+    
+    return result
+}
+
+func main() {
+    edges := [][]int{{0, 1}, {0, 2}, {1, 3}, {1, 4}, {2, 4}}
+    fmt.Println("Kahn 算法:", topologicalSortKahn(5, edges))
+    fmt.Println("DFS 方法:", topologicalSortDfs(5, edges))
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 并查集 -->
+                <div class="search-card">
+                    <h4>
+                        <span>🔗</span>
+                        并查集 (Union-Find)
+                    </h4>
+                    <p>用于处理不相交集合的合并与查询问题的高效数据结构。支持两种操作：合并两个集合、查询元素所属集合。常用于连通分量、最小生成树、循环检测等场景。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(n)</span>
+                        <span class="search-meta-item">⚡ 时间：O(α(n))*</span>
+                    </div>
+                    <div class="search-complexity" style="margin-top: 1rem;">
+                        <h5>优化技术</h5>
+                        <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
+                            <li><strong>路径压缩</strong> - 查找时将路径上所有节点直接连接到根节点</li>
+                            <li><strong>按秩合并</strong> - 合并时将小树合并到大树上，保持树的平衡</li>
+                            <li><small>*α(n) 为反阿克曼函数，增长极慢，可视为常数时间</small></li>
+                        </ul>
+                    </div>
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 并查集 (Union-Find) 实现
+class UnionFind:
+    def __init__(self, n):
+        """初始化并查集"""
+        self.parent = list(range(n))
+        self.rank = [0] * n  # 秩（树的近似高度）
+        self.count = n  # 连通分量数量
+    
+    def find(self, x):
+        """查找 x 的根节点（带路径压缩）"""
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # 路径压缩
+        return self.parent[x]
+    
+    def union(self, x, y):
+        """合并 x 和 y 所在的集合（按秩合并）"""
+        rootX = self.find(x)
+        rootY = self.find(y)
+        
+        if rootX == rootY:
+            return False  # 已在同一集合
+        
+        # 按秩合并
+        if self.rank[rootX] < self.rank[rootY]:
+            self.parent[rootX] = rootY
+        elif self.rank[rootX] > self.rank[rootY]:
+            self.parent[rootY] = rootX
+        else:
+            self.parent[rootY] = rootX
+            self.rank[rootX] += 1
+        
+        self.count -= 1
+        return True
+    
+    def connected(self, x, y):
+        """判断 x 和 y 是否连通"""
+        return self.find(x) == self.find(y)
+
+# 应用 1: 检测图中是否有环
+def has_cycle(num_nodes, edges):
+    uf = UnionFind(num_nodes)
+    for u, v in edges:
+        if not uf.union(u, v):
+            return True  # 已经连通，形成环
+    return False
+
+# 应用 2: 计算连通分量数量
+def count_components(num_nodes, edges):
+    uf = UnionFind(num_nodes)
+    for u, v in edges:
+        uf.union(u, v)
+    return uf.count
+
+# 测试
+edges = [(0, 1), (2, 3), (1, 3)]
+print("有环:", has_cycle(4, edges))  # False
+print("连通分量:", count_components(4, edges))  # 1
+
+# 测试 - 有环的情况
+edges_with_cycle = [(0, 1), (1, 2), (2, 0)]
+print("有环:", has_cycle(3, edges_with_cycle))  # True</code></pre>
+                                </div>
+                                <div class="code-tab-panel" data-panel="javascript">
+                                    <pre><code class="language-javascript">// 并查集 (Union-Find) 实现
+class UnionFind {
+    constructor(n) {
+        this.parent = new Array(n);
+        this.rank = new Array(n).fill(0);
+        this.count = n; // 连通分量数量
+        
+        for (let i = 0; i < n; i++) {
+            this.parent[i] = i;
+        }
+    }
+    
+    find(x) {
+        // 查找 x 的根节点（带路径压缩）
+        if (this.parent[x] !== x) {
+            this.parent[x] = this.find(this.parent[x]); // 路径压缩
+        }
+        return this.parent[x];
+    }
+    
+    union(x, y) {
+        // 合并 x 和 y 所在的集合（按秩合并）
+        const rootX = this.find(x);
+        const rootY = this.find(y);
+        
+        if (rootX === rootY) {
+            return false; // 已在同一集合
+        }
+        
+        // 按秩合并
+        if (this.rank[rootX] < this.rank[rootY]) {
+            this.parent[rootX] = rootY;
+        } else if (this.rank[rootX] > this.rank[rootY]) {
+            this.parent[rootY] = rootX;
+        } else {
+            this.parent[rootY] = rootX;
+            this.rank[rootX]++;
+        }
+        
+        this.count--;
+        return true;
+    }
+    
+    connected(x, y) {
+        // 判断 x 和 y 是否连通
+        return this.find(x) === this.find(y);
+    }
+}
+
+// 应用 1: 检测图中是否有环
+function hasCycle(numNodes, edges) {
+    const uf = new UnionFind(numNodes);
+    for (const [u, v] of edges) {
+        if (!uf.union(u, v)) {
+            return true; // 已经连通，形成环
+        }
+    }
+    return false;
+}
+
+// 应用 2: 计算连通分量数量
+function countComponents(numNodes, edges) {
+    const uf = new UnionFind(numNodes);
+    for (const [u, v] of edges) {
+        uf.union(u, v);
+    }
+    return uf.count;
+}
+
+// 测试
+const edges = [[0, 1], [2, 3], [1, 3]];
+console.log("有环:", hasCycle(4, edges)); // false
+console.log("连通分量:", countComponents(4, edges)); // 1
+
+// 测试 - 有环的情况
+const edgesWithCycle = [[0, 1], [1, 2], [2, 0]];
+console.log("有环:", hasCycle(3, edgesWithCycle)); // true</code></pre>
+                                </div>
+                                <div class="code-tab-panel" data-panel="go">
+                                    <pre><code class="language-go">package main
+
+import "fmt"
+
+// 并查集 (Union-Find) 实现
+type UnionFind struct {
+    parent []int
+    rank   []int
+    count  int // 连通分量数量
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n)
+    rank := make([]int, n)
+    for i := 0; i < n; i++ {
+        parent[i] = i
+    }
+    return &UnionFind{
+        parent: parent,
+        rank:   rank,
+        count:  n,
+    }
+}
+
+func (uf *UnionFind) Find(x int) int {
+    // 查找 x 的根节点（带路径压缩）
+    if uf.parent[x] != x {
+        uf.parent[x] = uf.Find(uf.parent[x]) // 路径压缩
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(x, y int) bool {
+    // 合并 x 和 y 所在的集合（按秩合并）
+    rootX := uf.Find(x)
+    rootY := uf.Find(y)
+    
+    if rootX == rootY {
+        return false // 已在同一集合
+    }
+    
+    // 按秩合并
+    if uf.rank[rootX] < uf.rank[rootY] {
+        uf.parent[rootX] = rootY
+    } else if uf.rank[rootX] > uf.rank[rootY] {
+        uf.parent[rootY] = rootX
+    } else {
+        uf.parent[rootY] = rootX
+        uf.rank[rootX]++
+    }
+    
+    uf.count--
+    return true
+}
+
+func (uf *UnionFind) Connected(x, y int) bool {
+    return uf.Find(x) == uf.Find(y)
+}
+
+// 应用 1: 检测图中是否有环
+func hasCycle(numNodes int, edges [][]int) bool {
+    uf := NewUnionFind(numNodes)
+    for _, edge := range edges {
+        if !uf.Union(edge[0], edge[1]) {
+            return true // 已经连通，形成环
+        }
+    }
+    return false
+}
+
+// 应用 2: 计算连通分量数量
+func countComponents(numNodes int, edges [][]int) int {
+    uf := NewUnionFind(numNodes)
+    for _, edge := range edges {
+        uf.Union(edge[0], edge[1])
+    }
+    return uf.count
+}
+
+func main() {
+    edges := [][]int{{0, 1}, {2, 3}, {1, 3}}
+    fmt.Println("有环:", hasCycle(4, edges)) // false
+    fmt.Println("连通分量:", countComponents(4, edges)) // 1
+    
+    // 测试 - 有环的情况
+    edgesWithCycle := [][]int{{0, 1}, {1, 2}, {2, 0}}
+    fmt.Println("有环:", hasCycle(3, edgesWithCycle)) // true
+}</code></pre>
+                                </div>
                             </div>
                         </div>
                     </details>
