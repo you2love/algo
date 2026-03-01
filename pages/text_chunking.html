@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本分块算法 - RAG 预处理核心技术</title>
+    <meta name="description" content="全面讲解文本分块算法：句子分割、语义分块、递归分块等文本分割技术，RAG 系统预处理核心方法">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <style>
+        /* 页面头部样式 */
+        .chunking-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chunking-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .chunking-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chunking-hero p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* 内容区域 */
+        .chunking-section {
+            padding: 2rem 0;
+        }
+
+        .chunking-category {
+            margin-bottom: 3rem;
+        }
+
+        .chunking-category h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .chunking-category h3::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        /* 信息卡片 */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .info-card ul, .info-card ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* 分块示意 */
+        .chunking-demo {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .chunking-demo .original {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .chunk {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        /* 技术对比表 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 代码块 */
+        .code-block-collapsible {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block-collapsible summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transition: all 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .code-block-collapsible summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .code-block-collapsible summary:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .code-block-collapsible summary::before {
+            content: '📄';
+            font-size: 1.1rem;
+        }
+
+        .code-block-collapsible summary::after {
+            content: '展开';
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .code-block-collapsible[open] summary::after {
+            content: '收起';
+        }
+
+        .code-tabs {
+            margin-top: 0;
+            border-radius: 0;
+            border: none;
+        }
+
+        .code-tabs-header {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-tab-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .code-tab-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .code-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .code-tabs-content {
+            position: relative;
+        }
+
+        .code-tab-panel {
+            display: none;
+        }
+
+        .code-tab-panel.active {
+            display: block;
+        }
+
+        .code-tab-panel pre {
+            margin: 0;
+            border-radius: 0;
+            border-top: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .chunking-hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .chunking-hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .chunking-demo {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">AlgoGuide</a>
+            <ul class="nav-links">
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#knowledge-map">知识图谱</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container" style="padding-top: 2rem;">
+        <a href="../index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+
+        <!-- Hero 区域 -->
+        <div class="chunking-hero">
+            <h1>📝 文本分块算法</h1>
+            <p>将长文本分割为语义完整的片段，RAG 系统预处理的关键步骤</p>
+        </div>
+
+        <section class="chunking-section">
+
+            <!-- 技术概述 -->
+            <div class="chunking-category">
+                <h3>📖 技术概述</h3>
+                
+                <div class="info-card">
+                    <h4><span>🎯</span> 什么是文本分块？</h4>
+                    <p><strong>文本分块（Text Chunking/Segmentation）</strong>是将长文档分割成较小、语义完整的文本片段的过程。这是 RAG（检索增强生成）、语义搜索等系统的核心预处理步骤。</p>
+                    
+                    <p><strong>为什么需要分块？</strong></p>
+                    <ul>
+                        <li><strong>LLM 上下文限制</strong> - 大模型有最大输入长度限制（如 4K、8K、128K tokens）</li>
+                        <li><strong>检索精度</strong> - 小片段更容易精确匹配查询，减少噪声</li>
+                        <li><strong>计算效率</strong> - 小片段向量化和相似度计算更高效</li>
+                        <li><strong>成本控制</strong> - 只检索相关片段，减少 token 消耗</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>💡</span> 核心挑战</h4>
+                    <ul>
+                        <li><strong>语义完整性</strong> - 避免在句子或概念中间切断</li>
+                        <li><strong>块大小平衡</strong> - 太大包含噪声，太小丢失上下文</li>
+                        <li><strong>重叠处理</strong> - 相邻块之间需要适当重叠以保持上下文连贯</li>
+                        <li><strong>多语言支持</strong> - 不同语言的句子边界识别规则不同</li>
+                        <li><strong>特殊格式</strong> - 代码、表格、公式等特殊内容的处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 主流算法 -->
+            <div class="chunking-category">
+                <h3>🔧 主流算法</h3>
+
+                <!-- 固定长度分块 -->
+                <div class="info-card">
+                    <h4><span>📏</span> 固定长度分块</h4>
+                    <p>最简单的方法，按固定字符数或 token 数分割文本。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">实现方式</h5>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+                        <li>设定块大小 chunk_size（如 500 字符或 500 tokens）</li>
+                        <li>设定重叠大小 chunk_overlap（如 50 字符）</li>
+                        <li>按固定步长（chunk_size - chunk_overlap）滑动窗口</li>
+                    </ol>
+
+                    <div class="chunking-demo">
+                        <div class="original">原文：这是一段很长的文本内容，包含了多个句子和段落。我们需要将它分割成适当大小的片段...</div>
+                        <div>
+                            <span class="chunk">这是一段很长的文本内容，包含了多个句子</span>
+                            <span class="chunk">包含了多个句子和段落。我们需要将它分割</span>
+                            <span class="chunk">我们需要将它分割成适当大小的片段。每个</span>
+                        </div>
+                    </div>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 固定长度分块实现
+def fixed_size_chunk(text, chunk_size=500, chunk_overlap=50):
+    """
+    固定长度文本分块
+    
+    Args:
+        text: 输入文本
+        chunk_size: 每块大小（字符数）
+        chunk_overlap: 块间重叠大小
+    
+    Returns:
+        分块列表
+    """
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = start + chunk_size
+        chunk = text[start:end]
+        
+        # 如果不是最后一块，尝试在句子边界处切断
+        if end < len(text):
+            # 查找最近的句子结束符
+            for sep in ['。', '！', '？', '.', '!', '?']:
+                last_sep = chunk.rfind(sep)
+                if last_sep > chunk_size * 0.5:  # 至少在一半位置之后
+                    chunk = chunk[:last_sep + 1]
+                    end = start + last_sep + 1
+                    break
+        
+        chunks.append(chunk.strip())
+        start = end - chunk_overlap
+    
+    return chunks
+
+# 使用示例
+text = """
+人工智能是计算机科学的一个重要分支，它试图理解智能的实质，
+并生产出一种新的能以人类智能相似的方式做出反应的智能机器。
+该领域的研究包括机器人、语言识别、图像识别、自然语言处理和专家系统等。
+人工智能从诞生以来，理论和技术日益成熟，应用领域也不断扩大。
+"""
+
+chunks = fixed_size_chunk(text, chunk_size=100, chunk_overlap=20)
+for i, chunk in enumerate(chunks):
+    print(f"块 {i+1} ({len(chunk)}字符): {chunk[:50]}...")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 句子分割 -->
+                <div class="info-card">
+                    <h4><span>🔤</span> 句子分割</h4>
+                    <p>按句子边界分割文本，保持句子完整性。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">实现方式</h5>
+                    <ul>
+                        <li><strong>规则-based</strong> - 使用正则表达式匹配句子结束符</li>
+                        <li><strong>NLP 工具</strong> - NLTK、spaCy、HanLP 等现成工具</li>
+                        <li><strong>合并策略</strong> - 多个短句可合并为一块</li>
+                    </ul>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 句子分割实现
+import re
+from typing import List
+
+def sentence_chunk(text: str, 
+                   min_sentences_per_chunk: int = 1,
+                   max_sentences_per_chunk: int = 5,
+                   max_chars: int = 500) -> List[str]:
+    """
+    句子级别文本分块
+    
+    Args:
+        text: 输入文本
+        min_sentences_per_chunk: 每块最小句子数
+        max_sentences_per_chunk: 每块最大句子数
+        max_chars: 每块最大字符数
+    
+    Returns:
+        分块列表
+    """
+    # 句子分割（支持中英文）
+    sentence_endings = r'[。！？.!?]'
+    sentences = [s.strip() for s in re.split(sentence_endings, text) if s.strip()]
+    
+    # 添加回句子结束符
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for sentence in sentences:
+        # 恢复句子结束符（简化处理）
+        sentence_with_end = sentence + '。'
+        sentence_len = len(sentence_with_end)
+        
+        # 检查是否需要开始新块
+        if (len(current_chunk) >= max_sentences_per_chunk or 
+            current_length + sentence_len > max_chars):
+            if current_chunk:
+                chunks.append(' '.join(current_chunk))
+            current_chunk = [sentence_with_end]
+            current_length = sentence_len
+        else:
+            current_chunk.append(sentence_with_end)
+            current_length += sentence_len
+    
+    # 添加最后一块
+    if current_chunk:
+        chunks.append(' '.join(current_chunk))
+    
+    return chunks
+
+# 使用示例
+text = """
+机器学习是人工智能的核心技术之一。它通过算法让计算机从数据中学习规律。
+深度学习是机器学习的一个重要分支。它使用多层神经网络来学习数据的层次化表示。
+自然语言处理让计算机理解和生成人类语言。这是大语言模型的基础技术。
+计算机视觉让计算机能够"看懂"图像和视频内容。
+"""
+
+chunks = sentence_chunk(text, max_sentences_per_chunk=2)
+for i, chunk in enumerate(chunks):
+    print(f"块 {i+1}: {chunk}")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 递归字符分块 -->
+                <div class="info-card">
+                    <h4><span>🔄</span> 递归字符分块</h4>
+                    <p>LangChain 推荐的通用分块策略，按优先级顺序尝试多种分隔符。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">分隔符优先级</h5>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+                        <li><code>\n\n</code> - 段落分隔（双换行）</li>
+                        <li><code>\n</code> - 单换行</li>
+                        <li>空格 - 单词/词语边界</li>
+                        <li>空 - 字符级别</li>
+                    </ol>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 递归字符分块实现（LangChain 风格）
+from typing import List, Optional
+
+class RecursiveCharacterTextSplitter:
+    """递归字符文本分割器"""
+    
+    def __init__(
+        self,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
+        separators: Optional[List[str]] = None,
+        keep_separator: bool = True,
+    ):
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.keep_separator = keep_separator
+        # 默认分隔符优先级
+        self._separators = separators or ["\n\n", "\n", " ", ""]
+    
+    def split_text(self, text: str) -> List[str]:
+        """分割文本"""
+        return self._split_text(text, self._separators)
+    
+    def _split_text(self, text: str, separators: List[str]) -> List[str]:
+        """递归分割文本"""
+        final_chunks = []
+        
+        # 获取当前分隔符
+        separator = separators[-1]
+        new_separators = []
+        
+        if len(separators) > 1:
+            new_separators = separators[1:]
+        
+        # 按当前分隔符分割
+        if separator:
+            if self.keep_separator:
+                # 保留分隔符
+                splits = self._split_with_inclusive_separator(text, separator)
+            else:
+                splits = text.split(separator)
+        else:
+            # 字符级别分割
+            splits = list(text)
+        
+        # 处理每个片段
+        for split in splits:
+            if not split:
+                continue
+            
+            # 如果片段仍然太大，递归分割
+            if len(split) > self.chunk_size:
+                sub_chunks = self._split_text(split, new_separators)
+                final_chunks.extend(sub_chunks)
+            else:
+                final_chunks.append(split)
+        
+        # 合并小片段
+        return self._merge_chunks(final_chunks)
+    
+    def _split_with_inclusive_separator(self, text: str, separator: str) -> List[str]:
+        """分割但保留分隔符"""
+        parts = []
+        current = ""
+        
+        for char in text:
+            current += char
+            if char == separator or (len(separator) > 1 and current.endswith(separator)):
+                parts.append(current)
+                current = ""
+        
+        if current:
+            parts.append(current)
+        
+        return parts
+    
+    def _merge_chunks(self, chunks: List[str]) -> List[str]:
+        """合并小片段以达到目标大小"""
+        if not chunks:
+            return []
+        
+        merged = []
+        current_chunk = chunks[0]
+        
+        for chunk in chunks[1:]:
+            # 检查合并后是否超过大小限制
+            if len(current_chunk) + len(chunk) + self.chunk_overlap <= self.chunk_size:
+                # 合并（带重叠）
+                overlap = current_chunk[-self.chunk_overlap:] if self.chunk_overlap > 0 else ""
+                current_chunk = current_chunk + chunk
+            else:
+                merged.append(current_chunk.strip())
+                current_chunk = chunk
+        
+        merged.append(current_chunk.strip())
+        return merged
+
+# 使用示例
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=200,
+    chunk_overlap=50,
+    separators=["\n\n", "\n", "。", ".", " ", ""]
+)
+
+text = """
+这是第一段内容，包含多个句子。这是第一段的第二句。这是第一段的第三句。
+
+这是第二段内容，同样包含多个句子。这是第二段的第二句。
+
+这是第三段，比较短。
+"""
+
+chunks = splitter.split_text(text)
+for i, chunk in enumerate(chunks):
+    print(f"\n块 {i+1} ({len(chunk)}字符):")
+    print(chunk[:100]}...")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 语义分块 -->
+                <div class="info-card">
+                    <h4><span>🧠</span> 语义分块</h4>
+                    <p>基于文本语义相似度进行分块，确保每块内部语义连贯。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">实现方式</h5>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+                        <li>将文本按句子分割</li>
+                        <li>计算相邻句子的语义相似度</li>
+                        <li>在相似度最低处切断（话题转换点）</li>
+                        <li>合并相似句子为块</li>
+                    </ol>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 语义分块实现
+import numpy as np
+from typing import List, Tuple
+
+class SemanticChunker:
+    """基于语义相似度的文本分块器"""
+    
+    def __init__(
+        self,
+        embedding_model=None,
+        threshold: float = 0.5,
+        min_chunk_size: int = 1,
+        max_chunk_size: int = 10,
+    ):
+        """
+        Args:
+            embedding_model: 句向量模型（如 sentence-transformers）
+            threshold: 相似度阈值，低于此值切断
+            min_chunk_size: 每块最小句子数
+            max_chunk_size: 每块最大句子数
+        """
+        self.threshold = threshold
+        self.min_chunk_size = min_chunk_size
+        self.max_chunk_size = max_chunk_size
+        self.embedding_model = embedding_model
+    
+    def _get_embedding(self, text: str) -> np.ndarray:
+        """获取文本向量"""
+        if self.embedding_model is None:
+            # 简化示例：使用随机向量
+            return np.random.randn(384)
+        return self.embedding_model.encode(text)
+    
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """计算余弦相似度"""
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    
+    def split(self, text: str) -> List[str]:
+        """分割文本"""
+        # 1. 句子分割
+        sentences = self._split_into_sentences(text)
+        
+        if len(sentences) <= self.min_chunk_size:
+            return [' '.join(sentences)]
+        
+        # 2. 计算句子向量
+        embeddings = [self._get_embedding(s) for s in sentences]
+        
+        # 3. 计算相邻句子相似度
+        similarities = []
+        for i in range(len(embeddings) - 1):
+            sim = self._cosine_similarity(embeddings[i], embeddings[i + 1])
+            similarities.append(sim)
+        
+        # 4. 在低相似度处切断
+        chunks = []
+        current_chunk = [sentences[0]]
+        
+        for i, sim in enumerate(similarities):
+            if sim < self.threshold or len(current_chunk) >= self.max_chunk_size:
+                if len(current_chunk) >= self.min_chunk_size:
+                    chunks.append(' '.join(current_chunk))
+                    current_chunk = []
+            current_chunk.append(sentences[i + 1])
+        
+        if current_chunk:
+            chunks.append(' '.join(current_chunk))
+        
+        return chunks
+    
+    def _split_into_sentences(self, text: str) -> List[str]:
+        """句子分割"""
+        import re
+        pattern = r'[。！？.!?]'
+        sentences = [s.strip() for s in re.split(pattern, text) if s.strip()]
+        return sentences
+
+# 使用示例（需要 sentence-transformers）
+# from sentence_transformers import SentenceTransformer
+# model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+# chunker = SemanticChunker(embedding_model=model, threshold=0.6)
+
+# 简化示例（无实际模型）
+chunker = SemanticChunker(threshold=0.6)
+
+text = """
+机器学习是人工智能的重要分支。它让计算机从数据中学习规律。
+深度学习使用神经网络进行表示学习。卷积神经网络在图像识别中表现优异。
+自然语言处理研究计算机与人类语言的交互。大语言模型是 NLP 的重要成果。
+计算机视觉让机器能够理解图像内容。目标检测是 CV 的核心任务之一。
+"""
+
+chunks = chunker.split(text)
+for i, chunk in enumerate(chunks):
+    print(f"\n块 {i+1}:")
+    print(chunk)</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- 特定格式分块 -->
+                <div class="info-card">
+                    <h4><span>📄</span> 特定格式分块</h4>
+                    <p>针对 Markdown、代码、表格等特殊格式的分块策略。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">Markdown 分块</h5>
+                    <ul>
+                        <li>按标题层级（#、##、###）分割</li>
+                        <li>保持代码块完整性</li>
+                        <li>保留表格结构</li>
+                    </ul>
+
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">代码分块</h5>
+                    <ul>
+                        <li>按函数/类定义分割</li>
+                        <li>保持代码块完整性</li>
+                        <li>保留导入语句和上下文</li>
+                    </ul>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># Markdown 分块实现
+import re
+from typing import List, Tuple
+
+class MarkdownChunker:
+    """Markdown 文本分块器"""
+    
+    def __init__(self, max_chunk_size: int = 1000):
+        self.max_chunk_size = max_chunk_size
+    
+    def split(self, text: str) -> List[Tuple[str, str]]:
+        """
+        分割 Markdown 文本
+        
+        Returns:
+            [(标题，内容), ...] 列表
+        """
+        # 按标题分割
+        heading_pattern = r'^(#{1,6})\s+(.+)$'
+        lines = text.split('\n')
+        
+        chunks = []
+        current_title = ""
+        current_content = []
+        
+        for line in lines:
+            match = re.match(heading_pattern, line)
+            if match:
+                # 保存之前的块
+                if current_content:
+                    chunks.append((current_title, '\n'.join(current_content)))
+                
+                # 开始新块
+                level = len(match.group(1))
+                current_title = f"{'#' * level} {match.group(2)}"
+                current_content = []
+            else:
+                current_content.append(line)
+        
+        # 添加最后一块
+        if current_content:
+            chunks.append((current_title, '\n'.join(current_content)))
+        
+        # 如果块太大，进一步分割
+        final_chunks = []
+        for title, content in chunks:
+            if len(content) > self.max_chunk_size:
+                # 按段落分割大块
+                paragraphs = content.split('\n\n')
+                current_para = []
+                current_len = 0
+                
+                for para in paragraphs:
+                    if current_len + len(para) > self.max_chunk_size:
+                        final_chunks.append((title, '\n\n'.join(current_para)))
+                        current_para = [para]
+                        current_len = len(para)
+                    else:
+                        current_para.append(para)
+                        current_len += len(para)
+                
+                if current_para:
+                    final_chunks.append((title, '\n\n'.join(current_para)))
+            else:
+                final_chunks.append((title, content))
+        
+        return final_chunks
+
+# 使用示例
+markdown_text = """
+# 机器学习概述
+
+机器学习是人工智能的核心技术。
+
+## 监督学习
+
+监督学习从标注数据中学习映射关系。
+
+### 分类
+
+分类任务预测离散标签。
+
+### 回归
+
+回归任务预测连续值。
+
+## 无监督学习
+
+无监督学习从无标注数据中发现模式。
+"""
+
+chunker = MarkdownChunker(max_chunk_size=500)
+chunks = chunker.split(markdown_text)
+
+for title, content in chunks:
+    print(f"\n{title}")
+    print(f"内容长度：{len(content)}")
+    print(content[:100]}...")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 算法对比 -->
+            <div class="chunking-category">
+                <h3>📊 算法对比</h3>
+                
+                <div class="info-card">
+                    <h4><span>⚡</span> 分块算法对比</h4>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>算法</th>
+                                    <th>速度</th>
+                                    <th>语义完整性</th>
+                                    <th>实现难度</th>
+                                    <th>适用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>固定长度</strong></td>
+                                    <td>⭐⭐⭐⭐⭐</td>
+                                    <td>⭐⭐</td>
+                                    <td>⭐</td>
+                                    <td>快速原型、对语义要求不高</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>句子分割</strong></td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>⭐</td>
+                                    <td>通用文本、文档检索</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>递归字符</strong></td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>⭐⭐</td>
+                                    <td>RAG 系统、LangChain 推荐</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>语义分块</strong></td>
+                                    <td>⭐⭐</td>
+                                    <td>⭐⭐⭐⭐⭐</td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>高质量检索、话题明确文本</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>特定格式</strong></td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>Markdown、代码、结构化文档</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>🎯</span> 参数选择指南</h4>
+                    
+                    <h5 style="margin: 1rem 0; color: var(--text-primary);">块大小（chunk_size）</h5>
+                    <ul>
+                        <li><strong>256-512 tokens</strong> - 精确检索，适合事实性问题</li>
+                        <li><strong>512-1024 tokens</strong> - 平衡检索质量和上下文</li>
+                        <li><strong>1024-2048 tokens</strong> - 需要完整上下文的复杂问题</li>
+                    </ul>
+                    
+                    <h5 style="margin: 1rem 0; color: var(--text-primary);">重叠大小（chunk_overlap）</h5>
+                    <ul>
+                        <li><strong>0-10%</strong> - 减少冗余，适合长文档</li>
+                        <li><strong>10-20%</strong> - 推荐默认值</li>
+                        <li><strong>20-30%</strong> - 保持上下文连贯，适合短文本</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 实际应用 -->
+            <div class="chunking-category">
+                <h3>💼 实际应用</h3>
+                
+                <div class="info-card">
+                    <h4><span>🔧</span> 主流工具</h4>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>工具</th>
+                                    <th>分块方法</th>
+                                    <th>特点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>LangChain</strong></td>
+                                    <td>递归字符、Markdown、代码</td>
+                                    <td>功能全面、文档完善</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>LlamaIndex</strong></td>
+                                    <td>句子、语义、递归</td>
+                                    <td>专为 RAG 设计</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hugging Face</strong></td>
+                                    <td>Token 级别</td>
+                                    <td>与模型集成</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>NLTK/spaCy</strong></td>
+                                    <td>句子分割</td>
+                                    <td>NLP 基础工具</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>📋</span> RAG 系统最佳实践</h4>
+                    <ol>
+                        <li><strong>预处理</strong> - 清理 HTML、特殊字符、标准化格式</li>
+                        <li><strong>选择分块策略</strong> - 根据文档类型选择合适算法</li>
+                        <li><strong>调整参数</strong> - 基于检索效果调优 chunk_size</li>
+                        <li><strong>添加元数据</strong> - 记录来源、标题、位置等信息</li>
+                        <li><strong>质量评估</strong> - 人工抽查分块质量和检索效果</li>
+                    </ol>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+    <script>
+        // 代码选项卡切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.code-tabs').forEach(function(tabs) {
+                const buttons = tabs.querySelectorAll('.code-tab-btn');
+                const panels = tabs.querySelectorAll('.code-tab-panel');
+                
+                buttons.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const lang = this.dataset.lang;
+                        
+                        // 移除所有激活状态
+                        buttons.forEach(b => b.classList.remove('active'));
+                        panels.forEach(p => p.classList.remove('active'));
+                        
+                        // 激活当前选项
+                        this.classList.add('active');
+                        tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
+                    });
+                });
+            });
+            
+            // 折叠展开时重新应用 Prism 高亮
+            document.querySelectorAll('.code-block-collapsible').forEach(function(details) {
+                details.addEventListener('toggle', function() {
+                    if (this.open) {
+                        Prism.highlightAllUnder(this);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
