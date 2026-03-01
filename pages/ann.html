@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>向量检索 ANN - 近似最近邻搜索算法</title>
+    <meta name="description" content="全面讲解近似最近邻（ANN）搜索算法：LSH、HNSW、FAISS 等高效向量检索技术，向量数据库核心算法">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <style>
+        /* 页面头部样式 */
+        .ann-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ann-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .ann-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ann-hero p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* 内容区域 */
+        .ann-section {
+            padding: 2rem 0;
+        }
+
+        .ann-category {
+            margin-bottom: 3rem;
+        }
+
+        .ann-category h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .ann-category h3::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        /* 信息卡片 */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .info-card ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* 技术对比表 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 代码块 */
+        .code-block-collapsible {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block-collapsible summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transition: all 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .code-block-collapsible summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .code-block-collapsible summary:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .code-block-collapsible summary::before {
+            content: '📄';
+            font-size: 1.1rem;
+        }
+
+        .code-block-collapsible summary::after {
+            content: '展开';
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .code-block-collapsible[open] summary::after {
+            content: '收起';
+        }
+
+        .code-tabs {
+            margin-top: 0;
+            border-radius: 0;
+            border: none;
+        }
+
+        .code-tabs-header {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-tab-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .code-tab-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .code-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .code-tabs-content {
+            position: relative;
+        }
+
+        .code-tab-panel {
+            display: none;
+        }
+
+        .code-tab-panel.active {
+            display: block;
+        }
+
+        .code-tab-panel pre {
+            margin: 0;
+            border-radius: 0;
+            border-top: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .ann-hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .ann-hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">AlgoGuide</a>
+            <ul class="nav-links">
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#knowledge-map">知识图谱</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container" style="padding-top: 2rem;">
+        <a href="../index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+
+        <!-- Hero 区域 -->
+        <div class="ann-hero">
+            <h1>🔎 向量检索 ANN</h1>
+            <p>近似最近邻搜索算法，亿级向量库中的高效检索技术</p>
+        </div>
+
+        <section class="ann-section">
+
+            <!-- 技术概述 -->
+            <div class="ann-category">
+                <h3>📖 技术概述</h3>
+                
+                <div class="info-card">
+                    <h4><span>🎯</span> 什么是 ANN 搜索？</h4>
+                    <p><strong>近似最近邻（Approximate Nearest Neighbor, ANN）</strong>搜索是一种在大规模高维向量空间中快速查找与查询向量最相似向量的技术。与精确最近邻搜索不同，ANN 通过牺牲少量精度换取显著的速度提升。</p>
+                    
+                    <p><strong>核心问题：</strong>给定查询向量 q 和包含 n 个向量的数据库 D，找到 k 个与 q 最相似的向量。</p>
+                    
+                    <p><strong>相似度度量：</strong></p>
+                    <ul>
+                        <li><strong>欧氏距离（L2 Distance）</strong> - 向量间的直线距离，越小越相似</li>
+                        <li><strong>余弦相似度（Cosine Similarity）</strong> - 向量夹角的余弦值，越大越相似</li>
+                        <li><strong>内积（Inner Product）</strong> - 向量点积，越大越相似</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>💡</span> 为什么需要 ANN？</h4>
+                    <p>精确最近邻搜索（如暴力搜索）的时间复杂度为 O(n)，在亿级向量库中完全不可行。ANN 算法通过以下策略实现亚线性时间复杂度：</p>
+                    <ul>
+                        <li><strong>空间划分</strong> - 将向量空间划分为多个区域，只在相关区域搜索</li>
+                        <li><strong>哈希映射</strong> - 将相似向量映射到相同或相近的哈希桶</li>
+                        <li><strong>图结构</strong> - 构建导航图，通过贪心搜索快速定位</li>
+                        <li><strong>量化压缩</strong> - 压缩向量表示，加速距离计算</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 主流算法 -->
+            <div class="ann-category">
+                <h3>🔧 主流算法</h3>
+
+                <!-- LSH -->
+                <div class="info-card">
+                    <h4><span>🎲</span> LSH - 局部敏感哈希</h4>
+                    <p><strong>局部敏感哈希（Locality Sensitive Hashing, LSH）</strong>的核心思想是：相似的向量以高概率映射到相同的哈希桶中。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">工作原理</h5>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+                        <li>设计哈希函数 h，使得相似向量碰撞概率高</li>
+                        <li>使用多个哈希函数构建哈希表</li>
+                        <li>查询时，计算查询向量的哈希值，只在对应桶中搜索</li>
+                    </ol>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># LSH 简易实现 - 基于随机超平面
+import numpy as np
+from collections import defaultdict
+
+class LSHTable:
+    """LSH 哈希表 - 随机超平面哈希"""
+    
+    def __init__(self, num_hyperplanes, dim):
+        # 随机超平面法向量
+        self.hyperplanes = np.random.randn(num_hyperplanes, dim)
+        self.hash_table = defaultdict(list)
+    
+    def _hash(self, vector):
+        """计算向量的哈希值（二进制）"""
+        projections = np.dot(self.hyperplanes, vector)
+        # 根据投影正负生成二进制哈希
+        return tuple((projections > 0).astype(int))
+    
+    def insert(self, idx, vector):
+        """插入向量"""
+        hash_key = self._hash(vector)
+        self.hash_table[hash_key].append(idx)
+    
+    def query(self, vector):
+        """查询候选集"""
+        hash_key = self._hash(vector)
+        return self.hash_table[hash_key]
+
+
+class LSHIndex:
+    """LSH 索引 - 多哈希表增强"""
+    
+    def __init__(self, dim, num_tables=10, num_hyperplanes=16):
+        self.tables = [
+            LSHTable(num_hyperplanes, dim) 
+            for _ in range(num_tables)
+        ]
+    
+    def build(self, vectors):
+        """构建索引"""
+        for idx, vec in enumerate(vectors):
+            for table in self.tables:
+                table.insert(idx, vec)
+    
+    def search(self, query_vector, k=5):
+        """搜索最近邻"""
+        # 收集所有候选
+        candidates = set()
+        for table in self.tables:
+            candidates.update(table.query(query_vector))
+        
+        # 在候选集中精确计算距离
+        scores = []
+        for idx in candidates:
+            dist = np.linalg.norm(query_vector - self.vectors[idx])
+            scores.append((idx, dist))
+        
+        # 返回 top-k
+        scores.sort(key=lambda x: x[1])
+        return scores[:k]
+
+# 使用示例
+np.random.seed(42)
+n_samples, dim = 10000, 128
+vectors = np.random.randn(n_samples, dim)
+
+# 构建索引
+lsh = LSHIndex(dim=dim, num_tables=10)
+lsh.vectors = vectors  # 存储原始向量
+lsh.build(vectors)
+
+# 查询
+query = np.random.randn(dim)
+results = lsh.search(query, k=5)
+print(f"Top-5 最近邻：{results}")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- HNSW -->
+                <div class="info-card">
+                    <h4><span>🕸️</span> HNSW - 分层可导航小世界</h4>
+                    <p><strong>HNSW（Hierarchical Navigable Small World）</strong>是目前最高效的 ANN 算法之一，结合了跳表（Skip List）和小世界图（Small World Graph）的思想。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">核心思想</h5>
+                    <ul>
+                        <li><strong>多层图结构</strong> - 顶层稀疏用于长距离导航，底层稠密用于精细搜索</li>
+                        <li><strong>贪心搜索</strong> - 从顶层入口开始，每层找到局部最优后进入下一层</li>
+                        <li><strong>可导航小世界</strong> - 通过添加长边实现 O(log n) 搜索</li>
+                    </ul>
+
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">算法特点</h5>
+                    <ul>
+                        <li><strong>优点</strong> - 搜索速度快、召回率高、支持动态插入</li>
+                        <li><strong>缺点</strong> - 构建时间较长、内存占用大</li>
+                        <li><strong>应用</strong> - Milvus、Qdrant、Weaviate 等向量数据库</li>
+                    </ul>
+
+                    <div class="comparison-table" style="max-width: 700px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>说明</th>
+                                    <th>影响</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>M</strong></td>
+                                    <td>最大连接数</td>
+                                    <td>越大图越稠密，精度高但内存大</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>efConstruction</strong></td>
+                                    <td>构建时搜索范围</td>
+                                    <td>越大构建质量越高，速度慢</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>efSearch</strong></td>
+                                    <td>查询时搜索范围</td>
+                                    <td>越大召回率越高，速度慢</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 乘积量化 -->
+                <div class="info-card">
+                    <h4><span>📦</span> 乘积量化（Product Quantization）</h4>
+                    <p><strong>乘积量化（PQ）</strong>是一种向量压缩技术，将高维向量分解为多个子向量，分别量化，大幅减少内存占用和计算量。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">工作原理</h5>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+                        <li>将 D 维向量分解为 m 个子向量，每个 D/m 维</li>
+                        <li>对每个子空间独立进行 k-means 聚类，得到 k 个聚类中心</li>
+                        <li>每个子向量用最近的聚类中心 ID 表示（log₂k 比特）</li>
+                        <li>原向量用 m 个 ID 组成的编码表示</li>
+                    </ol>
+
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">距离计算优化</h5>
+                    <p>使用查找表（LUT）预计算查询向量与所有聚类中心的距离，查询时只需查表累加，避免实时计算。</p>
+                </div>
+
+                <!-- FAISS -->
+                <div class="info-card">
+                    <h4><span>🚀</span> FAISS - Facebook AI 相似性搜索</h4>
+                    <p><strong>FAISS（Facebook AI Similarity Search）</strong>是 Meta 开源的向量检索库，集成了多种 ANN 算法，支持 GPU 加速。</p>
+                    
+                    <h5 style="margin: 1.5rem 0 1rem; color: var(--text-primary);">核心索引类型</h5>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>索引类型</th>
+                                    <th>算法</th>
+                                    <th>特点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>IndexFlatL2</strong></td>
+                                    <td>暴力搜索</td>
+                                    <td>精确但慢，作为基准</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IndexIVFFlat</strong></td>
+                                    <td>倒排文件</td>
+                                    <td>空间划分，中等速度</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IndexIVFPQ</strong></td>
+                                    <td>IVF + PQ</td>
+                                    <td>压缩存储，速度快</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IndexHNSW</strong></td>
+                                    <td>HNSW</td>
+                                    <td>高质量，支持动态插入</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IndexIVFHNSW</strong></td>
+                                    <td>IVF + HNSW</td>
+                                    <td>结合两者优势</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># FAISS 使用示例
+import faiss
+import numpy as np
+
+# 准备数据
+d = 128  # 向量维度
+nb = 100000  # 数据库大小
+np.random.seed(42)
+xb = np.random.random((nb, d)).astype('float32')
+
+# ========== 1. 暴力搜索（精确） ==========
+index_flat = faiss.IndexFlatL2(d)
+index_flat.add(xb)
+
+# 查询
+nq = 10
+xq = np.random.random((nq, d)).astype('float32')
+D, I = index_flat.search(xq, k=5)
+print(f"暴力搜索 - 距离：{D[0]}, 索引：{I[0]}")
+
+# ========== 2. IVF 倒排索引 ==========
+nlist = 100  # 聚类中心数量
+quantizer = faiss.IndexFlatL2(d)
+index_ivf = faiss.IndexIVFFlat(quantizer, d, nlist)
+
+# 训练（需要）
+index_ivf.train(xb)
+index_ivf.add(xb)
+
+# 设置查询参数
+index_ivf.nprobe = 10  # 搜索的聚类数量
+D, I = index_ivf.search(xq, k=5)
+print(f"IVF 搜索 - 距离：{D[0]}, 索引：{I[0]}")
+
+# ========== 3. IVF + PQ（压缩） ==========
+m = 8  # 子向量数量
+nbits = 8  # 每子向量比特数
+index_pq = faiss.IndexIVFPQ(quantizer, d, nlist, m, nbits)
+
+index_pq.train(xb)
+index_pq.add(xb)
+index_pq.nprobe = 10
+
+D, I = index_pq.search(xq, k=5)
+print(f"IVF+PQ 搜索 - 距离：{D[0]}, 索引：{I[0]}")
+
+# ========== 4. HNSW ==========
+M = 16  # 连接数
+index_hnsw = faiss.IndexHNSWFlat(d, M)
+index_hnsw.hnsw.efSearch = 64  # 查询参数
+index_hnsw.add(xb)
+
+D, I = index_hnsw.search(xq, k=5)
+print(f"HNSW 搜索 - 距离：{D[0]}, 索引：{I[0]}")
+
+# ========== 5. 索引持久化 ==========
+faiss.write_index(index_hnsw, "hnsw.index")
+loaded_index = faiss.read_index("hnsw.index")</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 性能对比 -->
+            <div class="ann-category">
+                <h3>📊 性能对比</h3>
+                
+                <div class="info-card">
+                    <h4><span>⚡</span> 算法对比（100 万向量，128 维）</h4>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>算法</th>
+                                    <th>构建时间</th>
+                                    <th>查询时间</th>
+                                    <th>召回率@10</th>
+                                    <th>内存占用</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>暴力搜索</strong></td>
+                                    <td>-</td>
+                                    <td>~500ms</td>
+                                    <td>100%</td>
+                                    <td>512MB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>LSH</strong></td>
+                                    <td>~10s</td>
+                                    <td>~5ms</td>
+                                    <td>60-80%</td>
+                                    <td>~600MB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IVF</strong></td>
+                                    <td>~30s</td>
+                                    <td>~2ms</td>
+                                    <td>80-90%</td>
+                                    <td>~550MB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IVF+PQ</strong></td>
+                                    <td>~60s</td>
+                                    <td>~1ms</td>
+                                    <td>75-85%</td>
+                                    <td>~100MB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HNSW</strong></td>
+                                    <td>~120s</td>
+                                    <td>~0.5ms</td>
+                                    <td>95-99%</td>
+                                    <td>~2GB</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        * 数据仅供参考，实际性能取决于具体参数设置和硬件环境
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>🎯</span> 选择指南</h4>
+                    <ul>
+                        <li><strong>追求最高精度</strong> - 暴力搜索或 HNSW（efSearch 调大）</li>
+                        <li><strong>追求最快速度</strong> - HNSW 或 IVF+PQ</li>
+                        <li><strong>内存受限</strong> - IVF+PQ（压缩比高）</li>
+                        <li><strong>动态数据</strong> - HNSW（支持实时插入删除）</li>
+                        <li><strong>静态数据</strong> - IVF 系列（构建一次，多次查询）</li>
+                        <li><strong>十亿级规模</strong> - 多索引组合 + 分布式部署</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 实际应用 -->
+            <div class="ann-category">
+                <h3>💼 实际应用</h3>
+                
+                <div class="info-card">
+                    <h4><span>🔍</span> 应用场景</h4>
+                    <ul>
+                        <li><strong>语义搜索</strong> - 搜索引擎、文档检索</li>
+                        <li><strong>推荐系统</strong> - 相似物品推荐、用户匹配</li>
+                        <li><strong>图像检索</strong> - 以图搜图、人脸识别</li>
+                        <li><strong>去重检测</strong> - 文本/图像/视频去重</li>
+                        <li><strong>RAG 系统</strong> - 检索增强生成，为大模型提供上下文</li>
+                        <li><strong>异常检测</strong> - 识别远离正常分布的样本</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4><span>🗄️</span> 向量数据库</h4>
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>数据库</th>
+                                    <th>核心算法</th>
+                                    <th>特点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Milvus</strong></td>
+                                    <td>HNSW, IVF, ANNOY</td>
+                                    <td>开源、功能全面、支持混合查询</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Qdrant</strong></td>
+                                    <td>HNSW</td>
+                                    <td>Rust 实现、高性能、支持过滤</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pinecone</strong></td>
+                                    <td>专有算法</td>
+                                    <td>托管服务、易用、自动扩展</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaviate</strong></td>
+                                    <td>HNSW</td>
+                                    <td>支持 GraphQL、多模态</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Chroma</strong></td>
+                                    <td>HNSW</td>
+                                    <td>轻量级、适合本地开发</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+    <script>
+        // 代码选项卡切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.code-tabs').forEach(function(tabs) {
+                const buttons = tabs.querySelectorAll('.code-tab-btn');
+                const panels = tabs.querySelectorAll('.code-tab-panel');
+                
+                buttons.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const lang = this.dataset.lang;
+                        
+                        // 移除所有激活状态
+                        buttons.forEach(b => b.classList.remove('active'));
+                        panels.forEach(p => p.classList.remove('active'));
+                        
+                        // 激活当前选项
+                        this.classList.add('active');
+                        tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
+                    });
+                });
+            });
+            
+            // 折叠展开时重新应用 Prism 高亮
+            document.querySelectorAll('.code-block-collapsible').forEach(function(details) {
+                details.addEventListener('toggle', function() {
+                    if (this.open) {
+                        Prism.highlightAllUnder(this);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

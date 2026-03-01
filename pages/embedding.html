@@ -854,11 +854,6 @@ for text, score in results:
         </section>
     </main>
 
-    <!-- 页脚 -->
-    <footer style="text-align: center; padding: 2.5rem 1rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); margin-top: 4rem; background: linear-gradient(180deg, transparent 0%, var(--bg-secondary) 100%); border-radius: 12px 12px 0 0;">
-        <p style="margin: 0; font-size: 0.9rem;">© AlgoGuide. 掌握算法之美，成就编程梦想。</p>
-    </footer>
-
     <script src="../js/components.js"></script>
     <script src="../lib/prism/prism.min.js"></script>
     <script src="../lib/prism/prism-python.min.js"></script>
@@ -870,22 +865,22 @@ for text, score in results:
             document.querySelectorAll('.code-tabs').forEach(function(tabs) {
                 const buttons = tabs.querySelectorAll('.code-tab-btn');
                 const panels = tabs.querySelectorAll('.code-tab-panel');
-                
+
                 buttons.forEach(function(btn) {
                     btn.addEventListener('click', function() {
                         const lang = this.dataset.lang;
-                        
+
                         // 移除所有激活状态
                         buttons.forEach(b => b.classList.remove('active'));
                         panels.forEach(p => p.classList.remove('active'));
-                        
+
                         // 激活当前选项
                         this.classList.add('active');
                         tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
                     });
                 });
             });
-            
+
             // 折叠展开时重新应用 Prism 高亮
             document.querySelectorAll('.code-block-collapsible').forEach(function(details) {
                 details.addEventListener('toggle', function() {
