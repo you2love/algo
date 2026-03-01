@@ -306,6 +306,66 @@
             border-bottom-right-radius: 0;
         }
 
+        /* 多语言代码选项卡 */
+        .code-tabs {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-tabs-header {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-tab-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .code-tab-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .code-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .code-tab-btn .icon {
+            margin-right: 0.5rem;
+        }
+
+        .code-tabs-content {
+            position: relative;
+        }
+
+        .code-tab-panel {
+            display: none;
+        }
+
+        .code-tab-panel.active {
+            display: block;
+        }
+
+        .code-tab-panel pre {
+            margin: 0;
+            border-radius: 0;
+            border-top: none;
+        }
+
         .code-example pre {
             margin-top: 0;
             border-radius: 0 0 12px 12px;
@@ -571,9 +631,15 @@
                             </div>
                         </div>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python"># 顺序查找
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python"># 顺序查找
 def linear_search(arr, target):
     for i in range(len(arr)):
         if arr[i] == target:
@@ -584,7 +650,43 @@ def linear_search(arr, target):
 arr = [64, 34, 25, 12, 22, 11, 90]
 result = linear_search(arr, 22)
 print(f"元素索引：{result}")</code></pre>
-                    </details>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// 顺序查找
+function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// 使用示例
+const arr = [64, 34, 25, 12, 22, 11, 90];
+const result = linearSearch(arr, 22);
+console.log(`元素索引：${result}`);</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// 顺序查找
+func linearSearch(arr []int, target int) int {
+    for i := 0; i < len(arr); i++ {
+        if arr[i] == target {
+            return i
+        }
+    }
+    return -1
+}
+
+// 使用示例
+func main() {
+    arr := []int{64, 34, 25, 12, 22, 11, 90}
+    result := linearSearch(arr, 22)
+    fmt.Printf("元素索引：%d\n", result)
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="search-card">
@@ -615,9 +717,15 @@ print(f"元素索引：{result}")</code></pre>
                             </div>
                         </div>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python"># 二分查找 - 迭代实现
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python"># 二分查找 - 迭代实现
 def binary_search(arr, target):
     left, right = 0, len(arr) - 1
     
@@ -649,7 +757,91 @@ def binary_search_recursive(arr, target, left, right):
 arr = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
 result = binary_search(arr, 7)
 print(f"元素索引：{result}")  # 输出：3</code></pre>
-                    </details>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// 二分查找 - 迭代实现
+function binarySearch(arr, target) {
+    let left = 0, right = arr.length - 1;
+    
+    while (left <= right) {
+        const mid = left + Math.floor((right - left) / 2);
+        if (arr[mid] === target) {
+            return mid;
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return -1;
+}
+
+// 二分查找 - 递归实现
+function binarySearchRecursive(arr, target, left, right) {
+    if (left > right) {
+        return -1;
+    }
+    
+    const mid = left + Math.floor((right - left) / 2);
+    if (arr[mid] === target) {
+        return mid;
+    } else if (arr[mid] < target) {
+        return binarySearchRecursive(arr, target, mid + 1, right);
+    } else {
+        return binarySearchRecursive(arr, target, left, mid - 1);
+    }
+}
+
+// 使用示例
+const arr = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+const result = binarySearch(arr, 7);
+console.log(`元素索引：${result}`);</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// 二分查找 - 迭代实现
+func binarySearch(arr []int, target int) int {
+    left, right := 0, len(arr)-1
+    
+    for left <= right {
+        mid := left + (right - left) / 2
+        if arr[mid] == target {
+            return mid
+        } else if arr[mid] < target {
+            left = mid + 1
+        } else {
+            right = mid - 1
+        }
+    }
+    
+    return -1
+}
+
+// 二分查找 - 递归实现
+func binarySearchRecursive(arr []int, target, left, right int) int {
+    if left > right {
+        return -1
+    }
+    
+    mid := left + (right - left) / 2
+    if arr[mid] == target {
+        return mid
+    } else if arr[mid] < target {
+        return binarySearchRecursive(arr, target, mid + 1, right)
+    } else {
+        return binarySearchRecursive(arr, target, left, mid - 1)
+    }
+}
+
+// 使用示例
+func main() {
+    arr := []int{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}
+    result := binarySearch(arr, 7)
+    fmt.Printf("元素索引：%d\n", result)
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                     <div class="search-complexity" style="margin-top: 1rem;">
                         <h5>常见变体</h5>
                         <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
@@ -694,22 +886,28 @@ print(f"元素索引：{result}")  # 输出：3</code></pre>
                             </div>
                         </div>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python"># 哈希表查找示例
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python"># 哈希表查找示例 - 两数之和
 def two_sum(nums, target):
     """
     两数之和问题 - 哈希表经典应用
     在数组中找到两个数，使其和等于目标值
     """
     hash_map = {}  # 存储 {数值：索引}
-    
+
     for i, num in enumerate(nums):
         complement = target - num
         if complement in hash_map:
             return [hash_map[complement], i]
         hash_map[num] = i
-    
+
     return []
 
 # 使用示例
@@ -723,14 +921,14 @@ class HashTable:
     def __init__(self, size=16):
         self.size = size
         self.table = [None] * size
-    
+
     def _hash(self, key):
         return hash(key) % self.size
-    
+
     def _probe(self, index):
         """线性探测解决冲突"""
         return (index + 1) % self.size
-    
+
     def insert(self, key, value):
         index = self._hash(key)
         while self.table[index] is not None:
@@ -739,7 +937,7 @@ class HashTable:
                 return
             index = self._probe(index)
         self.table[index] = (key, value)
-    
+
     def search(self, key):
         index = self._hash(key)
         start = index
@@ -749,8 +947,158 @@ class HashTable:
             index = self._probe(index)
             if index == start:
                 break
-        return None</code></pre>
-                    </details>
+        return None
+
+# 使用示例
+ht = HashTable()
+ht.insert("name", "Alice")
+ht.insert("age", 25)
+print(f"查找 name: {ht.search('name')}")  # 输出：Alice</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// 哈希表查找示例 - 两数之和
+function twoSum(nums, target) {
+    const hashMap = new Map();  // 存储 {数值：索引}
+
+    for (let i = 0; i < nums.length; i++) {
+        const complement = target - nums[i];
+        if (hashMap.has(complement)) {
+            return [hashMap.get(complement), i];
+        }
+        hashMap.set(nums[i], i);
+    }
+
+    return [];
+}
+
+// 使用示例
+const nums = [2, 7, 11, 15];
+const target = 9;
+const result = twoSum(nums, target);
+console.log(`索引：${result}`);  // 输出：[0, 1]
+
+// 哈希表实现 - 链地址法解决冲突
+class HashTable {
+    constructor(size = 16) {
+        this.size = size;
+        this.table = new Array(size).fill(null).map(() => []);
+    }
+
+    _hash(key) {
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+            hash = (hash + key.charCodeAt(i)) % this.size;
+        }
+        return hash;
+    }
+
+    insert(key, value) {
+        const index = this._hash(key);
+        const bucket = this.table[index];
+        for (let i = 0; i < bucket.length; i++) {
+            if (bucket[i][0] === key) {
+                bucket[i][1] = value;
+                return;
+            }
+        }
+        bucket.push([key, value]);
+    }
+
+    search(key) {
+        const index = this._hash(key);
+        const bucket = this.table[index];
+        for (let i = 0; i < bucket.length; i++) {
+            if (bucket[i][0] === key) {
+                return bucket[i][1];
+            }
+        }
+        return null;
+    }
+}
+
+// 使用示例
+const ht = new HashTable();
+ht.insert("name", "Alice");
+ht.insert("age", 25);
+console.log(`查找 name: ${ht.search('name')}`);  // 输出：Alice</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// 哈希表查找示例 - 两数之和
+func twoSum(nums []int, target int) []int {
+    hashMap := make(map[int]int)  // 存储 {数值：索引}
+
+    for i, num := range nums {
+        complement := target - num
+        if idx, ok := hashMap[complement]; ok {
+            return []int{idx, i}
+        }
+        hashMap[num] = i
+    }
+
+    return []int{}
+}
+
+// 哈希表实现 - 链地址法解决冲突
+type HashTable struct {
+    size  int
+    table [][][2]interface{}  // 每个桶是一个链表
+}
+
+func NewHashTable(size int) *HashTable {
+    return &HashTable{
+        size:  size,
+        table: make([][][2]interface{}, size),
+    }
+}
+
+func (ht *HashTable) hash(key string) int {
+    hash := 0
+    for _, c := range key {
+        hash = (hash + int(c)) % ht.size
+    }
+    return hash
+}
+
+func (ht *HashTable) Insert(key string, value interface{}) {
+    index := ht.hash(key)
+    bucket := ht.table[index]
+    for i, item := range bucket {
+        if item[0] == key {
+            bucket[i][1] = value
+            return
+        }
+    }
+    ht.table[index] = append(bucket, [2]interface{}{key, value})
+}
+
+func (ht *HashTable) Search(key string) interface{} {
+    index := ht.hash(key)
+    bucket := ht.table[index]
+    for _, item := range bucket {
+        if item[0] == key {
+            return item[1]
+        }
+    }
+    return nil
+}
+
+// 使用示例
+func main() {
+    // 两数之和示例
+    nums := []int{2, 7, 11, 15}
+    target := 9
+    result := twoSum(nums, target)
+    fmt.Printf("索引：%v\n", result)  // 输出：[0, 1]
+
+    // 哈希表示例
+    ht := NewHashTable(16)
+    ht.Insert("name", "Alice")
+    ht.Insert("age", 25)
+    fmt.Printf("查找 name: %v\n", ht.Search("name"))  // 输出：Alice
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                     <div class="search-complexity" style="margin-top: 1rem;">
                         <h5>冲突解决方法</h5>
                         <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
@@ -785,12 +1133,18 @@ class HashTable:
                             <li><strong>滑动窗口</strong> - 维护一个区间，如最长无重复子串</li>
                         </ul>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python"># 相向双指针 - 两数之和 II (有序数组)
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python"># 相向双指针 - 两数之和 II (有序数组)
 def two_sum_sorted(numbers, target):
     left, right = 0, len(numbers) - 1
-    
+
     while left < right:
         current_sum = numbers[left] + numbers[right]
         if current_sum == target:
@@ -799,29 +1153,29 @@ def two_sum_sorted(numbers, target):
             left += 1
         else:
             right -= 1
-    
+
     return []
 
 # 快慢指针 - 判断链表是否有环
 def has_cycle(head):
     slow = fast = head
-    
+
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
         if slow == fast:
             return True
-    
+
     return False
 
 # 快慢指针 - 找链表中点
 def find_middle(head):
     slow = fast = head
-    
+
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
-    
+
     return slow
 
 # 滑动窗口 - 最长无重复字符子串
@@ -829,21 +1183,169 @@ def length_of_longest_substring(s):
     char_set = set()
     left = 0
     max_length = 0
-    
+
     for right in range(len(s)):
         while s[right] in char_set:
             char_set.remove(s[left])
             left += 1
         char_set.add(s[right])
         max_length = max(max_length, right - left + 1)
-    
+
     return max_length
 
 # 使用示例
 numbers = [1, 2, 4, 6, 8, 10]
 result = two_sum_sorted(numbers, 8)
 print(f"索引：{result}")  # 输出：[1, 3] (2+6=8)</code></pre>
-                    </details>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// 相向双指针 - 两数之和 II (有序数组)
+function twoSumSorted(numbers, target) {
+    let left = 0, right = numbers.length - 1;
+
+    while (left < right) {
+        const currentSum = numbers[left] + numbers[right];
+        if (currentSum === target) {
+            return [left + 1, right + 1];  // 索引从 1 开始
+        } else if (currentSum < target) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+
+    return [];
+}
+
+// 快慢指针 - 判断链表是否有环
+function hasCycle(head) {
+    let slow = head, fast = head;
+
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (slow === fast) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// 快慢指针 - 找链表中点
+function findMiddle(head) {
+    let slow = head, fast = head;
+
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+
+    return slow;
+}
+
+// 滑动窗口 - 最长无重复字符子串
+function lengthOfLongestSubstring(s) {
+    const charSet = new Set();
+    let left = 0, maxLength = 0;
+
+    for (let right = 0; right < s.length; right++) {
+        while (charSet.has(s[right])) {
+            charSet.delete(s[left]);
+            left++;
+        }
+        charSet.add(s[right]);
+        maxLength = Math.max(maxLength, right - left + 1);
+    }
+
+    return maxLength;
+}
+
+// 使用示例
+const numbers = [1, 2, 4, 6, 8, 10];
+const result = twoSumSorted(numbers, 8);
+console.log(`索引：${result}`);  // 输出：[1, 3] (2+6=8)</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// 相向双指针 - 两数之和 II (有序数组)
+func twoSumSorted(numbers []int, target int) []int {
+    left, right := 0, len(numbers)-1
+
+    for left < right {
+        currentSum := numbers[left] + numbers[right]
+        if currentSum == target {
+            return []int{left + 1, right + 1}  // 索引从 1 开始
+        } else if currentSum < target {
+            left++
+        } else {
+            right--
+        }
+    }
+
+    return []int{}
+}
+
+// 链表节点定义
+type ListNode struct {
+    Val  int
+    Next *ListNode
+}
+
+// 快慢指针 - 判断链表是否有环
+func hasCycle(head *ListNode) bool {
+    slow, fast := head, head
+
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+        if slow == fast {
+            return true
+        }
+    }
+
+    return false
+}
+
+// 快慢指针 - 找链表中点
+func findMiddle(head *ListNode) *ListNode {
+    slow, fast := head, head
+
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+    }
+
+    return slow
+}
+
+// 滑动窗口 - 最长无重复字符子串
+func lengthOfLongestSubstring(s string) int {
+    charSet := make(map[byte]bool)
+    left, maxLength := 0, 0
+
+    for right := 0; right < len(s); right++ {
+        for charSet[s[right]] {
+            delete(charSet, s[left])
+            left++
+        }
+        charSet[s[right]] = true
+        if right-left+1 > maxLength {
+            maxLength = right - left + 1
+        }
+    }
+
+    return maxLength
+}
+
+// 使用示例
+func main() {
+    numbers := []int{1, 2, 4, 6, 8, 10}
+    result := twoSumSorted(numbers, 8)
+    fmt.Printf("索引：%v\n", result)  // 输出：[1, 3] (2+6=8)
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -862,9 +1364,15 @@ print(f"索引：{result}")  # 输出：[1, 3] (2+6=8)</code></pre>
                         <span class="search-meta-item">📦 空间：O(V)</span>
                         <span class="search-meta-item">⚡ 时间：O(V+E)</span>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python">from collections import deque
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python">from collections import deque
 
 def bfs(graph, start, target):
     """
@@ -873,18 +1381,39 @@ def bfs(graph, start, target):
     """
     queue = deque([(start, 0)])  # (节点，距离)
     visited = {start}
-    
+
     while queue:
         node, dist = queue.popleft()
         if node == target:
             return dist
-        
+
         for neighbor in graph.get(node, []):
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append((neighbor, dist + 1))
-    
+
     return -1  # 未找到
+
+# BFS - 层序遍历
+def level_order(graph, start):
+    """按层遍历图的节点"""
+    queue = deque([start])
+    visited = {start}
+    result = []
+
+    while queue:
+        level_size = len(queue)
+        level = []
+        for _ in range(level_size):
+            node = queue.popleft()
+            level.append(node)
+            for neighbor in graph.get(node, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        result.append(level)
+
+    return result
 
 # 使用示例 - 迷宫最短路径
 graph = {
@@ -896,8 +1425,149 @@ graph = {
     5: [2, 4]
 }
 result = bfs(graph, 0, 5)
-print(f"最短距离：{result}")  # 输出：2</code></pre>
-                    </details>
+print(f"最短距离：{result}")  # 输出：2
+print(f"层序遍历：{level_order(graph, 0)}")  # 输出：[[0], [1, 2], [3, 4, 5]]</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// BFS 模板 - 找最短路径
+function bfs(graph, start, target) {
+    const queue = [[start, 0]];  // [节点，距离]
+    const visited = new Set([start]);
+
+    while (queue.length > 0) {
+        const [node, dist] = queue.shift();
+        if (node === target) {
+            return dist;
+        }
+
+        const neighbors = graph.get(node) || [];
+        for (const neighbor of neighbors) {
+            if (!visited.has(neighbor)) {
+                visited.add(neighbor);
+                queue.push([neighbor, dist + 1]);
+            }
+        }
+    }
+
+    return -1;  // 未找到
+}
+
+// BFS - 层序遍历
+function levelOrder(graph, start) {
+    const queue = [start];
+    const visited = new Set([start]);
+    const result = [];
+
+    while (queue.length > 0) {
+        const levelSize = queue.length;
+        const level = [];
+        for (let i = 0; i < levelSize; i++) {
+            const node = queue.shift();
+            level.push(node);
+            const neighbors = graph.get(node) || [];
+            for (const neighbor of neighbors) {
+                if (!visited.has(neighbor)) {
+                    visited.add(neighbor);
+                    queue.push(neighbor);
+                }
+            }
+        }
+        result.push(level);
+    }
+
+    return result;
+}
+
+// 使用示例 - 迷宫最短路径
+const graph = new Map([
+    [0, [1, 2]],
+    [1, [0, 3, 4]],
+    [2, [0, 5]],
+    [3, [1]],
+    [4, [1, 5]],
+    [5, [2, 4]]
+]);
+const result = bfs(graph, 0, 5);
+console.log(`最短距离：${result}`);  // 输出：2
+console.log(`层序遍历：${JSON.stringify(levelOrder(graph, 0))}`);  // 输出：[[0], [1, 2], [3, 4, 5]]</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">import "container/list"
+
+// BFS 模板 - 找最短路径
+func bfs(graph map[int][]int, start, target int) int {
+    queue := list.New()
+    queue.PushBack([]int{start, 0})  // [节点，距离]
+    visited := map[int]bool{start: true}
+
+    for queue.Len() > 0 {
+        element := queue.Front()
+        queue.Remove(element)
+        nodeDist := element.Value.([]int)
+        node, dist := nodeDist[0], nodeDist[1]
+
+        if node == target {
+            return dist
+        }
+
+        for _, neighbor := range graph[node] {
+            if !visited[neighbor] {
+                visited[neighbor] = true
+                queue.PushBack([]int{neighbor, dist + 1})
+            }
+        }
+    }
+
+    return -1  // 未找到
+}
+
+// BFS - 层序遍历
+func levelOrder(graph map[int][]int, start int) [][]int {
+    queue := list.New()
+    queue.PushBack(start)
+    visited := map[int]bool{start: true}
+    var result [][]int
+
+    for queue.Len() > 0 {
+        levelSize := queue.Len()
+        var level []int
+
+        for i := 0; i < levelSize; i++ {
+            element := queue.Front()
+            queue.Remove(element)
+            node := element.Value.(int)
+            level = append(level, node)
+
+            for _, neighbor := range graph[node] {
+                if !visited[neighbor] {
+                    visited[neighbor] = true
+                    queue.PushBack(neighbor)
+                }
+            }
+        }
+        result = append(result, level)
+    }
+
+    return result
+}
+
+// 使用示例
+func main() {
+    graph := map[int][]int{
+        0: {1, 2},
+        1: {0, 3, 4},
+        2: {0, 5},
+        3: {1},
+        4: {1, 5},
+        5: {2, 4},
+    }
+    result := bfs(graph, 0, 5)
+    fmt.Printf("最短距离：%d\n", result)  // 输出：2
+    fmt.Printf("层序遍历：%v\n", levelOrder(graph, 0))  // 输出：[[0] [1 2] [3 4 5]]
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="search-card">
@@ -911,29 +1581,35 @@ print(f"最短距离：{result}")  # 输出：2</code></pre>
                         <span class="search-meta-item">📦 空间：O(V)</span>
                         <span class="search-meta-item">⚡ 时间：O(V+E)</span>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python">def dfs(graph, node, visited=None):
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python">def dfs(graph, node, visited=None):
     """
     DFS 模板 - 递归实现
     """
     if visited is None:
         visited = set()
-    
+
     visited.add(node)
     print(node, end=' ')  # 访问节点
-    
+
     for neighbor in graph.get(node, []):
         if neighbor not in visited:
             dfs(graph, neighbor, visited)
-    
+
     return visited
 
 # DFS - 迭代实现 (使用栈)
 def dfs_iterative(graph, start):
     visited = set()
     stack = [start]
-    
+
     while stack:
         node = stack.pop()
         if node not in visited:
@@ -941,8 +1617,26 @@ def dfs_iterative(graph, start):
             print(node, end=' ')
             # 逆序入栈，保证正序访问
             stack.extend(reversed(graph.get(node, [])))
-    
+
     return visited
+
+# DFS - 找路径
+def dfs_find_path(graph, start, target, path=None):
+    """找到从 start 到 target 的一条路径"""
+    if path is None:
+        path = []
+    path = path + [start]
+
+    if start == target:
+        return path
+
+    for neighbor in graph.get(start, []):
+        if neighbor not in path:
+            new_path = dfs_find_path(graph, neighbor, target, path)
+            if new_path:
+                return new_path
+
+    return None
 
 # 使用示例
 graph = {
@@ -954,8 +1648,165 @@ graph = {
     5: [2, 4]
 }
 print("DFS 遍历:")
-dfs(graph, 0)  # 输出：0 1 3 4 5 2</code></pre>
-                    </details>
+dfs(graph, 0)  # 输出：0 1 3 4 5 2
+print("\nDFS 找路径:", dfs_find_path(graph, 0, 5))  # 输出：[0, 1, 4, 5]</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// DFS 模板 - 递归实现
+function dfs(graph, node, visited = new Set()) {
+    visited.add(node);
+    console.log(node);  // 访问节点
+
+    const neighbors = graph.get(node) || [];
+    for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+            dfs(graph, neighbor, visited);
+        }
+    }
+
+    return visited;
+}
+
+// DFS - 迭代实现 (使用栈)
+function dfsIterative(graph, start) {
+    const visited = new Set();
+    const stack = [start];
+
+    while (stack.length > 0) {
+        const node = stack.pop();
+        if (!visited.has(node)) {
+            visited.add(node);
+            console.log(node);
+            // 逆序入栈，保证正序访问
+            const neighbors = graph.get(node) || [];
+            for (let i = neighbors.length - 1; i >= 0; i--) {
+                if (!visited.has(neighbors[i])) {
+                    stack.push(neighbors[i]);
+                }
+            }
+        }
+    }
+
+    return visited;
+}
+
+// DFS - 找路径
+function dfsFindPath(graph, start, target, path = []) {
+    path = [...path, start];
+
+    if (start === target) {
+        return path;
+    }
+
+    const neighbors = graph.get(start) || [];
+    for (const neighbor of neighbors) {
+        if (!path.includes(neighbor)) {
+            const newPath = dfsFindPath(graph, neighbor, target, path);
+            if (newPath) {
+                return newPath;
+            }
+        }
+    }
+
+    return null;
+}
+
+// 使用示例
+const graph = new Map([
+    [0, [1, 2]],
+    [1, [0, 3, 4]],
+    [2, [0, 5]],
+    [3, [1]],
+    [4, [1, 5]],
+    [5, [2, 4]]
+]);
+console.log("DFS 遍历:");
+dfs(graph, 0);  // 输出：0 1 3 4 5 2
+console.log("DFS 找路径:", dfsFindPath(graph, 0, 5));  // 输出：[0, 1, 4, 5]</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// DFS 模板 - 递归实现
+func dfs(graph map[int][]int, node int, visited map[int]bool) {
+    visited[node] = true
+    fmt.Print(node, " ")  // 访问节点
+
+    for _, neighbor := range graph[node] {
+        if !visited[neighbor] {
+            dfs(graph, neighbor, visited)
+        }
+    }
+}
+
+// DFS - 迭代实现 (使用栈)
+func dfsIterative(graph map[int][]int, start int) map[int]bool {
+    visited := make(map[int]bool)
+    stack := []int{start}
+
+    for len(stack) > 0 {
+        node := stack[len(stack)-1]
+        stack = stack[:len(stack)-1]
+
+        if !visited[node] {
+            visited[node] = true
+            fmt.Print(node, " ")
+            // 逆序入栈，保证正序访问
+            neighbors := graph[node]
+            for i := len(neighbors) - 1; i >= 0; i-- {
+                if !visited[neighbors[i]] {
+                    stack = append(stack, neighbors[i])
+                }
+            }
+        }
+    }
+
+    return visited
+}
+
+// DFS - 找路径
+func dfsFindPath(graph map[int][]int, start, target int, path []int) []int {
+    path = append(path, start)
+
+    if start == target {
+        return path
+    }
+
+    for _, neighbor := range graph[start] {
+        found := false
+        for _, p := range path {
+            if p == neighbor {
+                found = true
+                break
+            }
+        }
+        if !found {
+            newPath := dfsFindPath(graph, neighbor, target, path)
+            if newPath != nil {
+                return newPath
+            }
+        }
+    }
+
+    return nil
+}
+
+// 使用示例
+func main() {
+    graph := map[int][]int{
+        0: {1, 2},
+        1: {0, 3, 4},
+        2: {0, 5},
+        3: {1},
+        4: {1, 5},
+        5: {2, 4},
+    }
+    fmt.Println("DFS 遍历:")
+    visited := make(map[int]bool)
+    dfs(graph, 0, visited)  // 输出：0 1 3 4 5 2
+    fmt.Println("\nDFS 找路径:", dfsFindPath(graph, 0, 5, []int{}))  // 输出：[0 1 4 5]
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -974,9 +1825,15 @@ dfs(graph, 0)  # 输出：0 1 3 4 5 2</code></pre>
                         <span class="search-meta-item">📦 空间：O(h)</span>
                         <span class="search-meta-item">⚡ 平均：O(log n)</span>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python">class TreeNode:
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python">class TreeNode:
     def __init__(self, val=0):
         self.val = val
         self.left = None
@@ -1003,8 +1860,201 @@ def search_bst_iterative(root, target):
             current = current.right
         else:
             current = current.left
-    return None</code></pre>
-                    </details>
+    return None
+
+# BST 插入
+def insert_bst(root, val):
+    if not root:
+        return TreeNode(val)
+    if val < root.val:
+        root.left = insert_bst(root.left, val)
+    else:
+        root.right = insert_bst(root.right, val)
+    return root
+
+# BST 查找最小值
+def find_min(root):
+    current = root
+    while current and current.left:
+        current = current.left
+    return current
+
+# 使用示例
+root = None
+for val in [8, 3, 10, 1, 6, 14, 4, 7, 13]:
+    root = insert_bst(root, val)
+
+result = search_bst(root, 6)
+print(f"找到节点值：{result.val}" if result else "未找到")
+
+result = search_bst_iterative(root, 13)
+print(f"找到节点值：{result.val}" if result else "未找到")
+
+min_node = find_min(root)
+print(f"最小值：{min_node.val}")</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// BST 节点定义
+class TreeNode {
+    constructor(val = 0) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+// BST 查找 - 递归
+function searchBST(root, target) {
+    if (!root) {
+        return null;
+    }
+    if (root.val === target) {
+        return root;
+    } else if (root.val < target) {
+        return searchBST(root.right, target);
+    } else {
+        return searchBST(root.left, target);
+    }
+}
+
+// BST 查找 - 迭代
+function searchBSTIterative(root, target) {
+    let current = root;
+    while (current) {
+        if (current.val === target) {
+            return current;
+        } else if (current.val < target) {
+            current = current.right;
+        } else {
+            current = current.left;
+        }
+    }
+    return null;
+}
+
+// BST 插入
+function insertBST(root, val) {
+    if (!root) {
+        return new TreeNode(val);
+    }
+    if (val < root.val) {
+        root.left = insertBST(root.left, val);
+    } else {
+        root.right = insertBST(root.right, val);
+    }
+    return root;
+}
+
+// BST 查找最小值
+function findMin(root) {
+    let current = root;
+    while (current && current.left) {
+        current = current.left;
+    }
+    return current;
+}
+
+// 使用示例
+let root = null;
+for (const val of [8, 3, 10, 1, 6, 14, 4, 7, 13]) {
+    root = insertBST(root, val);
+}
+
+let result = searchBST(root, 6);
+console.log(result ? `找到节点值：${result.val}` : "未找到");
+
+result = searchBSTIterative(root, 13);
+console.log(result ? `找到节点值：${result.val}` : "未找到");
+
+const minNode = findMin(root);
+console.log(`最小值：${minNode.val}`);</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// BST 节点定义
+type TreeNode struct {
+    Val   int
+    Left  *TreeNode
+    Right *TreeNode
+}
+
+// BST 查找 - 递归
+func searchBST(root *TreeNode, target int) *TreeNode {
+    if root == nil {
+        return nil
+    }
+    if root.Val == target {
+        return root
+    } else if root.Val < target {
+        return searchBST(root.Right, target)
+    } else {
+        return searchBST(root.Left, target)
+    }
+}
+
+// BST 查找 - 迭代
+func searchBSTIterative(root *TreeNode, target int) *TreeNode {
+    current := root
+    for current != nil {
+        if current.Val == target {
+            return current
+        } else if current.Val < target {
+            current = current.Right
+        } else {
+            current = current.Left
+        }
+    }
+    return nil
+}
+
+// BST 插入
+func insertBST(root *TreeNode, val int) *TreeNode {
+    if root == nil {
+        return &TreeNode{Val: val}
+    }
+    if val < root.Val {
+        root.Left = insertBST(root.Left, val)
+    } else {
+        root.Right = insertBST(root.Right, val)
+    }
+    return root
+}
+
+// BST 查找最小值
+func findMin(root *TreeNode) *TreeNode {
+    current := root
+    for current != nil && current.Left != nil {
+        current = current.Left
+    }
+    return current
+}
+
+// 使用示例
+func main() {
+    var root *TreeNode
+    for _, val := range []int{8, 3, 10, 1, 6, 14, 4, 7, 13} {
+        root = insertBST(root, val)
+    }
+
+    result := searchBST(root, 6)
+    if result != nil {
+        fmt.Printf("找到节点值：%d\n", result.Val)
+    } else {
+        fmt.Println("未找到")
+    }
+
+    result = searchBSTIterative(root, 13)
+    if result != nil {
+        fmt.Printf("找到节点值：%d\n", result.Val)
+    } else {
+        fmt.Println("未找到")
+    }
+
+    minNode := findMin(root)
+    fmt.Printf("最小值：%d\n", minNode.Val)
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="search-card">
@@ -1031,34 +2081,184 @@ def search_bst_iterative(root, target):
                         <span class="search-meta-item">📦 空间：O(1)</span>
                         <span class="search-meta-item">⚡ 平均：O(log log n)</span>
                     </div>
-                    <details class="code-example">
-                        <summary>查看代码示例</summary>
-                        <pre><code class="language-python"># 插值查找
+                    <div class="code-tabs">
+                        <div class="code-tabs-header">
+                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                        </div>
+                        <div class="code-tabs-content">
+                            <div class="code-tab-panel active" data-panel="python">
+                                <pre><code class="language-python"># 插值查找
 def interpolation_search(arr, target):
     left, right = 0, len(arr) - 1
-    
+
     while left <= right and arr[left] <= target <= arr[right]:
         if left == right:
             return left if arr[left] == target else -1
-        
+
         # 自适应计算 mid 位置
-        mid = left + int((target - arr[left]) * (right - left) / 
+        mid = left + int((target - arr[left]) * (right - left) /
                         (arr[right] - arr[left]))
-        
+
         if arr[mid] == target:
             return mid
         elif arr[mid] < target:
             left = mid + 1
         else:
             right = mid - 1
-    
+
     return -1
+
+# 插值查找 - 递归版本
+def interpolation_search_recursive(arr, target, left, right):
+    if left > right or target < arr[left] or target > arr[right]:
+        return -1
+
+    if left == right:
+        return left if arr[left] == target else -1
+
+    # 自适应计算 mid 位置
+    mid = left + int((target - arr[left]) * (right - left) /
+                    (arr[right] - arr[left]))
+
+    if arr[mid] == target:
+        return mid
+    elif arr[mid] < target:
+        return interpolation_search_recursive(arr, target, mid + 1, right)
+    else:
+        return interpolation_search_recursive(arr, target, left, mid - 1)
 
 # 使用示例 - 均匀分布数组
 arr = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 result = interpolation_search(arr, 60)
-print(f"索引：{result}")  # 输出：5</code></pre>
-                    </details>
+print(f"索引：{result}")  # 输出：5
+
+result = interpolation_search(arr, 85)
+print(f"索引：{result}")  # 输出：-1 (不存在)</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="javascript">
+                                <pre><code class="language-javascript">// 插值查找
+function interpolationSearch(arr, target) {
+    let left = 0, right = arr.length - 1;
+
+    while (left <= right && arr[left] <= target && target <= arr[right]) {
+        if (left === right) {
+            return arr[left] === target ? left : -1;
+        }
+
+        // 自适应计算 mid 位置
+        const mid = left + Math.floor((target - arr[left]) * (right - left) /
+                                      (arr[right] - arr[left]));
+
+        if (arr[mid] === target) {
+            return mid;
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return -1;
+}
+
+// 插值查找 - 递归版本
+function interpolationSearchRecursive(arr, target, left, right) {
+    if (left > right || target < arr[left] || target > arr[right]) {
+        return -1;
+    }
+
+    if (left === right) {
+        return arr[left] === target ? left : -1;
+    }
+
+    // 自适应计算 mid 位置
+    const mid = left + Math.floor((target - arr[left]) * (right - left) /
+                                  (arr[right] - arr[left]));
+
+    if (arr[mid] === target) {
+        return mid;
+    } else if (arr[mid] < target) {
+        return interpolationSearchRecursive(arr, target, mid + 1, right);
+    } else {
+        return interpolationSearchRecursive(arr, target, left, mid - 1);
+    }
+}
+
+// 使用示例 - 均匀分布数组
+const arr = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const result = interpolationSearch(arr, 60);
+console.log(`索引：${result}`);  // 输出：5
+
+const result2 = interpolationSearch(arr, 85);
+console.log(`索引：${result2}`);  // 输出：-1 (不存在)</code></pre>
+                            </div>
+                            <div class="code-tab-panel" data-panel="go">
+                                <pre><code class="language-go">// 插值查找
+func interpolationSearch(arr []int, target int) int {
+    left, right := 0, len(arr)-1
+
+    for left <= right && arr[left] <= target && target <= arr[right] {
+        if left == right {
+            if arr[left] == target {
+                return left
+            }
+            return -1
+        }
+
+        // 自适应计算 mid 位置
+        mid := left + (target-arr[left])*(right-left)/(arr[right]-arr[left])
+
+        if arr[mid] == target {
+            return mid
+        } else if arr[mid] < target {
+            left = mid + 1
+        } else {
+            right = mid - 1
+        }
+    }
+
+    return -1
+}
+
+// 插值查找 - 递归版本
+func interpolationSearchRecursive(arr []int, target, left, right int) int {
+    if left > right || target < arr[left] || target > arr[right] {
+        return -1
+    }
+
+    if left == right {
+        if arr[left] == target {
+            return left
+        }
+        return -1
+    }
+
+    // 自适应计算 mid 位置
+    mid := left + (target-arr[left])*(right-left)/(arr[right]-arr[left])
+
+    if arr[mid] == target {
+        return mid
+    } else if arr[mid] < target {
+        return interpolationSearchRecursive(arr, target, mid+1, right)
+    } else {
+        return interpolationSearchRecursive(arr, target, left, mid-1)
+    }
+}
+
+// 使用示例
+func main() {
+    arr := []int{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+    result := interpolationSearch(arr, 60)
+    fmt.Printf("索引：%d\n", result)  // 输出：5
+
+    result = interpolationSearch(arr, 85)
+    fmt.Printf("索引：%d\n", result)  // 输出：-1 (不存在)
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1121,5 +2321,28 @@ print(f"索引：{result}")  # 输出：5</code></pre>
     <script src="../lib/prism/prism-python.min.js"></script>
     <script src="../lib/prism/prism-go.min.js"></script>
     <script src="../lib/prism/prism-line-numbers.min.js"></script>
+    <script>
+        // 代码选项卡切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.code-tabs').forEach(function(tabs) {
+                const buttons = tabs.querySelectorAll('.code-tab-btn');
+                const panels = tabs.querySelectorAll('.code-tab-panel');
+                
+                buttons.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const lang = this.dataset.lang;
+                        
+                        // 移除所有激活状态
+                        buttons.forEach(b => b.classList.remove('active'));
+                        panels.forEach(p => p.classList.remove('active'));
+                        
+                        // 激活当前选项
+                        this.classList.add('active');
+                        tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
