@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据结构 - 算法核心基础 2026</title>
+    <title>数据结构 - 算法核心基础</title>
     <meta name="description" content="全面掌握数据结构：链表、栈、队列、树、堆、哈希表、图，以及 AI 时代的向量索引、布隆过滤器等现代数据结构">
     <link rel="stylesheet" href="../css/fonts.css">
     <link rel="stylesheet" href="../css/modern-style.css">
@@ -330,7 +330,7 @@
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="logo">AlgoGuide 2026</a>
+            <a href="/" class="logo">AlgoGuide</a>
             <ul class="nav-links">
                 <li><a href="../index.html">首页</a></li>
                 <li><a href="../index.html#algorithms">算法分类</a></li>
@@ -367,8 +367,16 @@
                     <p>每个节点的左子树所有节点值小于该节点，右子树所有节点值大于该节点。</p>
                 </div>
                 <div class="algorithm-card">
+                    <h3><span class="icon">⚖️</span> AVL 树/红黑树</h3>
+                    <p>自平衡二叉搜索树，通过旋转操作保持平衡，确保 O(log n) 的操作复杂度。</p>
+                </div>
+                <div class="algorithm-card">
                     <h3><span class="icon">📐</span> 堆</h3>
                     <p>特殊的完全二叉树，分为最大堆和最小堆，优先队列的典型实现。</p>
+                </div>
+                <div class="algorithm-card">
+                    <h3><span class="icon">🕸️</span> 图</h3>
+                    <p>由顶点和边组成的非线性结构，用于表示复杂的关系网络。</p>
                 </div>
                 <div class="algorithm-card">
                     <h3><span class="icon">📖</span> 字典树</h3>
@@ -1030,6 +1038,1608 @@ func main() {
     queue.Enqueue(2)
     queue.Enqueue(3)
     fmt.Println(queue.Dequeue()) // 1
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 二叉搜索树 -->
+            <section id="bst" class="section-detail">
+                <h2><span>🌳</span> 4. 二叉搜索树 (Binary Search Tree)</h2>
+
+                <h3>数据结构</h3>
+                <p>二叉搜索树 (BST) 是一种特殊的二叉树，满足以下性质：每个节点的左子树所有节点值小于该节点值，右子树所有节点值大于该节点值。这使得 BST 支持高效的查找、插入和删除操作。</p>
+
+                <div class="data-structure-visual">
+                    <h4><span>🌳</span> BST 结构示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>示例 BST</strong><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;7
+                        </div>
+                        <div class="structure-part">
+                            <strong>核心性质</strong><br>
+                            • 左子树 &lt; 根节点<br>
+                            • 右子树 &gt; 根节点<br>
+                            • 递归定义<br>
+                            • 中序遍历有序
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">平均查找</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">平均插入</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">平均删除</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">最坏情况</div>
+                        <div class="value">O(n)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>查找、插入、删除效率高（平均 O(log n)）</li>
+                            <li>中序遍历可得有序序列</li>
+                            <li>实现相对简单</li>
+                            <li>支持范围查询</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>最坏情况退化为链表（O(n)）</li>
+                            <li>需要额外空间存储指针</li>
+                            <li>不平衡时性能下降</li>
+                            <li>不适合频繁随机访问</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="bst-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="bst-python">Python</button>
+                        <button class="code-tab-btn" data-tab="bst-go">Go</button>
+                    </div>
+                    <div id="bst-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class TreeNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class BinarySearchTree {
+    constructor() {
+        this.root = null;
+    }
+
+    insert(val) {
+        const newNode = new TreeNode(val);
+        if (!this.root) {
+            this.root = newNode;
+            return;
+        }
+        let current = this.root;
+        while (true) {
+            if (val < current.val) {
+                if (!current.left) {
+                    current.left = newNode;
+                    return;
+                }
+                current = current.left;
+            } else if (val > current.val) {
+                if (!current.right) {
+                    current.right = newNode;
+                    return;
+                }
+                current = current.right;
+            } else {
+                return; // 不插入重复值
+            }
+        }
+    }
+
+    search(val) {
+        let current = this.root;
+        while (current) {
+            if (val === current.val) return true;
+            if (val < current.val) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+        }
+        return false;
+    }
+
+    delete(val) {
+        const deleteNode = (node, val) => {
+            if (!node) return null;
+            if (val < node.val) {
+                node.left = deleteNode(node.left, val);
+            } else if (val > node.val) {
+                node.right = deleteNode(node.right, val);
+            } else {
+                // 找到要删除的节点
+                if (!node.left) return node.right;
+                if (!node.right) return node.left;
+                // 有两个子节点，找右子树最小值
+                let minNode = node.right;
+                while (minNode.left) minNode = minNode.left;
+                node.val = minNode.val;
+                node.right = deleteNode(node.right, minNode.val);
+            }
+            return node;
+        };
+        this.root = deleteNode(this.root, val);
+    }
+
+    inorder(node = this.root, result = []) {
+        if (node) {
+            this.inorder(node.left, result);
+            result.push(node.val);
+            this.inorder(node.right, result);
+        }
+        return result;
+    }
+
+    preorder(node = this.root, result = []) {
+        if (node) {
+            result.push(node.val);
+            this.preorder(node.left, result);
+            this.preorder(node.right, result);
+        }
+        return result;
+    }
+
+    postorder(node = this.root, result = []) {
+        if (node) {
+            this.postorder(node.left, result);
+            this.postorder(node.right, result);
+            result.push(node.val);
+        }
+        return result;
+    }
+}
+
+// 测试
+const bst = new BinarySearchTree();
+bst.insert(8);
+bst.insert(3);
+bst.insert(10);
+bst.insert(1);
+bst.insert(6);
+bst.insert(14);
+console.log('中序遍历:', bst.inorder()); // [1, 3, 6, 8, 10, 14]
+console.log('查找 6:', bst.search(6)); // true
+console.log('查找 5:', bst.search(5)); // false
+bst.delete(3);
+console.log('删除 3 后:', bst.inorder()); // [1, 6, 8, 10, 14]</code></pre></div>
+                    </div>
+                    <div id="bst-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">class TreeNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+
+class BinarySearchTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        current = self.root
+        while True:
+            if val < current.val:
+                if not current.left:
+                    current.left = TreeNode(val)
+                    return
+                current = current.left
+            elif val > current.val:
+                if not current.right:
+                    current.right = TreeNode(val)
+                    return
+                current = current.right
+            else:
+                return  # 不插入重复值
+
+    def search(self, val):
+        current = self.root
+        while current:
+            if val == current.val:
+                return True
+            elif val < current.val:
+                current = current.left
+            else:
+                current = current.right
+        return False
+
+    def delete(self, val):
+        def delete_node(node, val):
+            if not node:
+                return None
+            if val < node.val:
+                node.left = delete_node(node.left, val)
+            elif val > node.val:
+                node.right = delete_node(node.right, val)
+            else:
+                # 找到要删除的节点
+                if not node.left:
+                    return node.right
+                if not node.right:
+                    return node.left
+                # 有两个子节点，找右子树最小值
+                min_node = node.right
+                while min_node.left:
+                    min_node = min_node.left
+                node.val = min_node.val
+                node.right = delete_node(node.right, min_node.val)
+            return node
+        self.root = delete_node(self.root, val)
+
+    def inorder(self, node=None, result=None):
+        if result is None:
+            result = []
+        if node is None:
+            node = self.root
+        if node:
+            self.inorder(node.left, result)
+            result.append(node.val)
+            self.inorder(node.right, result)
+        return result
+
+    def preorder(self, node=None, result=None):
+        if result is None:
+            result = []
+        if node is None:
+            node = self.root
+        if node:
+            result.append(node.val)
+            self.preorder(node.left, result)
+            self.preorder(node.right, result)
+        return result
+
+    def postorder(self, node=None, result=None):
+        if result is None:
+            result = []
+        if node is None:
+            node = self.root
+        if node:
+            self.postorder(node.left, result)
+            self.postorder(node.right, result)
+            result.append(node.val)
+        return result
+
+# 测试
+bst = BinarySearchTree()
+bst.insert(8)
+bst.insert(3)
+bst.insert(10)
+bst.insert(1)
+bst.insert(6)
+bst.insert(14)
+print('中序遍历:', bst.inorder())  # [1, 3, 6, 8, 10, 14]
+print('查找 6:', bst.search(6))  # True
+print('查找 5:', bst.search(5))  # False
+bst.delete(3)
+print('删除 3 后:', bst.inorder())  # [1, 6, 8, 10, 14]</code></pre></div>
+                    </div>
+                    <div id="bst-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type TreeNode struct {
+    Val   int
+    Left  *TreeNode
+    Right *TreeNode
+}
+
+type BinarySearchTree struct {
+    Root *TreeNode
+}
+
+func NewBinarySearchTree() *BinarySearchTree {
+    return &BinarySearchTree{}
+}
+
+func (bst *BinarySearchTree) Insert(val int) {
+    if bst.Root == nil {
+        bst.Root = &TreeNode{Val: val}
+        return
+    }
+    current := bst.Root
+    for {
+        if val < current.Val {
+            if current.Left == nil {
+                current.Left = &TreeNode{Val: val}
+                return
+            }
+            current = current.Left
+        } else if val > current.Val {
+            if current.Right == nil {
+                current.Right = &TreeNode{Val: val}
+                return
+            }
+            current = current.Right
+        } else {
+            return // 不插入重复值
+        }
+    }
+}
+
+func (bst *BinarySearchTree) Search(val int) bool {
+    current := bst.Root
+    for current != nil {
+        if val == current.Val {
+            return true
+        } else if val < current.Val {
+            current = current.Left
+        } else {
+            current = current.Right
+        }
+    }
+    return false
+}
+
+func (bst *BinarySearchTree) Delete(val int) {
+    bst.Root = deleteNode(bst.Root, val)
+}
+
+func deleteNode(node *TreeNode, val int) *TreeNode {
+    if node == nil {
+        return nil
+    }
+    if val < node.Val {
+        node.Left = deleteNode(node.Left, val)
+    } else if val > node.Val {
+        node.Right = deleteNode(node.Right, val)
+    } else {
+        // 找到要删除的节点
+        if node.Left == nil {
+            return node.Right
+        }
+        if node.Right == nil {
+            return node.Left
+        }
+        // 有两个子节点，找右子树最小值
+        minNode := node.Right
+        for minNode.Left != nil {
+            minNode = minNode.Left
+        }
+        node.Val = minNode.Val
+        node.Right = deleteNode(node.Right, minNode.Val)
+    }
+    return node
+}
+
+func (bst *BinarySearchTree) Inorder() []int {
+    result := []int{}
+    var inorder func(*TreeNode)
+    inorder = func(node *TreeNode) {
+        if node != nil {
+            inorder(node.Left)
+            result = append(result, node.Val)
+            inorder(node.Right)
+        }
+    }
+    inorder(bst.Root)
+    return result
+}
+
+func (bst *BinarySearchTree) Preorder() []int {
+    result := []int{}
+    var preorder func(*TreeNode)
+    preorder = func(node *TreeNode) {
+        if node != nil {
+            result = append(result, node.Val)
+            preorder(node.Left)
+            preorder(node.Right)
+        }
+    }
+    preorder(bst.Root)
+    return result
+}
+
+func (bst *BinarySearchTree) Postorder() []int {
+    result := []int{}
+    var postorder func(*TreeNode)
+    postorder = func(node *TreeNode) {
+        if node != nil {
+            postorder(node.Left)
+            postorder(node.Right)
+            result = append(result, node.Val)
+        }
+    }
+    postorder(bst.Root)
+    return result
+}
+
+func main() {
+    bst := NewBinarySearchTree()
+    bst.Insert(8)
+    bst.Insert(3)
+    bst.Insert(10)
+    bst.Insert(1)
+    bst.Insert(6)
+    bst.Insert(14)
+    fmt.Println("中序遍历:", bst.Inorder()) // [1 3 6 8 10 14]
+    fmt.Println("查找 6:", bst.Search(6))  // true
+    fmt.Println("查找 5:", bst.Search(5))  // false
+    bst.Delete(3)
+    fmt.Println("删除 3 后:", bst.Inorder()) // [1 6 8 10 14]
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AVL 树/红黑树 -->
+            <section id="avl-rb" class="section-detail">
+                <h2><span>⚖️</span> 5. AVL 树/红黑树 (AVL Tree / Red-Black Tree)</h2>
+
+                <h3>数据结构</h3>
+                <p><strong>AVL 树</strong> 是最早的自平衡二叉搜索树，任何节点的左右子树高度差不超过 1。通过旋转操作保持平衡，确保 O(log n) 的操作复杂度。</p>
+                <p><strong>红黑树</strong> 是一种近似平衡的二叉搜索树，通过节点颜色（红/黑）和特定规则保证从根到叶子的最长路径不超过最短路径的两倍。Java TreeMap、HashMap（JDK8+）、C++ STL map 都使用红黑树。</p>
+
+                <div class="data-structure-visual">
+                    <h4><span>⚖️</span> 旋转操作示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>右旋 (LL 失衡)</strong><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B<br>
+                            &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;A<br>
+                            &nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                            X&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z
+                        </div>
+                        <div class="structure-part">
+                            <strong>左旋 (RR 失衡)</strong><br>
+                            &nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B<br>
+                            &nbsp;&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;Z<br>
+                            &nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                            &nbsp;Y&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                        <div class="structure-part">
+                            <strong>红黑树规则</strong><br>
+                            • 节点非红即黑<br>
+                            • 根节点为黑<br>
+                            • 红节点子节点必黑<br>
+                            • 根到叶路径黑节点数相同
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">AVL 查找</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">AVL 插入/删除</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">红黑树查找</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">红黑树插入/删除</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>严格保证 O(log n) 复杂度</li>
+                            <li>AVL 树更平衡，查找更快</li>
+                            <li>红黑树旋转少，插入删除更快</li>
+                            <li>广泛应用于标准库</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>实现复杂</li>
+                            <li>AVL 树维护平衡开销大</li>
+                            <li>红黑树不如 AVL 平衡</li>
+                            <li>额外空间存储高度/颜色</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="avl-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="avl-python">Python</button>
+                        <button class="code-tab-btn" data-tab="avl-go">Go</button>
+                    </div>
+                    <div id="avl-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class AVLNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+        this.height = 1;
+    }
+}
+
+class AVLTree {
+    constructor() {
+        this.root = null;
+    }
+
+    getHeight(node) {
+        return node ? node.height : 0;
+    }
+
+    getBalance(node) {
+        return node ? this.getHeight(node.left) - this.getHeight(node.right) : 0;
+    }
+
+    updateHeight(node) {
+        node.height = 1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
+    }
+
+    rotateRight(y) {
+        const x = y.left;
+        const T2 = x.right;
+        x.right = y;
+        y.left = T2;
+        this.updateHeight(y);
+        this.updateHeight(x);
+        return x;
+    }
+
+    rotateLeft(x) {
+        const y = x.right;
+        const T2 = y.left;
+        y.left = x;
+        x.right = T2;
+        this.updateHeight(x);
+        this.updateHeight(y);
+        return y;
+    }
+
+    insert(val) {
+        const insertNode = (node, val) => {
+            if (!node) return new AVLNode(val);
+            if (val < node.val) {
+                node.left = insertNode(node.left, val);
+            } else if (val > node.val) {
+                node.right = insertNode(node.right, val);
+            } else {
+                return node; // 不插入重复值
+            }
+            this.updateHeight(node);
+            const balance = this.getBalance(node);
+            // LL
+            if (balance > 1 && val < node.left.val) {
+                return this.rotateRight(node);
+            }
+            // RR
+            if (balance < -1 && val > node.right.val) {
+                return this.rotateLeft(node);
+            }
+            // LR
+            if (balance > 1 && val > node.left.val) {
+                node.left = this.rotateLeft(node.left);
+                return this.rotateRight(node);
+            }
+            // RL
+            if (balance < -1 && val < node.right.val) {
+                node.right = this.rotateRight(node.right);
+                return this.rotateLeft(node);
+            }
+            return node;
+        };
+        this.root = insertNode(this.root, val);
+    }
+
+    search(val) {
+        let current = this.root;
+        while (current) {
+            if (val === current.val) return true;
+            current = val < current.val ? current.left : current.right;
+        }
+        return false;
+    }
+
+    inorder(node = this.root, result = []) {
+        if (node) {
+            this.inorder(node.left, result);
+            result.push(node.val);
+            this.inorder(node.right, result);
+        }
+        return result;
+    }
+}
+
+// 测试
+const avl = new AVLTree();
+avl.insert(10);
+avl.insert(20);
+avl.insert(30); // RR 失衡，触发左旋
+avl.insert(5);
+avl.insert(15); // LR 失衡，触发左右旋
+console.log('中序遍历:', avl.inorder()); // [5, 10, 15, 20, 30]
+console.log('查找 15:', avl.search(15)); // true</code></pre></div>
+                    </div>
+                    <div id="avl-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">class AVLNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1
+
+class AVLTree:
+    def __init__(self):
+        self.root = None
+
+    def get_height(self, node):
+        return node.height if node else 0
+
+    def get_balance(self, node):
+        return self.get_height(node.left) - self.get_height(node.right) if node else 0
+
+    def update_height(self, node):
+        node.height = 1 + max(self.get_height(node.left), self.get_height(node.right))
+
+    def rotate_right(self, y):
+        x = y.left
+        T2 = x.right
+        x.right = y
+        y.left = T2
+        self.update_height(y)
+        self.update_height(x)
+        return x
+
+    def rotate_left(self, x):
+        y = x.right
+        T2 = y.left
+        y.left = x
+        x.right = T2
+        self.update_height(x)
+        self.update_height(y)
+        return y
+
+    def insert(self, val):
+        def insert_node(node, val):
+            if not node:
+                return AVLNode(val)
+            if val < node.val:
+                node.left = insert_node(node.left, val)
+            elif val > node.val:
+                node.right = insert_node(node.right, val)
+            else:
+                return node
+            self.update_height(node)
+            balance = self.get_balance(node)
+            # LL
+            if balance > 1 and val < node.left.val:
+                return self.rotate_right(node)
+            # RR
+            if balance < -1 and val > node.right.val:
+                return self.rotate_left(node)
+            # LR
+            if balance > 1 and val > node.left.val:
+                node.left = self.rotate_left(node.left)
+                return self.rotate_right(node)
+            # RL
+            if balance < -1 and val < node.right.val:
+                node.right = self.rotate_right(node.right)
+                return self.rotate_left(node)
+            return node
+        self.root = insert_node(self.root, val)
+
+    def search(self, val):
+        current = self.root
+        while current:
+            if val == current.val:
+                return True
+            current = current.left if val < current.val else current.right
+        return False
+
+    def inorder(self, node=None, result=None):
+        if result is None:
+            result = []
+        if node is None:
+            node = self.root
+        if node:
+            self.inorder(node.left, result)
+            result.append(node.val)
+            self.inorder(node.right, result)
+        return result
+
+# 测试
+avl = AVLTree()
+avl.insert(10)
+avl.insert(20)
+avl.insert(30)  # RR 失衡，触发左旋
+avl.insert(5)
+avl.insert(15)  # LR 失衡，触发左右旋
+print('中序遍历:', avl.inorder())  # [5, 10, 15, 20, 30]
+print('查找 15:', avl.search(15))  # True</code></pre></div>
+                    </div>
+                    <div id="avl-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type AVLNode struct {
+    Val    int
+    Left   *AVLNode
+    Right  *AVLNode
+    Height int
+}
+
+type AVLTree struct {
+    Root *AVLNode
+}
+
+func NewAVLTree() *AVLTree {
+    return &AVLTree{}
+}
+
+func (t *AVLTree) GetHeight(node *AVLNode) int {
+    if node == nil {
+        return 0
+    }
+    return node.Height
+}
+
+func (t *AVLTree) GetBalance(node *AVLNode) int {
+    if node == nil {
+        return 0
+    }
+    return t.GetHeight(node.Left) - t.GetHeight(node.Right)
+}
+
+func (t *AVLTree) UpdateHeight(node *AVLNode) {
+    node.Height = 1 + max(t.GetHeight(node.Left), t.GetHeight(node.Right))
+}
+
+func (t *AVLTree) RotateRight(y *AVLNode) *AVLNode {
+    x := y.Left
+    T2 := x.Right
+    x.Right = y
+    y.Left = T2
+    t.UpdateHeight(y)
+    t.UpdateHeight(x)
+    return x
+}
+
+func (t *AVLTree) RotateLeft(x *AVLNode) *AVLNode {
+    y := x.Right
+    T2 := y.Left
+    y.Left = x
+    x.Right = T2
+    t.UpdateHeight(x)
+    t.UpdateHeight(y)
+    return y
+}
+
+func (t *AVLTree) Insert(val int) {
+    t.Root = t.insertNode(t.Root, val)
+}
+
+func (t *AVLTree) insertNode(node *AVLNode, val int) *AVLNode {
+    if node == nil {
+        return &AVLNode{Val: val, Height: 1}
+    }
+    if val < node.Val {
+        node.Left = t.insertNode(node.Left, val)
+    } else if val > node.Val {
+        node.Right = t.insertNode(node.Right, val)
+    } else {
+        return node
+    }
+    t.UpdateHeight(node)
+    balance := t.GetBalance(node)
+    // LL
+    if balance > 1 && val < node.Left.Val {
+        return t.RotateRight(node)
+    }
+    // RR
+    if balance < -1 && val > node.Right.Val {
+        return t.RotateLeft(node)
+    }
+    // LR
+    if balance > 1 && val > node.Left.Val {
+        node.Left = t.RotateLeft(node.Left)
+        return t.RotateRight(node)
+    }
+    // RL
+    if balance < -1 && val < node.Right.Val {
+        node.Right = t.RotateRight(node.Right)
+        return t.RotateLeft(node)
+    }
+    return node
+}
+
+func (t *AVLTree) Search(val int) bool {
+    current := t.Root
+    for current != nil {
+        if val == current.Val {
+            return true
+        } else if val < current.Val {
+            current = current.Left
+        } else {
+            current = current.Right
+        }
+    }
+    return false
+}
+
+func (t *AVLTree) Inorder() []int {
+    result := []int{}
+    var inorder func(*AVLNode)
+    inorder = func(node *AVLNode) {
+        if node != nil {
+            inorder(node.Left)
+            result = append(result, node.Val)
+            inorder(node.Right)
+        }
+    }
+    inorder(t.Root)
+    return result
+}
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    tree := NewAVLTree()
+    tree.Insert(10)
+    tree.Insert(20)
+    tree.Insert(30) // RR 失衡
+    tree.Insert(5)
+    tree.Insert(15) // LR 失衡
+    fmt.Println("中序遍历:", tree.Inorder()) // [5 10 15 20 30]
+    fmt.Println("查找 15:", tree.Search(15)) // true
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 堆 -->
+            <section id="heap" class="section-detail">
+                <h2><span>📐</span> 6. 堆 (Heap)</h2>
+
+                <h3>数据结构</h3>
+                <p>堆是一种特殊的完全二叉树，分为最大堆和最小堆。</p>
+                <p><strong>最大堆</strong>：每个节点的值都大于或等于其子节点的值，根节点是最大值。</p>
+                <p><strong>最小堆</strong>：每个节点的值都小于或等于其子节点的值，根节点是最小值。</p>
+                <p>堆通常用数组实现，对于索引 i 的节点：父节点为 (i-1)/2，左子节点为 2i+1，右子节点为 2i+2。</p>
+
+                <div class="data-structure-visual">
+                    <h4><span>📐</span> 堆结构示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>最大堆</strong><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\<br>
+                            &nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;20&nbsp;&nbsp;35&nbsp;&nbsp;5
+                        </div>
+                        <div class="structure-part">
+                            <strong>数组表示</strong><br>
+                            [50, 30, 40, 10, 20, 35, 5]<br><br>
+                            索引关系:<br>
+                            i=0: 50 (根)<br>
+                            i=1: 30 (左子)<br>
+                            i=2: 40 (右子)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">访问最大/最小</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">插入</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">删除最大/最小</div>
+                        <div class="value">O(log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">建堆</div>
+                        <div class="value">O(n)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>O(1) 访问最大/最小值</li>
+                            <li>插入删除效率高</li>
+                            <li>空间效率高（数组实现）</li>
+                            <li>堆排序原地排序</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>查找任意元素 O(n)</li>
+                            <li>只支持访问最大/最小值</li>
+                            <li>不支持随机访问</li>
+                            <li>删除任意元素复杂</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="heap-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="heap-python">Python</button>
+                        <button class="code-tab-btn" data-tab="heap-go">Go</button>
+                    </div>
+                    <div id="heap-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class MaxHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    insert(val) {
+        this.heap.push(val);
+        this.bubbleUp(this.heap.length - 1);
+    }
+
+    bubbleUp(index) {
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            if (this.heap[index] <= this.heap[parentIndex]) break;
+            [this.heap[index], this.heap[parentIndex]] = 
+                [this.heap[parentIndex], this.heap[index]];
+            index = parentIndex;
+        }
+    }
+
+    extractMax() {
+        if (this.heap.length === 0) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+        const max = this.heap[0];
+        this.heap[0] = this.heap.pop();
+        this.bubbleDown(0);
+        return max;
+    }
+
+    bubbleDown(index) {
+        const length = this.heap.length;
+        while (true) {
+            const leftChild = 2 * index + 1;
+            const rightChild = 2 * index + 2;
+            let largest = index;
+            if (leftChild < length && this.heap[leftChild] > this.heap[largest]) {
+                largest = leftChild;
+            }
+            if (rightChild < length && this.heap[rightChild] > this.heap[largest]) {
+                largest = rightChild;
+            }
+            if (largest === index) break;
+            [this.heap[index], this.heap[largest]] = 
+                [this.heap[largest], this.heap[index]];
+            index = largest;
+        }
+    }
+
+    peek() {
+        return this.heap.length > 0 ? this.heap[0] : null;
+    }
+
+    size() {
+        return this.heap.length;
+    }
+
+    isEmpty() {
+        return this.heap.length === 0;
+    }
+
+    // 堆排序
+    static heapSort(arr) {
+        const heap = new MaxHeap();
+        arr.forEach(val => heap.insert(val));
+        const result = [];
+        while (!heap.isEmpty()) {
+            result.unshift(heap.extractMax());
+        }
+        return result;
+    }
+}
+
+// 测试
+const heap = new MaxHeap();
+heap.insert(10);
+heap.insert(20);
+heap.insert(15);
+heap.insert(30);
+heap.insert(5);
+console.log('最大堆:', heap.heap); // [30, 20, 15, 10, 5]
+console.log('最大值:', heap.extractMax()); // 30
+console.log('堆排序:', MaxHeap.heapSort([3, 1, 4, 1, 5, 9, 2, 6])); // [1,1,2,3,4,5,6,9]</code></pre></div>
+                    </div>
+                    <div id="heap-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">class MaxHeap:
+    def __init__(self):
+        self.heap = []
+
+    def insert(self, val):
+        self.heap.append(val)
+        self._bubble_up(len(self.heap) - 1)
+
+    def _bubble_up(self, index):
+        while index > 0:
+            parent_index = (index - 1) // 2
+            if self.heap[index] <= self.heap[parent_index]:
+                break
+            self.heap[index], self.heap[parent_index] = \
+                self.heap[parent_index], self.heap[index]
+            index = parent_index
+
+    def extract_max(self):
+        if len(self.heap) == 0:
+            return None
+        if len(self.heap) == 1:
+            return self.heap.pop()
+        max_val = self.heap[0]
+        self.heap[0] = self.heap.pop()
+        self._bubble_down(0)
+        return max_val
+
+    def _bubble_down(self, index):
+        length = len(self.heap)
+        while True:
+            left_child = 2 * index + 1
+            right_child = 2 * index + 2
+            largest = index
+            if left_child < length and self.heap[left_child] > self.heap[largest]:
+                largest = left_child
+            if right_child < length and self.heap[right_child] > self.heap[largest]:
+                largest = right_child
+            if largest == index:
+                break
+            self.heap[index], self.heap[largest] = \
+                self.heap[largest], self.heap[index]
+            index = largest
+
+    def peek(self):
+        return self.heap[0] if self.heap else None
+
+    def size(self):
+        return len(self.heap)
+
+    def is_empty(self):
+        return len(self.heap) == 0
+
+    @staticmethod
+    def heap_sort(arr):
+        heap = MaxHeap()
+        for val in arr:
+            heap.insert(val)
+        result = []
+        while not heap.is_empty():
+            result.insert(0, heap.extract_max())
+        return result
+
+# 测试
+heap = MaxHeap()
+heap.insert(10)
+heap.insert(20)
+heap.insert(15)
+heap.insert(30)
+heap.insert(5)
+print('最大堆:', heap.heap)  # [30, 20, 15, 10, 5]
+print('最大值:', heap.extract_max())  # 30
+print('堆排序:', MaxHeap.heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))  # [1,1,2,3,4,5,6,9]</code></pre></div>
+                    </div>
+                    <div id="heap-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type MaxHeap struct {
+    heap []int
+}
+
+func NewMaxHeap() *MaxHeap {
+    return &MaxHeap{heap: []int{}}
+}
+
+func (h *MaxHeap) Insert(val int) {
+    h.heap = append(h.heap, val)
+    h.bubbleUp(len(h.heap) - 1)
+}
+
+func (h *MaxHeap) bubbleUp(index int) {
+    for index > 0 {
+        parentIndex := (index - 1) / 2
+        if h.heap[index] <= h.heap[parentIndex] {
+            break
+        }
+        h.heap[index], h.heap[parentIndex] = h.heap[parentIndex], h.heap[index]
+        index = parentIndex
+    }
+}
+
+func (h *MaxHeap) ExtractMax() int {
+    if len(h.heap) == 0 {
+        return -1
+    }
+    if len(h.heap) == 1 {
+        val := h.heap[0]
+        h.heap = h.heap[:0]
+        return val
+    }
+    maxVal := h.heap[0]
+    h.heap[0] = h.heap[len(h.heap)-1]
+    h.heap = h.heap[:len(h.heap)-1]
+    h.bubbleDown(0)
+    return maxVal
+}
+
+func (h *MaxHeap) bubbleDown(index int) {
+    length := len(h.heap)
+    for {
+        leftChild := 2*index + 1
+        rightChild := 2*index + 2
+        largest := index
+        if leftChild < length && h.heap[leftChild] > h.heap[largest] {
+            largest = leftChild
+        }
+        if rightChild < length && h.heap[rightChild] > h.heap[largest] {
+            largest = rightChild
+        }
+        if largest == index {
+            break
+        }
+        h.heap[index], h.heap[largest] = h.heap[largest], h.heap[index]
+        index = largest
+    }
+}
+
+func (h *MaxHeap) Peek() int {
+    if len(h.heap) == 0 {
+        return -1
+    }
+    return h.heap[0]
+}
+
+func (h *MaxHeap) Size() int {
+    return len(h.heap)
+}
+
+func (h *MaxHeap) IsEmpty() bool {
+    return len(h.heap) == 0
+}
+
+// 优先队列应用
+type PriorityQueue struct {
+    heap *MaxHeap
+}
+
+func NewPriorityQueue() *PriorityQueue {
+    return &PriorityQueue{heap: NewMaxHeap()}
+}
+
+func (pq *PriorityQueue) Enqueue(val int) {
+    pq.heap.Insert(val)
+}
+
+func (pq *PriorityQueue) Dequeue() int {
+    return pq.heap.ExtractMax()
+}
+
+func (pq *PriorityQueue) IsEmpty() bool {
+    return pq.heap.IsEmpty()
+}
+
+// 堆排序
+func HeapSort(arr []int) []int {
+    h := NewMaxHeap()
+    for _, val := range arr {
+        h.Insert(val)
+    }
+    result := make([]int, 0, len(arr))
+    for !h.IsEmpty() {
+        result = append([]int{h.ExtractMax()}, result...)
+    }
+    return result
+}
+
+func main() {
+    heap := NewMaxHeap()
+    heap.Insert(10)
+    heap.Insert(20)
+    heap.Insert(15)
+    heap.Insert(30)
+    heap.Insert(5)
+    fmt.Println("最大堆:", heap.heap)        // [30 20 15 10 5]
+    fmt.Println("最大值:", heap.ExtractMax()) // 30
+    fmt.Println("堆排序:", HeapSort([]int{3, 1, 4, 1, 5, 9, 2, 6})) // [1 1 2 3 4 5 6 9]
+
+    // 优先队列示例
+    pq := NewPriorityQueue()
+    pq.Enqueue(100)
+    pq.Enqueue(50)
+    pq.Enqueue(200)
+    for !pq.IsEmpty() {
+        fmt.Print(pq.Dequeue(), " ") // 200 100 50
+    }
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 图 -->
+            <section id="graph" class="section-detail">
+                <h2><span>🕸️</span> 7. 图 (Graph)</h2>
+
+                <h3>数据结构</h3>
+                <p>图是由顶点（节点）和边组成的数据结构，用于表示对象之间的关系。</p>
+                <p><strong>图的类型</strong>：</p>
+                <ul>
+                    <li><strong>有向图</strong>：边有方向，如社交网络关注关系</li>
+                    <li><strong>无向图</strong>：边无方向，如好友关系</li>
+                    <li><strong>加权图</strong>：边有权重，如地图中的距离</li>
+                </ul>
+                <p><strong>存储方式</strong>：</p>
+                <ul>
+                    <li><strong>邻接矩阵</strong>：二维数组，适合稠密图</li>
+                    <li><strong>邻接表</strong>：数组 + 链表，适合稀疏图</li>
+                </ul>
+
+                <div class="data-structure-visual">
+                    <h4><span>🕸️</span> 图结构示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>无向图</strong><br>
+                            &nbsp;&nbsp;0 —— 1<br>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;|<br>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+                            &nbsp;&nbsp;2 —— 3 —— 4
+                        </div>
+                        <div class="structure-part">
+                            <strong>邻接表</strong><br>
+                            0: [1, 2]<br>
+                            1: [0, 2, 3]<br>
+                            2: [0, 1, 3]<br>
+                            3: [1, 2, 4]<br>
+                            4: [3]
+                        </div>
+                        <div class="structure-part">
+                            <strong>邻接矩阵</strong><br>
+                            &nbsp;&nbsp;0 1 2 3 4<br>
+                            0 0 1 1 0 0<br>
+                            1 1 0 1 1 0<br>
+                            2 1 1 0 1 0<br>
+                            3 0 1 1 0 1<br>
+                            4 0 0 0 1 0
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">BFS 遍历</div>
+                        <div class="value">O(V + E)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">DFS 遍历</div>
+                        <div class="value">O(V + E)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">邻接矩阵查询</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">邻接表查询</div>
+                        <div class="value">O(degree)</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>能表示复杂关系</li>
+                            <li>应用广泛（社交网络、地图导航）</li>
+                            <li>邻接表空间效率高</li>
+                            <li>支持多种遍历算法</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>邻接矩阵空间 O(V²)</li>
+                            <li>某些算法复杂度高</li>
+                            <li>实现相对复杂</li>
+                            <li>需要处理环路</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="graph-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="graph-python">Python</button>
+                        <button class="code-tab-btn" data-tab="graph-go">Go</button>
+                    </div>
+                    <div id="graph-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">class Graph {
+    constructor(isDirected = false) {
+        this.isDirected = isDirected;
+        this.adjList = new Map();
+    }
+
+    addVertex(vertex) {
+        if (!this.adjList.has(vertex)) {
+            this.adjList.set(vertex, []);
+        }
+    }
+
+    addEdge(vertex1, vertex2, weight = 1) {
+        this.addVertex(vertex1);
+        this.addVertex(vertex2);
+        this.adjList.get(vertex1).push({ vertex: vertex2, weight });
+        if (!this.isDirected) {
+            this.adjList.get(vertex2).push({ vertex: vertex1, weight });
+        }
+    }
+
+    bfs(start) {
+        const visited = new Set();
+        const queue = [start];
+        const result = [];
+        visited.add(start);
+        while (queue.length > 0) {
+            const vertex = queue.shift();
+            result.push(vertex);
+            for (const neighbor of this.adjList.get(vertex)) {
+                if (!visited.has(neighbor.vertex)) {
+                    visited.add(neighbor.vertex);
+                    queue.push(neighbor.vertex);
+                }
+            }
+        }
+        return result;
+    }
+
+    dfs(start) {
+        const visited = new Set();
+        const result = [];
+        const dfsHelper = (vertex) => {
+            visited.add(vertex);
+            result.push(vertex);
+            for (const neighbor of this.adjList.get(vertex)) {
+                if (!visited.has(neighbor.vertex)) {
+                    dfsHelper(neighbor.vertex);
+                }
+            }
+        };
+        dfsHelper(start);
+        return result;
+    }
+
+    print() {
+        for (const [vertex, neighbors] of this.adjList) {
+            console.log(`${vertex}: ${neighbors.map(n => `${n.vertex}(${n.weight})`).join(', ')}`);
+        }
+    }
+}
+
+// 测试
+const graph = new Graph(false); // 无向图
+graph.addEdge(0, 1, 1);
+graph.addEdge(0, 2, 1);
+graph.addEdge(1, 2, 1);
+graph.addEdge(1, 3, 1);
+graph.addEdge(2, 3, 1);
+graph.addEdge(3, 4, 1);
+console.log('邻接表:');
+graph.print();
+console.log('BFS 从 0:', graph.bfs(0)); // [0, 1, 2, 3, 4]
+console.log('DFS 从 0:', graph.dfs(0)); // [0, 1, 2, 3, 4]</code></pre></div>
+                    </div>
+                    <div id="graph-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python">from collections import deque
+
+class Graph:
+    def __init__(self, is_directed=False):
+        self.is_directed = is_directed
+        self.adj_list = {}
+
+    def add_vertex(self, vertex):
+        if vertex not in self.adj_list:
+            self.adj_list[vertex] = []
+
+    def add_edge(self, vertex1, vertex2, weight=1):
+        self.add_vertex(vertex1)
+        self.add_vertex(vertex2)
+        self.adj_list[vertex1].append((vertex2, weight))
+        if not self.is_directed:
+            self.adj_list[vertex2].append((vertex1, weight))
+
+    def bfs(self, start):
+        visited = set()
+        queue = deque([start])
+        result = []
+        visited.add(start)
+        while queue:
+            vertex = queue.popleft()
+            result.append(vertex)
+            for neighbor, _ in self.adj_list[vertex]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        return result
+
+    def dfs(self, start):
+        visited = set()
+        result = []
+        def dfs_helper(vertex):
+            visited.add(vertex)
+            result.append(vertex)
+            for neighbor, _ in self.adj_list[vertex]:
+                if neighbor not in visited:
+                    dfs_helper(neighbor)
+        dfs_helper(start)
+        return result
+
+    def print(self):
+        for vertex, neighbors in self.adj_list.items():
+            print(f"{vertex}: {', '.join(f'{n}({w})' for n, w in neighbors)}")
+
+# 测试
+graph = Graph(is_directed=False)  # 无向图
+graph.add_edge(0, 1, 1)
+graph.add_edge(0, 2, 1)
+graph.add_edge(1, 2, 1)
+graph.add_edge(1, 3, 1)
+graph.add_edge(2, 3, 1)
+graph.add_edge(3, 4, 1)
+print('邻接表:')
+graph.print()
+print('BFS 从 0:', graph.bfs(0))  # [0, 1, 2, 3, 4]
+print('DFS 从 0:', graph.dfs(0))  # [0, 1, 2, 3, 4]</code></pre></div>
+                    </div>
+                    <div id="graph-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type Edge struct {
+    Vertex int
+    Weight int
+}
+
+type Graph struct {
+    IsDirected bool
+    AdjList    map[int][]Edge
+}
+
+func NewGraph(isDirected bool) *Graph {
+    return &Graph{
+        IsDirected: isDirected,
+        AdjList:    make(map[int][]Edge),
+    }
+}
+
+func (g *Graph) AddVertex(vertex int) {
+    if _, exists := g.AdjList[vertex]; !exists {
+        g.AdjList[vertex] = []Edge{}
+    }
+}
+
+func (g *Graph) AddEdge(vertex1, vertex2, weight int) {
+    g.AddVertex(vertex1)
+    g.AddVertex(vertex2)
+    g.AdjList[vertex1] = append(g.AdjList[vertex1], Edge{Vertex: vertex2, Weight: weight})
+    if !g.IsDirected {
+        g.AdjList[vertex2] = append(g.AdjList[vertex2], Edge{Vertex: vertex1, Weight: weight})
+    }
+}
+
+func (g *Graph) BFS(start int) []int {
+    visited := make(map[int]bool)
+    queue := []int{start}
+    result := []int{}
+    visited[start] = true
+    for len(queue) > 0 {
+        vertex := queue[0]
+        queue = queue[1:]
+        result = append(result, vertex)
+        for _, neighbor := range g.AdjList[vertex] {
+            if !visited[neighbor.Vertex] {
+                visited[neighbor.Vertex] = true
+                queue = append(queue, neighbor.Vertex)
+            }
+        }
+    }
+    return result
+}
+
+func (g *Graph) DFS(start int) []int {
+    visited := make(map[int]bool)
+    result := []int{}
+    var dfsHelper func(int)
+    dfsHelper = func(vertex int) {
+        visited[vertex] = true
+        result = append(result, vertex)
+        for _, neighbor := range g.AdjList[vertex] {
+            if !visited[neighbor.Vertex] {
+                dfsHelper(neighbor.Vertex)
+            }
+        }
+    }
+    dfsHelper(start)
+    return result
+}
+
+func (g *Graph) Print() {
+    for vertex, neighbors := range g.AdjList {
+        fmt.Printf("%d: ", vertex)
+        for i, n := range neighbors {
+            if i > 0 {
+                fmt.Print(", ")
+            }
+            fmt.Printf("%d(%d)", n.Vertex, n.Weight)
+        }
+        fmt.Println()
+    }
+}
+
+func main() {
+    graph := NewGraph(false) // 无向图
+    graph.AddEdge(0, 1, 1)
+    graph.AddEdge(0, 2, 1)
+    graph.AddEdge(1, 2, 1)
+    graph.AddEdge(1, 3, 1)
+    graph.AddEdge(2, 3, 1)
+    graph.AddEdge(3, 4, 1)
+    fmt.Println("邻接表:")
+    graph.Print()
+    fmt.Println("BFS 从 0:", graph.BFS(0)) // [0 1 2 3 4]
+    fmt.Println("DFS 从 0:", graph.DFS(0)) // [0 1 2 3 4]
 }</code></pre></div>
                     </div>
                 </div>
@@ -1835,9 +3445,10 @@ func main() {
                         <li><strong>频繁插入删除：</strong>链表（O(1) 插入删除）</li>
                         <li><strong>后进先出场景：</strong>栈（括号匹配、函数调用）</li>
                         <li><strong>先进先出场景：</strong>队列（任务调度、BFS）</li>
-                        <li><strong>快速查找：</strong>二叉搜索树、哈希表</li>
-                        <li><strong>优先级队列：</strong>堆（TopK 问题）</li>
-                        <li><strong>字符串前缀：</strong>字典树（自动补全）</li>
+                        <li><strong>快速查找/动态集合：</strong>二叉搜索树、AVL 树、红黑树</li>
+                        <li><strong>优先级队列/TopK：</strong>堆（堆排序、优先队列）</li>
+                        <li><strong>复杂关系网络：</strong>图（社交网络、路径规划）</li>
+                        <li><strong>字符串前缀：</strong>字典树（自动补全、拼写检查）</li>
                         <li><strong>区间查询更新：</strong>线段树（区间求和、最值）</li>
                         <li><strong>高维向量检索：</strong>向量索引（AI 应用、语义搜索）</li>
                         <li><strong>大规模去重：</strong>布隆过滤器（缓存穿透、URL 去重）</li>
