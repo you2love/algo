@@ -379,8 +379,8 @@
                     <p>由顶点和边组成的非线性结构，用于表示复杂的关系网络。</p>
                 </div>
                 <div class="algorithm-card">
-                    <h3><span class="icon">📖</span> 字典树</h3>
-                    <p>用于高效存储和检索字符串的树形结构，特别适用于自动补全和拼写检查。</p>
+                    <h3><span class="icon">💰</span> 贪心算法</h3>
+                    <p>每一步选择当前最优解的算法思想，适用于找零、活动选择、分数背包等问题。</p>
                 </div>
             </div>
 
@@ -3435,6 +3435,496 @@ func main() {
                 </div>
             </section>
 
+            <!-- 贪心算法 -->
+            <section id="greedy" class="section-detail">
+                <h2><span>💰</span> 贪心算法 (Greedy Algorithm)</h2>
+
+                <h3>算法思想</h3>
+                <p>贪心算法是一种在每一步选择中都采取当前状态下最优选择的算法思想。它不从整体最优上加以考虑，而是通过局部最优解希望得到全局最优解。</p>
+
+                <div class="data-structure-visual">
+                    <h4><span>💰</span> 贪心算法示意</h4>
+                    <div class="structure-diagram">
+                        <div class="structure-part">
+                            <strong>贪心策略</strong><br>
+                            当前最优 → 下一步最优 → ... → 希望全局最优
+                        </div>
+                        <div class="structure-part">
+                            <strong>适用条件</strong><br>
+                            • 贪心选择性质<br>
+                            • 最优子结构<br>
+                            • 无后效性
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complexity-grid">
+                    <div class="complexity-item">
+                        <div class="label">时间复杂度</div>
+                        <div class="value">O(n log n)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">空间复杂度</div>
+                        <div class="value">O(1)</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">正确性</div>
+                        <div class="value">需证明</div>
+                    </div>
+                    <div class="complexity-item">
+                        <div class="label">效率</div>
+                        <div class="value">高效</div>
+                    </div>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 优点</h4>
+                        <ul>
+                            <li>算法简单直观</li>
+                            <li>时间效率高</li>
+                            <li>空间复杂度低</li>
+                            <li>易于实现</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ 缺点</h4>
+                        <ul>
+                            <li>不总是得到全局最优</li>
+                            <li>需要证明正确性</li>
+                            <li>适用范围有限</li>
+                            <li>可能陷入局部最优</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>经典应用场景</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <strong>🪙 找零问题</strong>
+                        <p>用最少数量的硬币找出指定金额</p>
+                    </div>
+                    <div class="feature-item">
+                        <strong>🎒 分数背包</strong>
+                        <p>物品可分割，按价值密度贪心选择</p>
+                    </div>
+                    <div class="feature-item">
+                        <strong>📅 活动选择</strong>
+                        <p>选择最多互不冲突的活动</p>
+                    </div>
+                    <div class="feature-item">
+                        <strong>🌲 Huffman 编码</strong>
+                        <p>构造最优前缀编码树</p>
+                    </div>
+                    <div class="feature-item">
+                        <strong>🛣️ Dijkstra 算法</strong>
+                        <p>单源最短路径问题</p>
+                    </div>
+                    <div class="feature-item">
+                        <strong>🔗 Kruskal 算法</strong>
+                        <p>最小生成树问题</p>
+                    </div>
+                </div>
+
+                <h3>代码实现</h3>
+                
+                <!-- 示例 1: 找零问题 -->
+                <h4>🪙 应用 1: 找零问题</h4>
+                <p>假设有面值为 25、10、5、1 的硬币，找出最少数量的硬币组合。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="greedy-change-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="greedy-change-python">Python</button>
+                        <button class="code-tab-btn" data-tab="greedy-change-go">Go</button>
+                    </div>
+                    <div id="greedy-change-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">// 找零问题 - 贪心算法
+function makeChange(amount) {
+    const coins = [25, 10, 5, 1];
+    const result = {};
+    let count = 0;
+    
+    for (const coin of coins) {
+        if (amount === 0) break;
+        const num = Math.floor(amount / coin);
+        if (num > 0) {
+            result[coin] = num;
+            count += num;
+            amount -= num * coin;
+        }
+    }
+    
+    return { coins: result, total: count };
+}
+
+// 测试
+console.log(makeChange(63));  // { coins: { 25: 2, 10: 1, 1: 3 }, total: 6 }
+console.log(makeChange(99));  // { coins: { 25: 3, 10: 2, 1: 4 }, total: 9 }</code></pre></div>
+                    </div>
+                    <div id="greedy-change-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python"># 找零问题 - 贪心算法
+def make_change(amount):
+    coins = [25, 10, 5, 1]
+    result = {}
+    count = 0
+    
+    for coin in coins:
+        if amount == 0:
+            break
+        num = amount // coin
+        if num > 0:
+            result[coin] = num
+            count += num
+            amount -= num * coin
+    
+    return {'coins': result, 'total': count}
+
+# 测试
+print(make_change(63))  # {'coins': {25: 2, 10: 1, 1: 3}, 'total': 6}
+print(make_change(99))  # {'coins': {25: 3, 10: 2, 1: 4}, 'total': 9}</code></pre></div>
+                    </div>
+                    <div id="greedy-change-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+type ChangeResult struct {
+    Coins map[int]int
+    Total int
+}
+
+func makeChange(amount int) ChangeResult {
+    coins := []int{25, 10, 5, 1}
+    result := ChangeResult{Coins: make(map[int]int), Total: 0}
+    
+    for _, coin := range coins {
+        if amount == 0 {
+            break
+        }
+        num := amount / coin
+        if num > 0 {
+            result.Coins[coin] = num
+            result.Total += num
+            amount -= num * coin
+        }
+    }
+    
+    return result
+}
+
+func main() {
+    r1 := makeChange(63)
+    fmt.Printf("63: %v, 总数：%d\n", r1.Coins, r1.Total)
+    
+    r2 := makeChange(99)
+    fmt.Printf("99: %v, 总数：%d\n", r2.Coins, r2.Total)
+}</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- 示例 2: 活动选择问题 -->
+                <h4>📅 应用 2: 活动选择问题</h4>
+                <p>给定多个活动的开始和结束时间，选择最多的互不冲突的活动。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="greedy-activity-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="greedy-activity-python">Python</button>
+                        <button class="code-tab-btn" data-tab="greedy-activity-go">Go</button>
+                    </div>
+                    <div id="greedy-activity-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">// 活动选择问题 - 贪心算法
+function selectActivities(activities) {
+    // 按结束时间排序
+    activities.sort((a, b) => a.end - b.end);
+    
+    const selected = [];
+    let lastEnd = -Infinity;
+    
+    for (const activity of activities) {
+        if (activity.start >= lastEnd) {
+            selected.push(activity);
+            lastEnd = activity.end;
+        }
+    }
+    
+    return selected;
+}
+
+// 测试
+const activities = [
+    { name: 'A', start: 1, end: 3 },
+    { name: 'B', start: 2, end: 5 },
+    { name: 'C', start: 4, end: 7 },
+    { name: 'D', start: 6, end: 9 },
+    { name: 'E', start: 8, end: 10 }
+];
+
+const result = selectActivities(activities);
+console.log('选中的活动:', result.map(a => a.name));  // ['A', 'C', 'E']
+console.log('数量:', result.length);  // 3</code></pre></div>
+                    </div>
+                    <div id="greedy-activity-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python"># 活动选择问题 - 贪心算法
+def select_activities(activities):
+    # 按结束时间排序
+    activities.sort(key=lambda x: x[1])
+    
+    selected = []
+    last_end = float('-inf')
+    
+    for name, start, end in activities:
+        if start >= last_end:
+            selected.append((name, start, end))
+            last_end = end
+    
+    return selected
+
+# 测试
+activities = [
+    ('A', 1, 3),
+    ('B', 2, 5),
+    ('C', 4, 7),
+    ('D', 6, 9),
+    ('E', 8, 10)
+]
+
+result = select_activities(activities)
+print('选中的活动:', [a[0] for a in result])  # ['A', 'C', 'E']
+print('数量:', len(result))  # 3</code></pre></div>
+                    </div>
+                    <div id="greedy-activity-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+type Activity struct {
+    Name  string
+    Start int
+    End   int
+}
+
+func selectActivities(activities []Activity) []Activity {
+    // 按结束时间排序
+    sort.Slice(activities, func(i, j int) bool {
+        return activities[i].End < activities[j].End
+    })
+    
+    selected := []Activity{}
+    lastEnd := -1
+    
+    for _, activity := range activities {
+        if activity.Start >= lastEnd {
+            selected = append(selected, activity)
+            lastEnd = activity.End
+        }
+    }
+    
+    return selected
+}
+
+func main() {
+    activities := []Activity{
+        {"A", 1, 3},
+        {"B", 2, 5},
+        {"C", 4, 7},
+        {"D", 6, 9},
+        {"E", 8, 10},
+    }
+    
+    result := selectActivities(activities)
+    fmt.Print("选中的活动：")
+    for _, a := range result {
+        fmt.Print(a.Name, " ")
+    }
+    fmt.Println()
+    fmt.Println("数量:", len(result))
+}</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- 示例 3: 分数背包问题 -->
+                <h4>🎒 应用 3: 分数背包问题</h4>
+                <p>物品可以分割，按价值密度（价值/重量）贪心选择，使背包总价值最大。</p>
+                <div class="code-tabs">
+                    <div class="code-tab-header">
+                        <button class="code-tab-btn active" data-tab="greedy-knapsack-js">JavaScript</button>
+                        <button class="code-tab-btn" data-tab="greedy-knapsack-python">Python</button>
+                        <button class="code-tab-btn" data-tab="greedy-knapsack-go">Go</button>
+                    </div>
+                    <div id="greedy-knapsack-js" class="code-tab-content active">
+                        <div class="code-block line-numbers"><pre><code class="language-javascript">// 分数背包问题 - 贪心算法
+function fractionalKnapsack(items, capacity) {
+    // 计算价值密度并排序
+    items.forEach(item => {
+        item.density = item.value / item.weight;
+    });
+    items.sort((a, b) => b.density - a.density);
+    
+    let totalValue = 0;
+    let remaining = capacity;
+    const taken = [];
+    
+    for (const item of items) {
+        if (remaining <= 0) break;
+        
+        if (item.weight <= remaining) {
+            // 全拿
+            taken.push({ ...item, takeWeight: item.weight });
+            totalValue += item.value;
+            remaining -= item.weight;
+        } else {
+            // 拿一部分
+            const takeWeight = remaining;
+            const takeValue = item.density * takeWeight;
+            taken.push({ ...item, takeWeight, takeValue });
+            totalValue += takeValue;
+            remaining = 0;
+        }
+    }
+    
+    return { totalValue, taken };
+}
+
+// 测试
+const items = [
+    { name: 'A', value: 60, weight: 10 },
+    { name: 'B', value: 100, weight: 20 },
+    { name: 'C', value: 120, weight: 30 }
+];
+
+const result = fractionalKnapsack(items, 50);
+console.log('最大价值:', result.totalValue);  // 240
+console.log('选取:', result.taken.map(t => `${t.name}(${t.takeWeight}kg)`));</code></pre></div>
+                    </div>
+                    <div id="greedy-knapsack-python" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-python"># 分数背包问题 - 贪心算法
+def fractional_knapsack(items, capacity):
+    # 计算价值密度并排序
+    for item in items:
+        item['density'] = item['value'] / item['weight']
+    items.sort(key=lambda x: x['density'], reverse=True)
+    
+    total_value = 0
+    remaining = capacity
+    taken = []
+    
+    for item in items:
+        if remaining <= 0:
+            break
+        
+        if item['weight'] <= remaining:
+            # 全拿
+            taken.append({**item, 'take_weight': item['weight']})
+            total_value += item['value']
+            remaining -= item['weight']
+        else:
+            # 拿一部分
+            take_weight = remaining
+            take_value = item['density'] * take_weight
+            taken.append({**item, 'take_weight': take_weight, 'take_value': take_value})
+            total_value += take_value
+            remaining = 0
+    
+    return {'total_value': total_value, 'taken': taken}
+
+# 测试
+items = [
+    {'name': 'A', 'value': 60, 'weight': 10},
+    {'name': 'B', 'value': 100, 'weight': 20},
+    {'name': 'C', 'value': 120, 'weight': 30}
+]
+
+result = fractional_knapsack(items, 50)
+print('最大价值:', result['total_value'])  # 240.0
+print('选取:', [(t['name'], f"{t['take_weight']}kg") for t in result['taken']])</code></pre></div>
+                    </div>
+                    <div id="greedy-knapsack-go" class="code-tab-content">
+                        <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sort"
+)
+
+type Item struct {
+    Name     string
+    Value    int
+    Weight   int
+    Density  float64
+}
+
+type TakenItem struct {
+    Name      string
+    TakeWeight int
+    TakeValue float64
+}
+
+func fractionalKnapsack(items []Item, capacity int) (float64, []TakenItem) {
+    // 计算价值密度
+    for i := range items {
+        items[i].Density = float64(items[i].Value) / float64(items[i].Weight)
+    }
+    
+    // 按价值密度排序
+    sort.Slice(items, func(i, j int) bool {
+        return items[i].Density > items[j].Density
+    })
+    
+    totalValue := 0.0
+    remaining := capacity
+    taken := []TakenItem{}
+    
+    for _, item := range items {
+        if remaining <= 0 {
+            break
+        }
+        
+        if item.Weight <= remaining {
+            taken = append(taken, TakenItem{
+                Name: item.Name,
+                TakeWeight: item.Weight,
+                TakeValue: float64(item.Value),
+            })
+            totalValue += float64(item.Value)
+            remaining -= item.Weight
+        } else {
+            takeWeight := remaining
+            takeValue := item.Density * float64(takeWeight)
+            taken = append(taken, TakenItem{
+                Name: item.Name,
+                TakeWeight: takeWeight,
+                TakeValue: takeValue,
+            })
+            totalValue += takeValue
+            remaining = 0
+        }
+    }
+    
+    return totalValue, taken
+}
+
+func main() {
+    items := []Item{
+        {"A", 60, 10, 0},
+        {"B", 100, 20, 0},
+        {"C", 120, 30, 0},
+    }
+    
+    totalValue, taken := fractionalKnapsack(items, 50)
+    fmt.Printf("最大价值：%.2f\n", totalValue)
+    fmt.Print("选取：")
+    for _, t := range taken {
+        fmt.Printf("%s(%dkg) ", t.Name, t.TakeWeight)
+    }
+    fmt.Println()
+}</code></pre></div>
+                    </div>
+                </div>
+            </section>
+
             <!-- 算法选择指南 -->
             <div class="info-card warning">
                 <div class="info-card-title">
@@ -3450,6 +3940,7 @@ func main() {
                         <li><strong>复杂关系网络：</strong>图（社交网络、路径规划）</li>
                         <li><strong>字符串前缀：</strong>字典树（自动补全、拼写检查）</li>
                         <li><strong>区间查询更新：</strong>线段树（区间求和、最值）</li>
+                        <li><strong>局部最优可解：</strong>贪心算法（找零、活动选择、分数背包）</li>
                         <li><strong>高维向量检索：</strong>向量索引（AI 应用、语义搜索）</li>
                         <li><strong>大规模去重：</strong>布隆过滤器（缓存穿透、URL 去重）</li>
                     </ul>
