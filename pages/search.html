@@ -366,6 +366,68 @@
             border-top: none;
         }
 
+        /* 可折叠代码块 */
+        .code-block-collapsible {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block-collapsible summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transition: all 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .code-block-collapsible summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .code-block-collapsible summary:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .code-block-collapsible summary::before {
+            content: '📄';
+            font-size: 1.1rem;
+        }
+
+        .code-block-collapsible summary::after {
+            content: '展开';
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .code-block-collapsible[open] summary::after {
+            content: '收起';
+        }
+
+        .code-block-collapsible[open] summary {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .code-block-collapsible .code-tabs {
+            margin-top: 0;
+            border-radius: 0;
+            border: none;
+        }
+
+        .code-block-collapsible .code-tabs-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+
         .code-example pre {
             margin-top: 0;
             border-radius: 0 0 12px 12px;
@@ -631,15 +693,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python"># 顺序查找
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 顺序查找
 def linear_search(arr, target):
     for i in range(len(arr)):
         if arr[i] == target:
@@ -650,9 +714,9 @@ def linear_search(arr, target):
 arr = [64, 34, 25, 12, 22, 11, 90]
 result = linear_search(arr, 22)
 print(f"元素索引：{result}")</code></pre>
-                            </div>
-                            <div class="code-tab-panel" data-panel="javascript">
-                                <pre><code class="language-javascript">// 顺序查找
+                                </div>
+                                <div class="code-tab-panel" data-panel="javascript">
+                                    <pre><code class="language-javascript">// 顺序查找
 function linearSearch(arr, target) {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i] === target) {
@@ -666,9 +730,9 @@ function linearSearch(arr, target) {
 const arr = [64, 34, 25, 12, 22, 11, 90];
 const result = linearSearch(arr, 22);
 console.log(`元素索引：${result}`);</code></pre>
-                            </div>
-                            <div class="code-tab-panel" data-panel="go">
-                                <pre><code class="language-go">// 顺序查找
+                                </div>
+                                <div class="code-tab-panel" data-panel="go">
+                                    <pre><code class="language-go">// 顺序查找
 func linearSearch(arr []int, target int) int {
     for i := 0; i < len(arr); i++ {
         if arr[i] == target {
@@ -684,9 +748,10 @@ func main() {
     result := linearSearch(arr, 22)
     fmt.Printf("元素索引：%d\n", result)
 }</code></pre>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
 
                 <div class="search-card">
@@ -717,18 +782,20 @@ func main() {
                             </div>
                         </div>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python"># 二分查找 - 迭代实现
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 二分查找 - 迭代实现
 def binary_search(arr, target):
     left, right = 0, len(arr) - 1
-    
+
     while left <= right:
         mid = left + (right - left) // 2  # 防止溢出
         if arr[mid] == target:
@@ -737,14 +804,14 @@ def binary_search(arr, target):
             left = mid + 1
         else:
             right = mid - 1
-    
+
     return -1
 
 # 二分查找 - 递归实现
 def binary_search_recursive(arr, target, left, right):
     if left > right:
         return -1
-    
+
     mid = left + (right - left) // 2
     if arr[mid] == target:
         return mid
@@ -757,7 +824,7 @@ def binary_search_recursive(arr, target, left, right):
 arr = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
 result = binary_search(arr, 7)
 print(f"元素索引：{result}")  # 输出：3</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// 二分查找 - 迭代实现
 function binarySearch(arr, target) {
@@ -841,7 +908,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                     <div class="search-complexity" style="margin-top: 1rem;">
                         <h5>常见变体</h5>
                         <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
@@ -886,15 +953,17 @@ func main() {
                             </div>
                         </div>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python"># 哈希表查找示例 - 两数之和
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 哈希表查找示例 - 两数之和
 def two_sum(nums, target):
     """
     两数之和问题 - 哈希表经典应用
@@ -954,7 +1023,7 @@ ht = HashTable()
 ht.insert("name", "Alice")
 ht.insert("age", 25)
 print(f"查找 name: {ht.search('name')}")  # 输出：Alice</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// 哈希表查找示例 - 两数之和
 function twoSum(nums, target) {
@@ -1098,7 +1167,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                     <div class="search-complexity" style="margin-top: 1rem;">
                         <h5>冲突解决方法</h5>
                         <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
@@ -1133,15 +1202,17 @@ func main() {
                             <li><strong>滑动窗口</strong> - 维护一个区间，如最长无重复子串</li>
                         </ul>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python"># 相向双指针 - 两数之和 II (有序数组)
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 相向双指针 - 两数之和 II (有序数组)
 def two_sum_sorted(numbers, target):
     left, right = 0, len(numbers) - 1
 
@@ -1197,7 +1268,7 @@ def length_of_longest_substring(s):
 numbers = [1, 2, 4, 6, 8, 10]
 result = two_sum_sorted(numbers, 8)
 print(f"索引：{result}")  # 输出：[1, 3] (2+6=8)</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// 相向双指针 - 两数之和 II (有序数组)
 function twoSumSorted(numbers, target) {
@@ -1345,7 +1416,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
             </div>
 
@@ -1364,15 +1435,17 @@ func main() {
                         <span class="search-meta-item">📦 空间：O(V)</span>
                         <span class="search-meta-item">⚡ 时间：O(V+E)</span>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python">from collections import deque
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python">from collections import deque
 
 def bfs(graph, start, target):
     """
@@ -1427,7 +1500,7 @@ graph = {
 result = bfs(graph, 0, 5)
 print(f"最短距离：{result}")  # 输出：2
 print(f"层序遍历：{level_order(graph, 0)}")  # 输出：[[0], [1, 2], [3, 4, 5]]</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// BFS 模板 - 找最短路径
 function bfs(graph, start, target) {
@@ -1567,7 +1640,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
 
                 <div class="search-card">
@@ -1581,15 +1654,17 @@ func main() {
                         <span class="search-meta-item">📦 空间：O(V)</span>
                         <span class="search-meta-item">⚡ 时间：O(V+E)</span>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python">def dfs(graph, node, visited=None):
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python">def dfs(graph, node, visited=None):
     """
     DFS 模板 - 递归实现
     """
@@ -1650,7 +1725,7 @@ graph = {
 print("DFS 遍历:")
 dfs(graph, 0)  # 输出：0 1 3 4 5 2
 print("\nDFS 找路径:", dfs_find_path(graph, 0, 5))  # 输出：[0, 1, 4, 5]</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// DFS 模板 - 递归实现
 function dfs(graph, node, visited = new Set()) {
@@ -1806,7 +1881,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
             </div>
 
@@ -1825,15 +1900,17 @@ func main() {
                         <span class="search-meta-item">📦 空间：O(h)</span>
                         <span class="search-meta-item">⚡ 平均：O(log n)</span>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python">class TreeNode:
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python">class TreeNode:
     def __init__(self, val=0):
         self.val = val
         self.left = None
@@ -1892,7 +1969,7 @@ print(f"找到节点值：{result.val}" if result else "未找到")
 
 min_node = find_min(root)
 print(f"最小值：{min_node.val}")</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// BST 节点定义
 class TreeNode {
@@ -2054,7 +2131,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
 
                 <div class="search-card">
@@ -2081,15 +2158,17 @@ func main() {
                         <span class="search-meta-item">📦 空间：O(1)</span>
                         <span class="search-meta-item">⚡ 平均：O(log log n)</span>
                     </div>
-                    <div class="code-tabs">
-                        <div class="code-tabs-header">
-                            <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
-                            <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
-                            <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
-                        </div>
-                        <div class="code-tabs-content">
-                            <div class="code-tab-panel active" data-panel="python">
-                                <pre><code class="language-python"># 插值查找
+                    <details class="code-block-collapsible">
+                        <summary>查看代码示例</summary>
+                        <div class="code-tabs">
+                            <div class="code-tabs-header">
+                                <button class="code-tab-btn active" data-lang="python"><span class="icon">🐍</span>Python</button>
+                                <button class="code-tab-btn" data-lang="javascript"><span class="icon">📜</span>JavaScript</button>
+                                <button class="code-tab-btn" data-lang="go"><span class="icon">🔷</span>Go</button>
+                            </div>
+                            <div class="code-tabs-content">
+                                <div class="code-tab-panel active" data-panel="python">
+                                    <pre><code class="language-python"># 插值查找
 def interpolation_search(arr, target):
     left, right = 0, len(arr) - 1
 
@@ -2136,7 +2215,7 @@ print(f"索引：{result}")  # 输出：5
 
 result = interpolation_search(arr, 85)
 print(f"索引：{result}")  # 输出：-1 (不存在)</code></pre>
-                            </div>
+                                </div>
                             <div class="code-tab-panel" data-panel="javascript">
                                 <pre><code class="language-javascript">// 插值查找
 function interpolationSearch(arr, target) {
@@ -2258,7 +2337,7 @@ func main() {
 }</code></pre>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
             </div>
 
@@ -2340,6 +2419,15 @@ func main() {
                         this.classList.add('active');
                         tabs.querySelector(`[data-panel="${lang}"]`).classList.add('active');
                     });
+                });
+            });
+            
+            // 折叠展开时重新应用 Prism 高亮
+            document.querySelectorAll('.code-block-collapsible').forEach(function(details) {
+                details.addEventListener('toggle', function() {
+                    if (this.open) {
+                        Prism.highlightAllUnder(this);
+                    }
                 });
             });
         });
