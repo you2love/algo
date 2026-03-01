@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查找算法 - 二分查找 | 哈希表 | 双指针</title>
+    <meta name="description" content="全面讲解查找算法：二分查找、哈希表、双指针、BFS、DFS 等常用搜索技术">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <script src="../lib/mermaid/mermaid.min.js"></script>
+    <script src="../lib/mermaid/mermaid-config.js"></script>
+
+    <style>
+        /* 页面头部样式 */
+        .search-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .search-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .search-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-hero p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-algorithms-section {
+            padding: 2rem 0;
+        }
+
+        .search-category {
+            margin-bottom: 3rem;
+        }
+
+        .search-category h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .search-category h3::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        /* 搜索卡片样式 */
+        .search-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 100%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .search-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .search-card:hover::before {
+            opacity: 1;
+        }
+
+        .search-card h4 {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .search-card h4 span:first-child {
+            font-size: 1.75rem;
+            filter: grayscale(0.1);
+        }
+
+        .search-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        /* 元数据标签 */
+        .search-meta {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .search-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            transition: all 0.2s;
+        }
+
+        .search-meta-item:nth-child(1) {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .search-meta-item:nth-child(2) {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        .search-meta-item:nth-child(3) {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .dark-mode .search-meta-item:nth-child(1) {
+            background: linear-gradient(135deg, #422006 0%, #78350f 100%);
+            color: #fde68a;
+        }
+
+        .dark-mode .search-meta-item:nth-child(2) {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+            color: #bfdbfe;
+        }
+
+        .dark-mode .search-meta-item:nth-child(3) {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            color: #a7f3d0;
+        }
+
+        /* 复杂度面板 */
+        .search-complexity {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--card-bg) 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-complexity h5 {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .complexity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .complexity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .complexity-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .complexity-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* 代码示例 */
+        .code-example {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-example summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 8px;
+            transition: all 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-example summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .code-example summary:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .code-example summary::before {
+            content: '📄';
+            font-size: 1.1rem;
+        }
+
+        .code-example[open] summary {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .code-example pre {
+            margin-top: 0;
+            border-radius: 0 0 12px 12px;
+            border-top: none;
+        }
+
+        /* 列表样式 */
+        .search-card ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .search-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .search-card li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 高亮文本 */
+        .search-card strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .search-hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .search-hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .search-hero p {
+                font-size: 1rem;
+            }
+
+            .search-card {
+                padding: 1.5rem;
+            }
+
+            .search-card h4 {
+                font-size: 1.15rem;
+            }
+
+            .complexity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .search-card:nth-child(1) { animation-delay: 0.1s; }
+        .search-card:nth-child(2) { animation-delay: 0.2s; }
+        .search-card:nth-child(3) { animation-delay: 0.3s; }
+        .search-card:nth-child(4) { animation-delay: 0.4s; }
+        .search-card:nth-child(5) { animation-delay: 0.5s; }
+
+        /* 页脚样式 */
+        .search-footer {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+            background: linear-gradient(180deg, transparent 0%, var(--bg-secondary) 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .search-footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">AlgoGuide 2026</a>
+            <ul class="nav-links">
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><a href="../index.html#knowledge-map">知识图谱</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container" style="padding-top: 2rem;">
+        <a href="../index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+
+        <!-- Hero 区域 -->
+        <div class="search-hero">
+            <h1>🔍 查找算法</h1>
+            <p>掌握高效的查找技术，包括二分查找、哈希表、双指针等核心算法</p>
+        </div>
+
+        <section class="search-algorithms-section">
+
+            <!-- 基础查找 -->
+            <div class="search-category">
+                <h3>基础查找算法</h3>
+
+                <div class="search-card">
+                    <h4>
+                        <span>📍</span>
+                        顺序查找 (Linear Search)
+                    </h4>
+                    <p>最基础的查找算法，逐个遍历数组元素直到找到目标值或遍历完所有元素。适用于无序数组，时间复杂度为 O(n)。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：入门</span>
+                        <span class="search-meta-item">📦 空间：O(1)</span>
+                    </div>
+                    <div class="search-complexity">
+                        <h5>时间复杂度</h5>
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <span class="complexity-label">最好情况:</span>
+                                <span class="complexity-value">O(1)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">最坏情况:</span>
+                                <span class="complexity-value">O(n)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">平均情况:</span>
+                                <span class="complexity-value">O(n)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python"># 顺序查找
+def linear_search(arr, target):
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+
+# 使用示例
+arr = [64, 34, 25, 12, 22, 11, 90]
+result = linear_search(arr, 22)
+print(f"元素索引：{result}")</code></pre>
+                    </details>
+                </div>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🎯</span>
+                        二分查找 (Binary Search)
+                    </h4>
+                    <p>在<strong>有序数组</strong>中高效查找目标值的算法。每次将查找范围缩小一半，时间复杂度为 O(log n)。是面试和实际应用中最常用的查找算法之一。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：入门</span>
+                        <span class="search-meta-item">📦 空间：O(1)</span>
+                        <span class="search-meta-item">🔑 关键：数组必须有序</span>
+                    </div>
+                    <div class="search-complexity">
+                        <h5>时间复杂度</h5>
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <span class="complexity-label">最好情况:</span>
+                                <span class="complexity-value">O(1)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">最坏情况:</span>
+                                <span class="complexity-value">O(log n)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">平均情况:</span>
+                                <span class="complexity-value">O(log n)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python"># 二分查找 - 迭代实现
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    
+    while left <= right:
+        mid = left + (right - left) // 2  # 防止溢出
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+
+# 二分查找 - 递归实现
+def binary_search_recursive(arr, target, left, right):
+    if left > right:
+        return -1
+    
+    mid = left + (right - left) // 2
+    if arr[mid] == target:
+        return mid
+    elif arr[mid] < target:
+        return binary_search_recursive(arr, target, mid + 1, right)
+    else:
+        return binary_search_recursive(arr, target, left, mid - 1)
+
+# 使用示例
+arr = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+result = binary_search(arr, 7)
+print(f"元素索引：{result}")  # 输出：3</code></pre>
+                    </details>
+                    <div class="search-complexity" style="margin-top: 1rem;">
+                        <h5>常见变体</h5>
+                        <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
+                            <li><strong>查找第一个等于目标值的位置</strong> - 当找到目标值时不立即返回，继续向左查找</li>
+                            <li><strong>查找最后一个等于目标值的位置</strong> - 当找到目标值时不立即返回，继续向右查找</li>
+                            <li><strong>查找第一个大于等于目标值的位置</strong> - 下界查找 (lower_bound)</li>
+                            <li><strong>查找第一个大于目标值的位置</strong> - 上界查找 (upper_bound)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 哈希表查找 -->
+            <div class="search-category">
+                <h3>哈希表查找</h3>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🗂️</span>
+                        哈希表 (Hash Table)
+                    </h4>
+                    <p>通过哈希函数将键映射到数组索引，实现<strong>平均 O(1)</strong>时间复杂度的查找。是解决查找问题的利器，广泛应用于缓存、数据库索引、集合去重等场景。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：入门</span>
+                        <span class="search-meta-item">📦 空间：O(n)</span>
+                        <span class="search-meta-item">⚡ 平均查找：O(1)</span>
+                    </div>
+                    <div class="search-complexity">
+                        <h5>时间复杂度</h5>
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <span class="complexity-label">最好情况:</span>
+                                <span class="complexity-value">O(1)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">最坏情况:</span>
+                                <span class="complexity-value">O(n)</span>
+                            </div>
+                            <div class="complexity-item">
+                                <span class="complexity-label">平均情况:</span>
+                                <span class="complexity-value">O(1)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python"># 哈希表查找示例
+def two_sum(nums, target):
+    """
+    两数之和问题 - 哈希表经典应用
+    在数组中找到两个数，使其和等于目标值
+    """
+    hash_map = {}  # 存储 {数值：索引}
+    
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in hash_map:
+            return [hash_map[complement], i]
+        hash_map[num] = i
+    
+    return []
+
+# 使用示例
+nums = [2, 7, 11, 15]
+target = 9
+result = two_sum(nums, target)
+print(f"索引：{result}")  # 输出：[0, 1]
+
+# 哈希表实现 - 开放地址法
+class HashTable:
+    def __init__(self, size=16):
+        self.size = size
+        self.table = [None] * size
+    
+    def _hash(self, key):
+        return hash(key) % self.size
+    
+    def _probe(self, index):
+        """线性探测解决冲突"""
+        return (index + 1) % self.size
+    
+    def insert(self, key, value):
+        index = self._hash(key)
+        while self.table[index] is not None:
+            if self.table[index][0] == key:
+                self.table[index] = (key, value)
+                return
+            index = self._probe(index)
+        self.table[index] = (key, value)
+    
+    def search(self, key):
+        index = self._hash(key)
+        start = index
+        while self.table[index] is not None:
+            if self.table[index][0] == key:
+                return self.table[index][1]
+            index = self._probe(index)
+            if index == start:
+                break
+        return None</code></pre>
+                    </details>
+                    <div class="search-complexity" style="margin-top: 1rem;">
+                        <h5>冲突解决方法</h5>
+                        <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
+                            <li><strong>链地址法 (Chaining)</strong> - 每个桶维护一个链表，冲突元素挂在链上</li>
+                            <li><strong>开放地址法 (Open Addressing)</strong> - 线性探测、二次探测、双重哈希</li>
+                            <li><strong>再哈希法 (Rehashing)</strong> - 使用多个哈希函数</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 双指针技巧 -->
+            <div class="search-category">
+                <h3>双指针技巧</h3>
+
+                <div class="search-card">
+                    <h4>
+                        <span>👆👇</span>
+                        双指针 (Two Pointers)
+                    </h4>
+                    <p>使用两个指针在数组或链表上移动，通过调整指针位置来缩小查找范围。常用于有序数组的查找、链表问题、滑动窗口等场景。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：入门</span>
+                        <span class="search-meta-item">📦 空间：O(1)</span>
+                        <span class="search-meta-item">⚡ 时间：O(n)</span>
+                    </div>
+                    <div class="search-complexity" style="margin-top: 1rem;">
+                        <h5>常见模式</h5>
+                        <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.8;">
+                            <li><strong>相向双指针</strong> - 两指针从两端向中间移动，如两数之和、三数之和</li>
+                            <li><strong>同向双指针</strong> - 快慢指针，如链表找中点、判断环</li>
+                            <li><strong>滑动窗口</strong> - 维护一个区间，如最长无重复子串</li>
+                        </ul>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python"># 相向双指针 - 两数之和 II (有序数组)
+def two_sum_sorted(numbers, target):
+    left, right = 0, len(numbers) - 1
+    
+    while left < right:
+        current_sum = numbers[left] + numbers[right]
+        if current_sum == target:
+            return [left + 1, right + 1]  # 索引从 1 开始
+        elif current_sum < target:
+            left += 1
+        else:
+            right -= 1
+    
+    return []
+
+# 快慢指针 - 判断链表是否有环
+def has_cycle(head):
+    slow = fast = head
+    
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    
+    return False
+
+# 快慢指针 - 找链表中点
+def find_middle(head):
+    slow = fast = head
+    
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    
+    return slow
+
+# 滑动窗口 - 最长无重复字符子串
+def length_of_longest_substring(s):
+    char_set = set()
+    left = 0
+    max_length = 0
+    
+    for right in range(len(s)):
+        while s[right] in char_set:
+            char_set.remove(s[left])
+            left += 1
+        char_set.add(s[right])
+        max_length = max(max_length, right - left + 1)
+    
+    return max_length
+
+# 使用示例
+numbers = [1, 2, 4, 6, 8, 10]
+result = two_sum_sorted(numbers, 8)
+print(f"索引：{result}")  # 输出：[1, 3] (2+6=8)</code></pre>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 搜索算法 -->
+            <div class="search-category">
+                <h3>搜索算法</h3>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🌊</span>
+                        广度优先搜索 (BFS)
+                    </h4>
+                    <p>从起始节点开始，逐层向外扩展搜索。使用<strong>队列</strong>实现，常用于找最短路径、层序遍历、连通性问题等。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(V)</span>
+                        <span class="search-meta-item">⚡ 时间：O(V+E)</span>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python">from collections import deque
+
+def bfs(graph, start, target):
+    """
+    BFS 模板 - 找最短路径
+    graph: 邻接表表示的图 {节点：[邻居列表]}
+    """
+    queue = deque([(start, 0)])  # (节点，距离)
+    visited = {start}
+    
+    while queue:
+        node, dist = queue.popleft()
+        if node == target:
+            return dist
+        
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, dist + 1))
+    
+    return -1  # 未找到
+
+# 使用示例 - 迷宫最短路径
+graph = {
+    0: [1, 2],
+    1: [0, 3, 4],
+    2: [0, 5],
+    3: [1],
+    4: [1, 5],
+    5: [2, 4]
+}
+result = bfs(graph, 0, 5)
+print(f"最短距离：{result}")  # 输出：2</code></pre>
+                    </details>
+                </div>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🌲</span>
+                        深度优先搜索 (DFS)
+                    </h4>
+                    <p>从起始节点开始，沿着一条路径深入到底，然后回溯。使用<strong>递归</strong>或<strong>栈</strong>实现，常用于遍历、连通性判断、拓扑排序等。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(V)</span>
+                        <span class="search-meta-item">⚡ 时间：O(V+E)</span>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python">def dfs(graph, node, visited=None):
+    """
+    DFS 模板 - 递归实现
+    """
+    if visited is None:
+        visited = set()
+    
+    visited.add(node)
+    print(node, end=' ')  # 访问节点
+    
+    for neighbor in graph.get(node, []):
+        if neighbor not in visited:
+            dfs(graph, neighbor, visited)
+    
+    return visited
+
+# DFS - 迭代实现 (使用栈)
+def dfs_iterative(graph, start):
+    visited = set()
+    stack = [start]
+    
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            print(node, end=' ')
+            # 逆序入栈，保证正序访问
+            stack.extend(reversed(graph.get(node, [])))
+    
+    return visited
+
+# 使用示例
+graph = {
+    0: [1, 2],
+    1: [0, 3, 4],
+    2: [0, 5],
+    3: [1],
+    4: [1, 5],
+    5: [2, 4]
+}
+print("DFS 遍历:")
+dfs(graph, 0)  # 输出：0 1 3 4 5 2</code></pre>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 其他查找技巧 -->
+            <div class="search-category">
+                <h3>其他查找技巧</h3>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🌳</span>
+                        树形查找 (BST Search)
+                    </h4>
+                    <p>利用二叉搜索树的性质进行查找，左子树所有节点小于根节点，右子树所有节点大于根节点。平均时间复杂度 O(log n)。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(h)</span>
+                        <span class="search-meta-item">⚡ 平均：O(log n)</span>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python">class TreeNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+
+# BST 查找 - 递归
+def search_bst(root, target):
+    if not root:
+        return None
+    if root.val == target:
+        return root
+    elif root.val < target:
+        return search_bst(root.right, target)
+    else:
+        return search_bst(root.left, target)
+
+# BST 查找 - 迭代
+def search_bst_iterative(root, target):
+    current = root
+    while current:
+        if current.val == target:
+            return current
+        elif current.val < target:
+            current = current.right
+        else:
+            current = current.left
+    return None</code></pre>
+                    </details>
+                </div>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🔢</span>
+                        分块查找 (Block Search)
+                    </h4>
+                    <p>将数组分成若干块，块内元素无序，但块间有序。先确定目标在哪一块，再在块内进行顺序查找。是顺序查找和二分查找的折中方案。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：进阶</span>
+                        <span class="search-meta-item">📦 空间：O(√n)</span>
+                        <span class="search-meta-item">⚡ 时间：O(√n)</span>
+                    </div>
+                </div>
+
+                <div class="search-card">
+                    <h4>
+                        <span>🎲</span>
+                        插值查找 (Interpolation Search)
+                    </h4>
+                    <p>二分查找的改进版，根据目标值自适应地选择分割点。适用于<strong>均匀分布的有序数组</strong>，平均时间复杂度可达 O(log log n)。</p>
+                    <div class="search-meta">
+                        <span class="search-meta-item">⭐ 难度：高级</span>
+                        <span class="search-meta-item">📦 空间：O(1)</span>
+                        <span class="search-meta-item">⚡ 平均：O(log log n)</span>
+                    </div>
+                    <details class="code-example">
+                        <summary>查看代码示例</summary>
+                        <pre><code class="language-python"># 插值查找
+def interpolation_search(arr, target):
+    left, right = 0, len(arr) - 1
+    
+    while left <= right and arr[left] <= target <= arr[right]:
+        if left == right:
+            return left if arr[left] == target else -1
+        
+        # 自适应计算 mid 位置
+        mid = left + int((target - arr[left]) * (right - left) / 
+                        (arr[right] - arr[left]))
+        
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+
+# 使用示例 - 均匀分布数组
+arr = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+result = interpolation_search(arr, 60)
+print(f"索引：{result}")  # 输出：5</code></pre>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 算法对比图 -->
+            <div class="search-category">
+                <h3>查找算法对比</h3>
+                <div class="search-card">
+                    <div class="mermaid">
+graph LR
+    subgraph 无序数据 ["📦 无序数据"]
+        A[顺序查找 O(n)] 
+        B[哈希表 O(1)*]
+    end
+
+    subgraph 有序数据 ["📊 有序数据"]
+        C[二分查找 O(log n)]
+        D[插值查找 O(log log n)]
+        E[树形查找 O(log n)]
+    end
+
+    subgraph 特殊结构 ["🔗 特殊结构"]
+        F[双指针 O(n)]
+        G[BFS/DFS O(V+E)]
+    end
+
+    style 无序数据 fill:#e6f3ff
+    style 有序数据 fill:#fff3e6
+    style 特殊结构 fill:#e6ffe6
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="search-footer">
+        <p>© 2026 AlgoGuide. 掌握算法之美，成就编程梦想。</p>
+    </footer>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-javascript.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>
