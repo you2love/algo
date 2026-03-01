@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
     <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
 
-    <script src="../lib/mermaid/mermaid.min.js"></script>
-    <script src="../lib/mermaid/mermaid-config.js"></script>
-
     <style>
         /* 页面头部样式 */
         .search-hero {
@@ -400,6 +397,116 @@
         .search-footer p {
             margin: 0;
             font-size: 0.9rem;
+        }
+
+        /* 算法对比图表 */
+        .algorithm-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .comparison-group {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .comparison-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-group:nth-child(1) {
+            border-color: #667eea;
+        }
+
+        .comparison-group:nth-child(2) {
+            border-color: #f59e0b;
+        }
+
+        .comparison-group:nth-child(3) {
+            border-color: #10b981;
+        }
+
+        .comparison-group-header {
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .comparison-group:nth-child(1) .comparison-group-header {
+            background: linear-gradient(135deg, #e6f3ff 0%, #dbeafe 100%);
+            color: #1e40af;
+        }
+
+        .comparison-group:nth-child(2) .comparison-group-header {
+            background: linear-gradient(135deg, #fff3e6 0%, #fef3c7 100%);
+            color: #92400e;
+        }
+
+        .comparison-group:nth-child(3) .comparison-group-header {
+            background: linear-gradient(135deg, #e6ffe6 0%, #d1fae5 100%);
+            color: #065f46;
+        }
+
+        .dark-mode .comparison-group:nth-child(1) .comparison-group-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+            color: #dbeafe;
+        }
+
+        .dark-mode .comparison-group:nth-child(2) .comparison-group-header {
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            color: #fef3c7;
+        }
+
+        .dark-mode .comparison-group:nth-child(3) .comparison-group-header {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            color: #d1fae5;
+        }
+
+        .comparison-items {
+            padding: 1rem;
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-name {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .item-complexity {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-family: 'Monaco', 'Consolas', monospace;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .algorithm-comparison {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -959,27 +1066,50 @@ print(f"索引：{result}")  # 输出：5</code></pre>
             <div class="search-category">
                 <h3>查找算法对比</h3>
                 <div class="search-card">
-                    <div class="mermaid">
-graph LR
-    subgraph 无序数据 ["📦 无序数据"]
-        A[顺序查找 O(n)]
-        B[哈希表 O(1)]
-    end
-
-    subgraph 有序数据 ["📊 有序数据"]
-        C[二分查找 O(log n)]
-        D[插值查找 O(log log n)]
-        E[树形查找 O(log n)]
-    end
-
-    subgraph 特殊结构 ["🔗 特殊结构"]
-        F[双指针 O(n)]
-        G[BFS DFS O(V+E)]
-    end
-
-    style 无序数据 fill:#e6f3ff
-    style 有序数据 fill:#fff3e6
-    style 特殊结构 fill:#e6ffe6
+                    <div class="algorithm-comparison">
+                        <div class="comparison-group">
+                            <div class="comparison-group-header">📦 无序数据</div>
+                            <div class="comparison-items">
+                                <div class="comparison-item">
+                                    <span class="item-name">顺序查找</span>
+                                    <span class="item-complexity">O(n)</span>
+                                </div>
+                                <div class="comparison-item">
+                                    <span class="item-name">哈希表</span>
+                                    <span class="item-complexity">O(1)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-group">
+                            <div class="comparison-group-header">📊 有序数据</div>
+                            <div class="comparison-items">
+                                <div class="comparison-item">
+                                    <span class="item-name">二分查找</span>
+                                    <span class="item-complexity">O(log n)</span>
+                                </div>
+                                <div class="comparison-item">
+                                    <span class="item-name">插值查找</span>
+                                    <span class="item-complexity">O(log log n)</span>
+                                </div>
+                                <div class="comparison-item">
+                                    <span class="item-name">树形查找</span>
+                                    <span class="item-complexity">O(log n)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-group">
+                            <div class="comparison-group-header">🔗 特殊结构</div>
+                            <div class="comparison-items">
+                                <div class="comparison-item">
+                                    <span class="item-name">双指针</span>
+                                    <span class="item-complexity">O(n)</span>
+                                </div>
+                                <div class="comparison-item">
+                                    <span class="item-name">BFS/DFS</span>
+                                    <span class="item-complexity">O(V+E)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
