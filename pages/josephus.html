@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>约瑟夫环 - 算法学习指南 2026</title>
+    <meta name="description" content="约瑟夫环问题详解，包括数学推导、递归解法、循环链表实现及实际应用场景">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <script src="../lib/mermaid/mermaid.min.js"></script>
+    <script src="../lib/mermaid/mermaid-config.js"></script>
+    <style>
+        .josephus-container {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 32px 0;
+            color: white;
+        }
+
+        .josephus-canvas {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .josephus-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .josephus-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .josephus-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .josephus-controls button.primary {
+            background: white;
+            color: #2d3748;
+        }
+
+        .josephus-inputs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .josephus-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .josephus-input-group label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .josephus-inputs input {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            width: 120px;
+        }
+
+        .josephus-inputs input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .person-circle {
+            fill: #4a5568;
+            stroke: #667eea;
+            stroke-width: 3;
+            transition: all 0.3s ease;
+        }
+
+        .person-circle.current {
+            fill: #f56565;
+            stroke: #fc8181;
+            animation: pulse 1s infinite;
+        }
+
+        .person-circle.removed {
+            fill: #2d3748;
+            stroke: #718096;
+            opacity: 0.5;
+        }
+
+        .person-circle.survivor {
+            fill: #48bb78;
+            stroke: #68d391;
+            animation: celebrate 0.5s ease;
+        }
+
+        .person-text {
+            fill: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .elimination-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .elimination-log-item {
+            padding: 4px 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .elimination-log-item.removed {
+            color: #fc8181;
+        }
+
+        .elimination-log-item.survivor {
+            color: #68d391;
+            font-weight: 700;
+        }
+
+        .formula-box {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 32px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .formula-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .formula-content {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .recursive-tree {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin: 32px 0;
+            overflow-x: auto;
+        }
+
+        .tree-node {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 8px;
+            border-radius: 8px;
+            background: rgba(102, 126, 234, 0.2);
+            border: 2px solid #667eea;
+            color: #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tree-node.result {
+            background: rgba(72, 187, 120, 0.2);
+            border-color: #48bb78;
+        }
+
+        .application-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .application-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border-left: 4px solid var(--primary-color);
+            transition: all var(--transition-base);
+        }
+
+        .application-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .application-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .application-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .step-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .step-badge.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .step-badge.completed {
+            background: var(--success-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">AlgoGuide 2026</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="algorithm-detail">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="../index.html#algorithms">算法分类</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>约瑟夫环</span>
+            </div>
+
+            <h1 class="page-title">约瑟夫环问题</h1>
+            <p class="page-description">经典的数学与计算机科学问题，揭示递归思维与循环结构的奥秘</p>
+
+            <div class="detail-layout">
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#intro">1. 问题描述</a></li>
+                        <li><a href="#history">2. 历史背景</a></li>
+                        <li><a href="#math">3. 数学推导</a></li>
+                        <li><a href="#simulation">4. 可视化演示</a></li>
+                        <li><a href="#implementation">5. 代码实现</a></li>
+                        <li><a href="#applications">6. 实际应用</a></li>
+                    </ul>
+                </aside>
+
+                <div class="main-content">
+                    <section id="intro">
+                        <h2>问题描述</h2>
+                        <p><strong>约瑟夫环（Josephus Problem）</strong>是一个经典的数学和计算机科学问题。问题描述如下：</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title"><span>📋</span> 问题定义</div>
+                            <div class="info-card-content">
+                                <p>n 个人围成一个圆圈，从第 1 个人开始报数，每次数到 m 的人出列，然后从下一个人重新开始报数。如此循环，直到只剩下一个人为止。求最后剩下的人在原始圆圈中的位置。</p>
+                            </div>
+                        </div>
+
+                        <p>例如，当 n=5, m=2 时：</p>
+                        <ul>
+                            <li>初始：[1, 2, 3, 4, 5] 围成一圈</li>
+                            <li>第 1 轮：数到 2，2 号出列 → [1, 3, 4, 5]</li>
+                            <li>第 2 轮：从 3 开始数，数到 4，4 号出列 → [1, 3, 5]</li>
+                            <li>第 3 轮：从 5 开始数，数到 1，1 号出列 → [3, 5]</li>
+                            <li>第 4 轮：从 3 开始数，数到 5，5 号出列 → [3]</li>
+                            <li><strong>幸存者：3 号</strong></li>
+                        </ul>
+
+                        <div class="complexity-grid">
+                            <div class="complexity-item">
+                                <div class="complexity-label">暴力模拟</div>
+                                <div class="complexity-value">O(n²)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">递归解法</div>
+                                <div class="complexity-value">O(n)</div>
+                            </div>
+                            <div class="complexity-item">
+                                <div class="complexity-label">数学公式</div>
+                                <div class="complexity-value">O(n)</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="history">
+                        <h2>历史背景</h2>
+                        <p>约瑟夫环问题得名于犹太历史学家 <strong>弗拉维奥·约瑟夫斯（Flavius Josephus）</strong>。根据传说，在公元 1 世纪的犹太 - 罗马战争期间，约瑟夫斯和他的 40 名战友被罗马军队包围在一个山洞中。</p>
+
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker">1</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">宁死不屈的誓言</div>
+                                    <div class="timeline-description">战友们宁愿自杀也不愿被罗马人俘虏，于是决定围成一圈，从某个人开始报数，每数到 3 就自杀，直到只剩一人</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker">2</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">约瑟夫斯的计算</div>
+                                    <div class="timeline-description">约瑟夫斯通过快速计算，找到了幸存者的位置（第 31 位），成功活了下来并最终投降罗马人</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker">3</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">数学问题的诞生</div>
+                                    <div class="timeline-description">这个问题后来被数学家们研究，形成了经典的约瑟夫环问题，成为递归和循环结构的经典案例</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="math">
+                        <h2>数学推导与递归公式</h2>
+                        <p>约瑟夫环问题有一个优雅的递归解法。我们用 <code>J(n, m)</code> 表示 n 个人、步长为 m 时幸存者的位置（从 0 开始编号）。</p>
+
+                        <div class="formula-box">
+                            <div class="formula-title"><span>🧮</span> 递归公式</div>
+                            <div class="formula-content">
+                                <p><strong>基础情况：</strong></p>
+                                <p style="text-align: center; font-size: 1.4rem; margin: 16px 0;">
+                                    J(1, m) = 0
+                                </p>
+                                <p><strong>递归关系：</strong></p>
+                                <p style="text-align: center; font-size: 1.4rem; margin: 16px 0;">
+                                    J(n, m) = (J(n-1, m) + m) mod n
+                                </p>
+                                <p style="color: var(--text-muted); font-size: 1rem;">
+                                    <strong>推导思路：</strong>当第一个人出列后，问题转化为 n-1 个人的约瑟夫环问题。由于编号发生了偏移，需要通过加 m 再取模来映射回原始编号。
+                                </p>
+                            </div>
+                        </div>
+
+                        <h3>递归调用树示例 (n=5, m=2)</h3>
+                        <div class="recursive-tree">
+                            <div style="text-align: center;">
+                                <div class="tree-node">J(5,2)</div><br>
+                                ↓<br>
+                                <div class="tree-node">(J(4,2)+2)%5</div><br>
+                                ↓<br>
+                                <div class="tree-node">((J(3,2)+2)%4+2)%5</div><br>
+                                ↓<br>
+                                <div class="tree-node">(((J(2,2)+2)%3+2)%4+2)%5</div><br>
+                                ↓<br>
+                                <div class="tree-node">((((J(1,2)+2)%2+2)%3+2)%4+2)%5</div><br>
+                                ↓<br>
+                                <div class="tree-node result">J(1,2) = 0</div><br>
+                                <hr style="border-color: rgba(255,255,255,0.2); margin: 16px 0;"><br>
+                                <div class="tree-node result">J(2,2) = (0+2)%2 = 0</div><br>
+                                ↓<br>
+                                <div class="tree-node result">J(3,2) = (0+2)%3 = 2</div><br>
+                                ↓<br>
+                                <div class="tree-node result">J(4,2) = (2+2)%4 = 0</div><br>
+                                ↓<br>
+                                <div class="tree-node result">J(5,2) = (0+2)%5 = 2</div><br>
+                                <p style="margin-top: 16px; color: #48bb78; font-size: 1.2rem;">
+                                    <strong>幸存者位置：2（从 0 开始），即第 3 个人</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="info-card warning">
+                            <div class="info-card-title"><span>⚠️</span> 注意：编号方式</div>
+                            <div class="info-card-content">
+                                <p>上述公式使用 <strong>从 0 开始</strong> 的编号（0, 1, 2, ..., n-1）。如果使用从 1 开始的编号（1, 2, 3, ..., n），最终结果需要加 1。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="simulation">
+                        <h2>可视化演示</h2>
+                        <p>通过下面的交互式演示，观察约瑟夫环的消除过程：</p>
+
+                        <div class="josephus-container">
+                            <h3 style="margin-bottom: 20px;">约瑟夫环模拟器</h3>
+                            
+                            <div class="josephus-inputs">
+                                <div class="josephus-input-group">
+                                    <label for="num-people">人数 (n)</label>
+                                    <input type="number" id="num-people" value="7" min="1" max="20">
+                                </div>
+                                <div class="josephus-input-group">
+                                    <label for="step-count">步长 (m)</label>
+                                    <input type="number" id="step-count" value="3" min="1" max="10">
+                                </div>
+                                <div class="josephus-input-group">
+                                    <label for="speed">速度</label>
+                                    <input type="range" id="speed" value="500" min="100" max="1000" step="100" style="width: 100px;">
+                                </div>
+                            </div>
+
+                            <div id="josephus-canvas" class="josephus-canvas">
+                                <svg id="josephus-svg" width="500" height="400"></svg>
+                            </div>
+
+                            <div class="josephus-controls">
+                                <button class="primary" onclick="startSimulation()">开始模拟</button>
+                                <button onclick="stepSimulation()">单步执行</button>
+                                <button onclick="resetSimulation()">重置</button>
+                                <button onclick="showMathSolution()">显示数学解</button>
+                            </div>
+
+                            <div class="step-indicator" id="step-indicator"></div>
+
+                            <div id="elimination-log" class="elimination-log">
+                                <div style="color: rgba(255,255,255,0.5);">消除记录将显示在这里...</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="implementation">
+                        <h2>代码实现</h2>
+
+                        <div class="code-tabs">
+                            <div class="code-tab-header">
+                                <button class="code-tab-btn active" data-tab="josephus-js">JavaScript</button>
+                                <button class="code-tab-btn" data-tab="josephus-python">Python</button>
+                                <button class="code-tab-btn" data-tab="josephus-go">Go</button>
+                                <button class="code-tab-btn" data-tab="josephus-cpp">C++</button>
+                            </div>
+
+                            <div id="josephus-js" class="code-tab-content active">
+                                <div class="code-block line-numbers"><pre><code class="language-javascript">// 方法 1: 递归解法（从 0 开始编号）
+function josephusRecursive(n, m) {
+    if (n === 1) {
+        return 0;
+    }
+    return (josephusRecursive(n - 1, m) + m) % n;
+}
+
+// 方法 2: 迭代解法（空间优化）
+function josephusIterative(n, m) {
+    let survivor = 0; // J(1, m) = 0
+    for (let i = 2; i <= n; i++) {
+        survivor = (survivor + m) % i;
+    }
+    return survivor;
+}
+
+// 方法 3: 循环链表模拟
+function josephusSimulation(n, m) {
+    // 创建人员数组（从 1 开始编号）
+    const people = Array.from({ length: n }, (_, i) => i + 1);
+    let index = 0;
+    const eliminationOrder = [];
+
+    while (people.length > 1) {
+        // 计算要消除的位置
+        index = (index + m - 1) % people.length;
+        eliminationOrder.push(people[index]);
+        people.splice(index, 1);
+    }
+
+    return {
+        survivor: people[0],
+        eliminationOrder
+    };
+}
+
+// 使用示例
+const n = 5, m = 2;
+console.log(`递归解法：幸存者位置 = ${josephusRecursive(n, m) + 1}`);
+console.log(`迭代解法：幸存者位置 = ${josephusIterative(n, m) + 1}`);
+console.log(`模拟结果：`, josephusSimulation(n, m));</code></pre></div>
+                            </div>
+
+                            <div id="josephus-python" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-python"># 方法 1: 递归解法（从 0 开始编号）
+def josephus_recursive(n: int, m: int) -> int:
+    if n == 1:
+        return 0
+    return (josephus_recursive(n - 1, m) + m) % n
+
+# 方法 2: 迭代解法（空间优化）
+def josephus_iterative(n: int, m: int) -> int:
+    survivor = 0  # J(1, m) = 0
+    for i in range(2, n + 1):
+        survivor = (survivor + m) % i
+    return survivor
+
+# 方法 3: 循环链表模拟
+def josephus_simulation(n: int, m: int) -> dict:
+    people = list(range(1, n + 1))  # 从 1 开始编号
+    index = 0
+    elimination_order = []
+
+    while len(people) > 1:
+        # 计算要消除的位置
+        index = (index + m - 1) % len(people)
+        elimination_order.append(people[index])
+        people.pop(index)
+
+    return {
+        'survivor': people[0],
+        'elimination_order': elimination_order
+    }
+
+# 使用示例
+if __name__ == "__main__":
+    n, m = 5, 2
+    print(f"递归解法：幸存者位置 = {josephus_recursive(n, m) + 1}")
+    print(f"迭代解法：幸存者位置 = {josephus_iterative(n, m) + 1}")
+    print(f"模拟结果：{josephus_simulation(n, m)}")</code></pre></div>
+                            </div>
+
+                            <div id="josephus-go" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-go">package main
+
+import "fmt"
+
+// 方法 1: 递归解法（从 0 开始编号）
+func josephusRecursive(n, m int) int {
+    if n == 1 {
+        return 0
+    }
+    return (josephusRecursive(n-1, m) + m) % n
+}
+
+// 方法 2: 迭代解法（空间优化）
+func josephusIterative(n, m int) int {
+    survivor := 0 // J(1, m) = 0
+    for i := 2; i <= n; i++ {
+        survivor = (survivor + m) % i
+    }
+    return survivor
+}
+
+// 方法 3: 循环链表模拟
+type Node struct {
+    val  int
+    next *Node
+}
+
+func josephusSimulation(n, m int) (int, []int) {
+    // 创建循环链表
+    head := &Node{val: 1}
+    prev := head
+    for i := 2; i <= n; i++ {
+        node := &Node{val: i}
+        prev.next = node
+        prev = node
+    }
+    prev.next = head // 形成环
+
+    // 模拟消除过程
+    eliminationOrder := []int{}
+    current := head
+    for n > 1 {
+        // 找到第 m-1 个节点
+        for i := 1; i < m-1; i++ {
+            current = current.next
+        }
+        // 移除第 m 个节点
+        eliminated := current.next
+        eliminationOrder = append(eliminationOrder, eliminated.val)
+        current.next = eliminated.next
+        current = current.next
+        n--
+    }
+
+    return current.val, eliminationOrder
+}
+
+func main() {
+    n, m := 5, 2
+    fmt.Printf("递归解法：幸存者位置 = %d\n", josephusRecursive(n, m)+1)
+    fmt.Printf("迭代解法：幸存者位置 = %d\n", josephusIterative(n, m)+1)
+    survivor, order := josephusSimulation(n, m)
+    fmt.Printf("模拟结果：幸存者=%d, 消除顺序=%v\n", survivor, order)
+}</code></pre></div>
+                            </div>
+
+                            <div id="josephus-cpp" class="code-tab-content">
+                                <div class="code-block line-numbers"><pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;list&gt;
+using namespace std;
+
+// 方法 1: 递归解法（从 0 开始编号）
+int josephusRecursive(int n, int m) {
+    if (n == 1) {
+        return 0;
+    }
+    return (josephusRecursive(n - 1, m) + m) % n;
+}
+
+// 方法 2: 迭代解法（空间优化）
+int josephusIterative(int n, int m) {
+    int survivor = 0; // J(1, m) = 0
+    for (int i = 2; i <= n; i++) {
+        survivor = (survivor + m) % i;
+    }
+    return survivor;
+}
+
+// 方法 3: 使用 list 模拟
+pair&lt;int, vector&lt;int&gt;&gt; josephusSimulation(int n, int m) {
+    list&lt;int&gt; people;
+    for (int i = 1; i <= n; i++) {
+        people.push_back(i);
+    }
+
+    vector&lt;int&gt; eliminationOrder;
+    auto it = people.begin();
+
+    while (people.size() > 1) {
+        // 移动 m-1 步
+        for (int i = 1; i &lt; m; i++) {
+            it++;
+            if (it == people.end()) {
+                it = people.begin();
+            }
+        }
+        eliminationOrder.push_back(*it);
+        it = people.erase(it);
+        if (it == people.end()) {
+            it = people.begin();
+        }
+    }
+
+    return {people.front(), eliminationOrder};
+}
+
+int main() {
+    int n = 5, m = 2;
+    cout &lt;&lt; "递归解法：幸存者位置 = " &lt;&lt; josephusRecursive(n, m) + 1 &lt;&lt; endl;
+    cout &lt;&lt; "迭代解法：幸存者位置 = " &lt;&lt; josephusIterative(n, m) + 1 &lt;&lt; endl;
+    
+    auto [survivor, order] = josephusSimulation(n, m);
+    cout &lt;&lt; "模拟结果：幸存者=" &lt;&lt; survivor &lt;&lt; ", 消除顺序=[";
+    for (size_t i = 0; i &lt; order.size(); i++) {
+        cout &lt;&lt; order[i] &lt;&lt; (i &lt; order.size() - 1 ? ", " : "");
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+    
+    return 0;
+}</code></pre></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="applications">
+                        <h2>实际应用场景</h2>
+                        <p>约瑟夫环问题不仅是一个经典的数学问题，在计算机科学和现实生活中也有广泛的应用：</p>
+
+                        <div class="application-grid">
+                            <div class="application-card">
+                                <h4><span>🖥️</span> 操作系统调度</h4>
+                                <p>在操作系统的进程调度中，轮转调度算法（Round Robin）与约瑟夫环类似。当需要按顺序淘汰或选择进程时，约瑟夫环的数学模型可以提供高效的解决方案。</p>
+                            </div>
+                            <div class="application-card">
+                                <h4><span>🎮</span> 游戏设计</h4>
+                                <p>在多人在线游戏中，当需要按规则淘汰玩家（如狼人杀、Among Us 等社交推理游戏），约瑟夫环算法可以用于设计公平的淘汰机制和确定获胜者。</p>
+                            </div>
+                            <div class="application-card">
+                                <h4><span>📡</span> 网络协议</h4>
+                                <p>在令牌环网络（Token Ring）中，当某个节点失效时，需要重新选择协调节点。约瑟夫环的数学模型可以帮助设计高效的节点选择和故障恢复机制。</p>
+                            </div>
+                            <div class="application-card">
+                                <h4><span>🔐</span> 密码学</h4>
+                                <p>某些加密算法和密钥分发协议使用约瑟夫环的变体来生成伪随机序列，增加加密的安全性。</p>
+                            </div>
+                            <div class="application-card">
+                                <h4><span>📊</span> 数据结构教学</h4>
+                                <p>约瑟夫环是教授循环链表、队列、递归等数据结构和算法概念的经典案例，帮助学生理解抽象的计算机科学概念。</p>
+                            </div>
+                            <div class="application-card">
+                                <h4><span>🎯</span> 竞赛算法</h4>
+                                <p>在 ACM、ICPC 等编程竞赛中，约瑟夫环及其变种是常见题目，考察选手的数学推导能力和算法优化技巧。</p>
+                            </div>
+                        </div>
+
+                        <h3>算法复杂度对比</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>方法</th>
+                                    <th>时间复杂度</th>
+                                    <th>空间复杂度</th>
+                                    <th>优点</th>
+                                    <th>缺点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>暴力模拟</strong></td>
+                                    <td>O(n²)</td>
+                                    <td>O(n)</td>
+                                    <td>直观易懂，可记录消除顺序</td>
+                                    <td>效率低，不适合大规模数据</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>循环链表</strong></td>
+                                    <td>O(n×m)</td>
+                                    <td>O(n)</td>
+                                    <td>结构清晰，适合可视化</td>
+                                    <td>m 较大时效率低</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>递归解法</strong></td>
+                                    <td>O(n)</td>
+                                    <td>O(n)</td>
+                                    <td>代码简洁，数学优雅</td>
+                                    <td>递归深度大时可能栈溢出</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>迭代解法</strong></td>
+                                    <td>O(n)</td>
+                                    <td>O(1)</td>
+                                    <td>最优解，无递归开销</td>
+                                    <td>无法记录消除顺序</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-python.min.js"></script>
+    <script src="../lib/prism/prism-go.min.js"></script>
+    <script src="../lib/prism/prism-cpp.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+
+    <script>
+        let people = [];
+        let currentIndex = 0;
+        let eliminationOrder = [];
+        let isRunning = false;
+        let animationId = null;
+        let speed = 500;
+
+        function initPeople(n) {
+            people = Array.from({ length: n }, (_, i) => ({
+                id: i + 1,
+                angle: (2 * Math.PI * i) / n - Math.PI / 2,
+                removed: false
+            }));
+        }
+
+        function drawCircle() {
+            const svg = document.getElementById('josephus-svg');
+            const centerX = 250;
+            const centerY = 200;
+            const radius = 150;
+
+            svg.innerHTML = '';
+
+            // 绘制圆圈
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', centerX);
+            circle.setAttribute('cy', centerY);
+            circle.setAttribute('r', radius);
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
+            circle.setAttribute('stroke-width', '2');
+            circle.setAttribute('stroke-dasharray', '5, 5');
+            svg.appendChild(circle);
+
+            // 绘制人员
+            people.forEach((person, index) => {
+                const x = centerX + radius * Math.cos(person.angle);
+                const y = centerY + radius * Math.sin(person.angle);
+
+                // 绘制连线
+                if (index > 0 && !people[index - 1].removed) {
+                    const prevX = centerX + radius * Math.cos(people[index - 1].angle);
+                    const prevY = centerY + radius * Math.sin(people[index - 1].angle);
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', prevX);
+                    line.setAttribute('y1', prevY);
+                    line.setAttribute('x2', x);
+                    line.setAttribute('y2', y);
+                    line.setAttribute('stroke', 'rgba(102, 126, 234, 0.5)');
+                    line.setAttribute('stroke-width', '2');
+                    svg.insertBefore(line, circle);
+                }
+
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                const circleEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circleEl.setAttribute('cx', x);
+                circleEl.setAttribute('cy', y);
+                circleEl.setAttribute('r', '25');
+                circleEl.setAttribute('class', `person-circle ${person.removed ? 'removed' : ''} ${index === currentIndex ? 'current' : ''}`);
+                g.appendChild(circleEl);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('class', 'person-text');
+                text.textContent = person.id;
+                g.appendChild(text);
+
+                svg.appendChild(g);
+            });
+        }
+
+        function updateLog() {
+            const logEl = document.getElementById('elimination-log');
+            if (eliminationOrder.length === 0) {
+                logEl.innerHTML = '<div style="color: rgba(255,255,255,0.5);">消除记录将显示在这里...</div>';
+                return;
+            }
+
+            let html = '';
+            eliminationOrder.forEach((item, index) => {
+                html += `<div class="elimination-log-item ${item.survivor ? 'survivor' : 'removed'}">
+                    第${index + 1}轮：${item.survivor ? '★ 幸存者：' + item.person : '消除 ' + item.person}
+                </div>`;
+            });
+            logEl.innerHTML = html;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStepIndicator(totalSteps) {
+            const indicator = document.getElementById('step-indicator');
+            if (eliminationOrder.length === 0) {
+                indicator.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i <= totalSteps; i++) {
+                let className = 'step-badge';
+                if (i < eliminationOrder.length && !eliminationOrder[i].survivor) {
+                    className += ' completed';
+                } else if (i === eliminationOrder.length) {
+                    className += ' active';
+                }
+                html += `<span class="${className}">${i === totalSteps ? '结果' : '第' + (i + 1) + '轮'}</span>`;
+            }
+            indicator.innerHTML = html;
+        }
+
+        function stepSimulation() {
+            if (people.filter(p => !p.removed).length <= 1) {
+                isRunning = false;
+                return;
+            }
+
+            const activePeople = people.filter(p => !p.removed);
+            if (activePeople.length === 1) {
+                // 找到幸存者
+                const survivor = people.find(p => !p.removed);
+                eliminationOrder.push({ person: survivor.id, survivor: true });
+                updateLog();
+                
+                // 标记幸存者
+                const survivorIndex = people.indexOf(survivor);
+                currentIndex = survivorIndex;
+                drawCircle();
+                
+                isRunning = false;
+                return;
+            }
+
+            const m = parseInt(document.getElementById('step-count').value);
+            let count = 0;
+            
+            while (count < m) {
+                if (!people[currentIndex].removed) {
+                    count++;
+                }
+                if (count < m) {
+                    currentIndex = (currentIndex + 1) % people.length;
+                }
+            }
+
+            // 消除当前人
+            const eliminated = people[currentIndex];
+            eliminated.removed = true;
+            eliminationOrder.push({ person: eliminated.id, survivor: false });
+            
+            // 移动到下一个
+            do {
+                currentIndex = (currentIndex + 1) % people.length;
+            } while (people[currentIndex].removed && people.filter(p => !p.removed).length > 1);
+
+            drawCircle();
+            updateLog();
+            updateStepIndicator(people.length);
+        }
+
+        function startSimulation() {
+            if (isRunning) return;
+            
+            const n = parseInt(document.getElementById('num-people').value);
+            const m = parseInt(document.getElementById('step-count').value);
+            speed = parseInt(document.getElementById('speed').value);
+
+            if (n < 1 || n > 20) {
+                alert('人数必须在 1-20 之间');
+                return;
+            }
+
+            if (isRunning === false && eliminationOrder.length === 0) {
+                initPeople(n);
+                drawCircle();
+            }
+
+            isRunning = true;
+            
+            function animate() {
+                if (!isRunning) return;
+                
+                stepSimulation();
+                
+                if (people.filter(p => !p.removed).length > 1) {
+                    animationId = setTimeout(animate, speed);
+                } else {
+                    isRunning = false;
+                }
+            }
+            
+            animate();
+        }
+
+        function resetSimulation() {
+            isRunning = false;
+            if (animationId) {
+                clearTimeout(animationId);
+            }
+            const n = parseInt(document.getElementById('num-people').value);
+            initPeople(n);
+            currentIndex = 0;
+            eliminationOrder = [];
+            drawCircle();
+            updateLog();
+            updateStepIndicator(n);
+        }
+
+        function showMathSolution() {
+            const n = parseInt(document.getElementById('num-people').value);
+            const m = parseInt(document.getElementById('step-count').value);
+            
+            // 迭代解法（从 0 开始）
+            let survivor = 0;
+            for (let i = 2; i <= n; i++) {
+                survivor = (survivor + m) % i;
+            }
+            
+            alert(`数学解法结果：\n\nJ(${n}, ${m}) = ${survivor + 1}\n\n计算过程：\n从 J(1)=0 开始迭代\nJ(i) = (J(i-1) + m) % i`);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            resetSimulation();
+        });
+
+        // 代码标签切换
+        document.querySelectorAll('.code-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.code-tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
