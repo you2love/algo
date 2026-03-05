@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常用算法思维 - 算法学习指南</title>
+    <meta name="description" content="掌握核心算法思维方式：递归、分治、贪心、动态规划、回溯、滑动窗口等，提升编程问题解决能力">
+
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/modern-style.css">
+    <link rel="stylesheet" href="../lib/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="../lib/prism/prism-line-numbers.min.css">
+
+    <script src="../lib/mermaid/mermaid.min.js"></script>
+    <script src="../lib/mermaid/mermaid-config.js"></script>
+    <style>
+        .thinking-methods-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .thinking-method-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: 28px;
+            border-left: 5px solid var(--primary-color);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .thinking-method-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .thinking-method-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .thinking-method-card.recursion { border-left-color: #667eea; }
+        .thinking-method-card.divide-conquer { border-left-color: #48bb78; }
+        .thinking-method-card.greedy { border-left-color: #ed8936; }
+        .thinking-method-card.dp { border-left-color: #e53e3e; }
+        .thinking-method-card.backtrack { border-left-color: #805ad5; }
+        .thinking-method-card.sliding-window { border-left-color: #319795; }
+        .thinking-method-card.two-pointers { border-left-color: #d69e2e; }
+        .thinking-method-card.binary-search { border-left-color: #e53e3e; }
+        .thinking-method-card.dfs-bfs { border-left-color: #38a169; }
+        .thinking-method-card.manacher { border-left-color: #805ad5; }
+        .thinking-method-card.kmp { border-left-color: #d69e2e; }
+        .thinking-method-card.union-find { border-left-color: #319795; }
+
+        .thinking-method-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .thinking-method-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .thinking-method-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .thinking-method-desc {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .thinking-method-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .thinking-method-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .thinking-method-section ul {
+            padding-left: 20px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .thinking-method-section li {
+            margin-bottom: 6px;
+        }
+
+        .core-concept-box {
+            background: var(--code-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .core-concept-box code {
+            color: #48bb78;
+        }
+
+        .comparison-framework {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 40px 0;
+        }
+
+        .comparison-framework h3 {
+            color: var(--primary-color);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 1024px) {
+            .framework-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .framework-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .framework-item {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .framework-item-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .framework-item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .framework-item-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .decision-tree {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 40px 0;
+        }
+
+        .decision-tree h3 {
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+
+        .tree-container {
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .learning-path {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(72, 187, 120, 0.05) 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin: 40px 0;
+        }
+
+        .learning-path h3 {
+            color: var(--success-color);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .path-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .path-step {
+            flex: 1;
+            min-width: 150px;
+            max-width: 200px;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            padding: 20px 16px;
+            text-align: center;
+            position: relative;
+        }
+
+        .path-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .path-step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .path-step-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .path-step-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .path-step:not(:last-child)::after {
+                display: none;
+            }
+            
+            .path-step {
+                min-width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">AlgoGuide</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../index.html#algorithms">算法分类</a></li>
+                <li><button class="theme-toggle" aria-label="切换主题">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="algorithm-detail">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>常用算法思维</span>
+            </div>
+
+            <h1 class="page-title">常用算法思维</h1>
+            <p class="page-description">掌握核心算法思维方式，构建系统化解题框架，提升编程问题解决能力</p>
+
+            <div class="detail-layout">
+                <aside class="toc-sidebar">
+                    <h3>目录</h3>
+                    <ul class="toc-list">
+                        <li><a href="#overview">1. 概述</a></li>
+                        <li><a href="#methods">2. 十大算法思维</a></li>
+                        <li><a href="#comparison">3. 对比框架</a></li>
+                        <li><a href="#decision">4. 决策树</a></li>
+                        <li><a href="#learning-path">5. 学习路径</a></li>
+                    </ul>
+                </aside>
+
+                <div class="main-content">
+                    <section id="overview">
+                        <h2>概述</h2>
+                        <p>算法思维是解决编程问题的核心能力。它不仅仅是记住某个具体算法的实现，更重要的是<strong>理解问题的本质</strong>，<strong>选择合适的解决策略</strong>，并<strong>高效地实现</strong>。</p>
+
+                        <div class="info-card">
+                            <div class="info-card-title"><span>💡</span> 为什么学习算法思维？</div>
+                            <div class="info-card-content">
+                                <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+                                    <li><strong>举一反三</strong> — 掌握一种思维，解决一类问题</li>
+                                    <li><strong>快速定位</strong> — 面对新问题时迅速找到解决方向</li>
+                                    <li><strong>优化意识</strong> — 从暴力解法逐步优化到最优解</li>
+                                    <li><strong>面试必备</strong> — 技术面试中考察的核心能力</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="comparison-framework" style="margin-top: 32px;">
+                            <h3><span>🎯</span> 算法思维的本质</h3>
+                            <div class="framework-grid">
+                                <div class="framework-item">
+                                    <div class="framework-item-icon">🔍</div>
+                                    <div class="framework-item-title">问题识别</div>
+                                    <div class="framework-item-desc">识别问题类型和特征</div>
+                                </div>
+                                <div class="framework-item">
+                                    <div class="framework-item-icon">🧩</div>
+                                    <div class="framework-item-title">模式匹配</div>
+                                    <div class="framework-item-desc">匹配已知的解决模式</div>
+                                </div>
+                                <div class="framework-item">
+                                    <div class="framework-item-icon">⚡</div>
+                                    <div class="framework-item-title">策略选择</div>
+                                    <div class="framework-item-desc">选择最优解决策略</div>
+                                </div>
+                                <div class="framework-item">
+                                    <div class="framework-item-icon">🔧</div>
+                                    <div class="framework-item-title">实现优化</div>
+                                    <div class="framework-item-desc">高效实现并持续优化</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="methods">
+                        <h2>十大算法思维详解</h2>
+                        <p>以下是编程中最常用的十种算法思维，每种思维都配有核心概念、适用场景和典型例题。</p>
+
+                        <div class="thinking-methods-list">
+                            <!-- 递归思维 -->
+                            <div class="thinking-method-card recursion">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🔄</span>
+                                    <h3 class="thinking-method-title">递归思维</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    将大规模问题转化为相同结构的小规模问题，通过解决子问题来解决原问题。
+                                    核心是找到<strong>递推关系</strong>和<strong>终止条件</strong>。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>核心公式：</strong></div>
+                                    <code>递归函数 = 终止条件 + 递归调用 + 结果合并</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>问题可以分解为相同结构的子问题</li>
+                                        <li>树的遍历（前序、中序、后序）</li>
+                                        <li>分治算法的基础</li>
+                                        <li>动态规划的状态转移</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>斐波那契数列</li>
+                                        <li>约瑟夫环问题</li>
+                                        <li>汉诺塔问题</li>
+                                        <li>二叉树的最大深度</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 分治思维 -->
+                            <div class="thinking-method-card divide-conquer">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">📐</span>
+                                    <h3 class="thinking-method-title">分治思维</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    <strong>分而治之</strong>，将复杂问题分解为多个独立的子问题，分别求解后合并结果。
+                                    是递归思维的典型应用。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>三步走：</strong></div>
+                                    <code>分解 → 解决 → 合并</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>问题可以分解为独立的子问题</li>
+                                        <li>子问题的解可以合并为原问题的解</li>
+                                        <li>子问题规模足够小时可直接求解</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>归并排序</li>
+                                        <li>快速排序</li>
+                                        <li>快速幂</li>
+                                        <li>求数组的逆序对</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 贪心思维 -->
+                            <div class="thinking-method-card greedy">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🎯</span>
+                                    <h3 class="thinking-method-title">贪心思维</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    每一步都做出<strong>局部最优选择</strong>，期望最终得到全局最优解。
+                                    关键是证明贪心策略的正确性。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>核心思想：</strong></div>
+                                    <code>局部最优 → 全局最优</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>问题具有贪心选择性质</li>
+                                        <li>局部最优能推导全局最优</li>
+                                        <li>区间问题、调度问题</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>活动选择问题</li>
+                                        <li>霍夫曼编码</li>
+                                        <li>最小生成树（Prim、Kruskal）</li>
+                                        <li>跳跃游戏</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 动态规划 -->
+                            <div class="thinking-method-card dp">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">📊</span>
+                                    <h3 class="thinking-method-title">动态规划</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    将问题分解为<strong>重叠子问题</strong>，保存子问题的解避免重复计算。
+                                    核心是<strong>状态定义</strong>和<strong>状态转移方程</strong>。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>解题步骤：</strong></div>
+                                    <code>定义状态 → 状态转移 → 初始条件 → 计算顺序</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>问题具有最优子结构</li>
+                                        <li>存在重叠子问题</li>
+                                        <li>计数问题、最值问题、存在性问题</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>背包问题</li>
+                                        <li>最长公共子序列</li>
+                                        <li>编辑距离</li>
+                                        <li>零钱兑换</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 回溯思维 -->
+                            <div class="thinking-method-card backtrack">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🔙</span>
+                                    <h3 class="thinking-method-title">回溯思维</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    <strong>试错法</strong>，逐步构建解决方案，发现当前路径不可行时回退到上一步重新选择。
+                                    本质是 DFS 的应用。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>回溯模板：</strong></div>
+                                    <code>做选择 → 递归 → 撤销选择</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>组合问题、排列问题</li>
+                                        <li>子集问题、分割问题</li>
+                                        <li>N 皇后、数独等约束满足问题</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>全排列</li>
+                                        <li>组合总和</li>
+                                        <li>N 皇后</li>
+                                        <li>括号生成</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 滑动窗口 -->
+                            <div class="thinking-method-card sliding-window">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🪟</span>
+                                    <h3 class="thinking-method-title">滑动窗口</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    维护一个<strong>窗口</strong>在数组/字符串上滑动，通过扩张和收缩窗口来找到满足条件的子数组/子串。
+                                    可将 O(n²) 优化到 O(n)。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>窗口操作：</strong></div>
+                                    <code>右边界扩张 → 满足条件 → 左边界收缩</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>连续子数组/子串问题</li>
+                                        <li>固定长度窗口或可变长度窗口</li>
+                                        <li>最值问题、计数问题</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>无重复字符的最长子串</li>
+                                        <li>最小覆盖子串</li>
+                                        <li>长度最小的子数组</li>
+                                        <li>字符串的排列</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 双指针 -->
+                            <div class="thinking-method-card two-pointers">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">👆</span>
+                                    <h3 class="thinking-method-title">双指针</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    使用两个指针在数组上移动，可以是<strong>相向而行</strong>、<strong>同向移动</strong>或<strong>快慢指针</strong>。
+                                    常用于优化暴力解法。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>指针类型：</strong></div>
+                                    <code>左右指针 | 快慢指针 | 分离双指针</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>有序数组的两数之和</li>
+                                        <li>链表问题（环检测、中点）</li>
+                                        <li>原地修改数组</li>
+                                        <li>合并两个有序数组</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>两数之和 II</li>
+                                        <li>接雨水</li>
+                                        <li>移动零</li>
+                                        <li>链表中点</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 二分查找 -->
+                            <div class="thinking-method-card binary-search">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🎯</span>
+                                    <h3 class="thinking-method-title">二分查找</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    在<strong>有序</strong>或<strong>具有单调性</strong>的数据结构中，每次排除一半的搜索空间。
+                                    时间复杂度 O(log n)。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>关键要点：</strong></div>
+                                    <code>确定边界 | 避免死循环 | 处理重复</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>有序数组查找</li>
+                                        <li>查找边界（第一个/最后一个）</li>
+                                        <li>答案具有单调性的最值问题</li>
+                                        <li>旋转数组查找</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>二分查找</li>
+                                        <li>搜索旋转排序数组</li>
+                                        <li>寻找峰值</li>
+                                        <li>爱吃香蕉的珂珂</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- DFS/BFS -->
+                            <div class="thinking-method-card dfs-bfs">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🌲</span>
+                                    <h3 class="thinking-method-title">DFS & BFS</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    <strong>DFS（深度优先）</strong>：一条路走到黑，适合遍历所有可能。<br>
+                                    <strong>BFS（广度优先）</strong>：层层推进，适合找最短路径。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>数据结构：</strong></div>
+                                    <code>DFS → 栈（递归） | BFS → 队列</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>图的遍历和搜索</li>
+                                        <li>树的遍历</li>
+                                        <li>连通性问题</li>
+                                        <li>最短路径（BFS）</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>岛屿数量</li>
+                                        <li>单词接龙</li>
+                                        <li>二叉树层序遍历</li>
+                                        <li>课程表</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 马拉车算法 -->
+                            <div class="thinking-method-card manacher">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🔤</span>
+                                    <h3 class="thinking-method-title">马拉车算法</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    在 <strong>O(n)</strong> 时间内找到字符串的最长回文子串。
+                                    利用回文的对称性避免重复计算。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>核心技巧：</strong></div>
+                                    <code>预处理插入# | 利用对称性 | 维护最右边界</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>最长回文子串</li>
+                                        <li>回文相关计数问题</li>
+                                        <li>字符串对称性问题</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>最长回文子串</li>
+                                        <li>回文子串计数</li>
+                                        <li>最短回文串</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- KMP 算法 -->
+                            <div class="thinking-method-card kmp">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🔍</span>
+                                    <h3 class="thinking-method-title">KMP 算法</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    高效的字符串模式匹配算法，时间复杂度 O(m+n)。
+                                    核心是构建<strong>next 数组</strong>（部分匹配表），避免回溯。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>核心思想：</strong></div>
+                                    <code>利用已匹配信息 | 构建 next 数组 | 主串不回溯</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>字符串模式匹配</li>
+                                        <li>查找子串首次出现位置</li>
+                                        <li>重复子串判断</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>实现 strStr()</li>
+                                        <li>重复的子字符串</li>
+                                        <li>最短回文串</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 并查集 -->
+                            <div class="thinking-method-card union-find">
+                                <div class="thinking-method-header">
+                                    <span class="thinking-method-icon">🔗</span>
+                                    <h3 class="thinking-method-title">并查集</h3>
+                                </div>
+                                <p class="thinking-method-desc">
+                                    高效处理<strong>不相交集合</strong>的合并与查询问题。
+                                    支持两种操作：Union（合并）、Find（查询代表元）。
+                                </p>
+                                
+                                <div class="core-concept-box">
+                                    <div><strong>优化技巧：</strong></div>
+                                    <code>路径压缩 | 按秩合并</code>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📌</span> 适用场景</div>
+                                    <ul>
+                                        <li>连通性问题</li>
+                                        <li>动态连通性</li>
+                                        <li>最小生成树（Kruskal）</li>
+                                        <li>判断图中是否有环</li>
+                                    </ul>
+                                </div>
+
+                                <div class="thinking-method-section">
+                                    <div class="thinking-method-section-title"><span>📝</span> 典型例题</div>
+                                    <ul>
+                                        <li>岛屿数量</li>
+                                        <li>冗余连接</li>
+                                        <li>被围绕的区域</li>
+                                        <li>朋友圈</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="comparison">
+                        <h2>算法思维对比框架</h2>
+                        <p>理解不同算法思维之间的区别和联系，帮助你在面对问题时快速选择合适的策略。</p>
+
+                        <div class="comparison-framework">
+                            <h3><span>⚖️</span> 核心维度对比</h3>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>算法思维</th>
+                                        <th>时间复杂度</th>
+                                        <th>空间复杂度</th>
+                                        <th>核心特点</th>
+                                        <th>难度</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>递归</strong></td>
+                                        <td>视问题而定</td>
+                                        <td>O(n) 栈空间</td>
+                                        <td>代码简洁，数学优雅</td>
+                                        <td>⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>分治</strong></td>
+                                        <td>O(n log n)</td>
+                                        <td>O(log n)</td>
+                                        <td>分解 - 解决 - 合并</td>
+                                        <td>⭐⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>贪心</strong></td>
+                                        <td>O(n log n) 或 O(n)</td>
+                                        <td>O(1)</td>
+                                        <td>局部最优推导全局最优</td>
+                                        <td>⭐⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>动态规划</strong></td>
+                                        <td>O(n²) 或 O(n³)</td>
+                                        <td>O(n) 可优化</td>
+                                        <td>重叠子问题，最优子结构</td>
+                                        <td>⭐⭐⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>回溯</strong></td>
+                                        <td>指数级</td>
+                                        <td>O(n)</td>
+                                        <td>试错，可剪枝优化</td>
+                                        <td>⭐⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>滑动窗口</strong></td>
+                                        <td>O(n)</td>
+                                        <td>O(1) 或 O(k)</td>
+                                        <td>维护窗口，避免重复</td>
+                                        <td>⭐⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>双指针</strong></td>
+                                        <td>O(n)</td>
+                                        <td>O(1)</td>
+                                        <td>空间优化，原地操作</td>
+                                        <td>⭐⭐</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>二分查找</strong></td>
+                                        <td>O(log n)</td>
+                                        <td>O(1)</td>
+                                        <td>每次排除一半</td>
+                                        <td>⭐⭐</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section id="decision">
+                        <h2>算法选择决策树</h2>
+                        <p>面对一个新问题时，按照以下决策树快速定位合适的算法思维。</p>
+
+                        <div class="decision-tree">
+                            <div class="tree-container">
+                                <div class="mermaid">
+graph TD
+    A[🤔 面对新问题] --> B{问题类型？}
+    
+    B -->|最值/计数/存在性 | C{是否有<br>重叠子问题？}
+    B -->|查找/定位 | D{数据是否有序？}
+    B -->|排列/组合/方案 | E[🔙 回溯算法]
+    B -->|连续子数组/子串 | F[🪟 滑动窗口]
+    B -->|连通性/合并 | G[🔗 并查集]
+    B -->|字符串匹配 | H{精确匹配？}
+    
+    C -->|是 | I[📊 动态规划]
+    C -->|否 | J{能否<br>局部最优？}
+    
+    J -->|能 | K[🎯 贪心算法]
+    J -->|不能 | L[📐 分治法]
+    
+    D -->|是 | M[🎯 二分查找]
+    D -->|否 | N[👆 双指针<br>或哈希表]
+    
+    H -->|是 | O[🔍 KMP 算法]
+    H -->|回文问题 | P[🔤 马拉车]
+    
+    style A fill:#667eea,color:#fff
+    style I fill:#e53e3e,color:#fff
+    style K fill:#ed8936,color:#fff
+    style L fill:#48bb78,color:#fff
+    style M fill:#e53e3e,color:#fff
+    style E fill:#805ad5,color:#fff
+    style F fill:#319795,color:#fff
+    style G fill:#319795,color:#fff
+    style O fill:#d69e2e,color:#fff
+    style P fill:#805ad5,color:#fff
+    style N fill:#d69e2e,color:#fff
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="learning-path">
+                        <h2>推荐学习路径</h2>
+                        <p>按照以下顺序系统学习算法思维，循序渐进提升解题能力。</p>
+
+                        <div class="learning-path">
+                            <div class="path-steps">
+                                <div class="path-step">
+                                    <div class="path-step-number">1</div>
+                                    <div class="path-step-title">递归基础</div>
+                                    <div class="path-step-desc">理解递归本质<br>掌握递归三要素</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">2</div>
+                                    <div class="path-step-title">分治思想</div>
+                                    <div class="path-step-desc">归并/快速排序<br>快速幂</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">3</div>
+                                    <div class="path-step-title">双指针</div>
+                                    <div class="path-step-desc">左右指针<br>快慢指针</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">4</div>
+                                    <div class="path-step-title">滑动窗口</div>
+                                    <div class="path-step-desc">固定窗口<br>可变窗口</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">5</div>
+                                    <div class="path-step-title">DFS/BFS</div>
+                                    <div class="path-step-desc">图论基础<br>树的遍历</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">6</div>
+                                    <div class="path-step-title">回溯算法</div>
+                                    <div class="path-step-desc">排列组合<br>剪枝优化</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">7</div>
+                                    <div class="path-step-title">贪心算法</div>
+                                    <div class="path-step-desc">区间问题<br>贪心证明</div>
+                                </div>
+                                <div class="path-step">
+                                    <div class="path-step-number">8</div>
+                                    <div class="path-step-title">动态规划</div>
+                                    <div class="path-step-desc">线性 DP<br>背包问题<br>状态压缩</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="margin-top: 32px;">
+                            <div class="info-card-title"><span>💡</span> 学习建议</div>
+                            <div class="info-card-content">
+                                <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+                                    <li><strong>理解优先</strong> — 先理解思维本质，再记忆模板</li>
+                                    <li><strong>刻意练习</strong> — 每种思维至少练习 5-10 道典型题目</li>
+                                    <li><strong>总结归纳</strong> — 建立自己的解题模板和错题本</li>
+                                    <li><strong>举一反三</strong> — 同一题目尝试多种解法</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/components.js"></script>
+    <script src="../lib/prism/prism.min.js"></script>
+    <script src="../lib/prism/prism-line-numbers.min.js"></script>
+</body>
+</html>

@@ -331,7 +331,7 @@
                         <li><a href="#math">3. 数学推导</a></li>
                         <li><a href="#simulation">4. 可视化演示</a></li>
                         <li><a href="#implementation">5. 代码实现</a></li>
-                        <li><a href="#applications">6. 实际应用</a></li>
+                        <li><a href="#thinking">6. 算法思维</a></li>
                     </ul>
                 </aside>
 
@@ -731,38 +731,197 @@ int main() {
                         </div>
                     </section>
 
-                    <section id="applications">
-                        <h2>实际应用场景</h2>
-                        <p>约瑟夫环问题不仅是一个经典的数学问题，在计算机科学和现实生活中也有广泛的应用：</p>
+                    <section id="thinking">
+                        <h2>算法思维</h2>
+                        <p>约瑟夫环问题不仅是一个具体的算法题目，更是培养算法思维的绝佳案例。通过这个问题，我们可以学习到以下几种重要的算法思维方式：</p>
 
-                        <div class="application-grid">
-                            <div class="application-card">
-                                <h4><span>🖥️</span> 操作系统调度</h4>
-                                <p>在操作系统的进程调度中，轮转调度算法（Round Robin）与约瑟夫环类似。当需要按顺序淘汰或选择进程时，约瑟夫环的数学模型可以提供高效的解决方案。</p>
+                        <div class="thinking-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 32px 0;">
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #667eea;">
+                                <h4 style="color: #667eea; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>🔄</span> 递归思维
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    将大规模问题转化为相同结构的小规模问题，找到递推关系。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环中的体现：</strong></p>
+                                    <p style="color: var(--text-secondary); line-height: 1.7;">
+                                        n 个人的问题 → n-1 个人的问题<br>
+                                        <code style="display: block; margin-top: 8px; color: #48bb78;">J(n,m) = (J(n-1,m) + m) % n</code>
+                                    </p>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>分治算法（归并排序、快速排序）</li>
+                                        <li>树的遍历（前序、中序、后序）</li>
+                                        <li>动态规划的状态转移</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="application-card">
-                                <h4><span>🎮</span> 游戏设计</h4>
-                                <p>在多人在线游戏中，当需要按规则淘汰玩家（如狼人杀、Among Us 等社交推理游戏），约瑟夫环算法可以用于设计公平的淘汰机制和确定获胜者。</p>
+
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #48bb78;">
+                                <h4 style="color: #48bb78; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>📐</span> 数学建模
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    将实际问题抽象为数学公式，通过数学推导找到最优解。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环中的体现：</strong></p>
+                                    <p style="color: var(--text-secondary); line-height: 1.7;">
+                                        报数过程 → 模运算<br>
+                                        位置偏移 → 加法后取模<br>
+                                        <code style="display: block; margin-top: 8px; color: #48bb78;">位置映射：(旧位置 + m) % 当前人数</code>
+                                    </p>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>哈希函数的设计</li>
+                                        <li>循环缓冲区的索引计算</li>
+                                        <li>密码学中的置换算法</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="application-card">
-                                <h4><span>📡</span> 网络协议</h4>
-                                <p>在令牌环网络（Token Ring）中，当某个节点失效时，需要重新选择协调节点。约瑟夫环的数学模型可以帮助设计高效的节点选择和故障恢复机制。</p>
+
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #ed8936;">
+                                <h4 style="color: #ed8936; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>🎯</span> 问题转化
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    当直接求解困难时，通过变换视角或重新定义问题来简化求解。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环中的体现：</strong></p>
+                                    <p style="color: var(--text-secondary); line-height: 1.7;">
+                                        从 1 开始编号 → 从 0 开始编号<br>
+                                        求幸存者 → 求位置索引<br>
+                                        <code style="display: block; margin-top: 8px; color: #ed8936;">最终结果 +1 即可还原</code>
+                                    </p>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>图论中的最短路问题转化</li>
+                                        <li>NP 完全问题的近似求解</li>
+                                        <li>反向思考（正难则反）</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="application-card">
-                                <h4><span>🔐</span> 密码学</h4>
-                                <p>某些加密算法和密钥分发协议使用约瑟夫环的变体来生成伪随机序列，增加加密的安全性。</p>
+
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #e53e3e;">
+                                <h4 style="color: #e53e3e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>⚡</span> 复杂度优化
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    从暴力解法出发，逐步优化时间和空间复杂度。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环的优化路径：</strong></p>
+                                    <div style="color: var(--text-secondary); line-height: 1.8;">
+                                        <div><code style="color: #f56565;">O(n²)</code> 暴力模拟（链表删除）</div>
+                                        <div><code style="color: #ed8936;">O(n×m)</code> 循环链表</div>
+                                        <div><code style="color: #48bb78;">O(n)</code> 递归/迭代</div>
+                                        <div><code style="color: #38a169;">O(1)</code> 空间（迭代）</div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>算法面试中的优化思维</li>
+                                        <li>大数据场景下的性能调优</li>
+                                        <li>空间换时间/时间换空间的权衡</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="application-card">
-                                <h4><span>📊</span> 数据结构教学</h4>
-                                <p>约瑟夫环是教授循环链表、队列、递归等数据结构和算法概念的经典案例，帮助学生理解抽象的计算机科学概念。</p>
+
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #805ad5;">
+                                <h4 style="color: #805ad5; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>🔗</span> 数据结构选择
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    根据问题特点选择合适的数据结构，往往能事半功倍。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环中的选择：</strong></p>
+                                    <div style="color: var(--text-secondary); line-height: 1.8;">
+                                        <div>• 数组：<code style="color: #f56565;">删除 O(n)</code></div>
+                                        <div>• 循环链表：<code style="color: #48bb78;">删除 O(1)</code></div>
+                                        <div>• 纯数学：<code style="color: #38a169;">无需结构</code></div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>频繁查找 → 哈希表</li>
+                                        <li>范围查询 → 树结构</li>
+                                        <li>先进先出 → 队列</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="application-card">
-                                <h4><span>🎯</span> 竞赛算法</h4>
-                                <p>在 ACM、ICPC 等编程竞赛中，约瑟夫环及其变种是常见题目，考察选手的数学推导能力和算法优化技巧。</p>
+
+                            <div class="thinking-card" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 24px; border-left: 4px solid #319795;">
+                                <h4 style="color: #319795; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>🎲</span> 模拟与抽象
+                                </h4>
+                                <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                                    理解问题时先模拟具体过程，再抽象出一般规律。
+                                </p>
+                                <div style="background: var(--code-bg); padding: 12px; border-radius: 8px; font-size: 0.9rem;">
+                                    <p style="color: var(--text-muted); margin-bottom: 8px;"><strong>约瑟夫环的学习路径：</strong></p>
+                                    <div style="color: var(--text-secondary); line-height: 1.8;">
+                                        <div>1️⃣ 手动模拟小规模案例</div>
+                                        <div>2️⃣ 观察消除规律</div>
+                                        <div>3️⃣ 归纳递推公式</div>
+                                        <div>4️⃣ 证明并实现</div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;"><strong>实际应用场景：</strong></p>
+                                    <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                                        <li>调试时的手动执行追踪</li>
+                                        <li>算法竞赛中的打表找规律</li>
+                                        <li>系统设计前的原型验证</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
-                        <h3>算法复杂度对比</h3>
+                        <div class="info-card" style="margin-top: 40px;">
+                            <div class="info-card-title"><span>💡</span> 思维总结</div>
+                            <div class="info-card-content">
+                                <p style="color: var(--text-secondary); line-height: 1.8;">
+                                    约瑟夫环问题的求解过程展示了完整的算法思维链条：<strong>理解问题 → 暴力模拟 → 观察规律 → 数学抽象 → 优化实现</strong>。这种思维方式不仅适用于算法竞赛，也是解决实际工程问题的核心能力。
+                                </p>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px;">
+                                    <div style="text-align: center; padding: 16px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                                        <div style="font-size: 2rem; margin-bottom: 8px;">🧩</div>
+                                        <div style="font-weight: 600; color: var(--primary-color);">分解问题</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">化繁为简</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 16px; background: rgba(72, 187, 120, 0.1); border-radius: 8px;">
+                                        <div style="font-size: 2rem; margin-bottom: 8px;">🔍</div>
+                                        <div style="font-weight: 600; color: var(--success-color);">寻找规律</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">归纳总结</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 16px; background: rgba(237, 137, 54, 0.1); border-radius: 8px;">
+                                        <div style="font-size: 2rem; margin-bottom: 8px;">🎯</div>
+                                        <div style="font-weight: 600; color: #ed8936;">抽象建模</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">提炼本质</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 16px; background: rgba(56, 161, 105, 0.1); border-radius: 8px;">
+                                        <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
+                                        <div style="font-weight: 600; color: #38a169;">持续优化</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">追求高效</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="applications">
+                        <h2>算法复杂度对比</h2>
                         <table class="comparison-table">
                             <thead>
                                 <tr>
